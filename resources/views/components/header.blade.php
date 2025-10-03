@@ -14,12 +14,12 @@
             
             <!-- Navegación Desktop -->
             <div class="hidden md:flex items-center space-x-8">
-                <a href="{{ route('home') }}#inicio" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Inicio</a>
-                <a href="{{ route('home') }}#nosotros" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Nosotros</a>
-                <a href="{{ route('home') }}#servicios" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Servicios</a>
-                <a href="{{ route('galeria') }}" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Galería</a>
+                <a href="{{ route('home') }}" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Inicio</a>
+                <a href="{{ route('home') }}#nosotros" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToSection(event, '{{ route('home') }}', 'nosotros')">Nosotros</a>
+                <a href="{{ route('home') }}#servicios" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToSection(event, '{{ route('home') }}', 'servicios')">Servicios</a>
+                <a href="{{ route('galeria') }}" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToGallery(event, '{{ route('home') }}', '{{ route('galeria') }}')">Galería</a>
                 <a href="{{ route('proforma') }}" target="_blank" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium bg-gradient-to-r from-green-500 to-blue-500 px-4 py-2 rounded-lg font-semibold ml-2">Proforma</a>
-                <a href="{{ route('home') }}#ubicacion" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Ubicación</a>
+                <a href="{{ route('home') }}#ubicacion" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToSection(event, '{{ route('home') }}', 'ubicacion')">Ubicación</a>
                 
                 @auth
                     <!-- Usuario logueado -->
@@ -90,11 +90,11 @@
         <!-- Menú móvil -->
         <div data-mobile-menu-content class="hidden md:hidden mt-4 py-4 border-t border-white/20">
             <div class="flex flex-col space-y-3">
-                <a href="{{ route('home') }}#inicio" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Inicio</a>
-                <a href="{{ route('home') }}#nosotros" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Nosotros</a>
-                <a href="{{ route('home') }}#servicios" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Servicios</a>
-                <a href="{{ route('galeria') }}" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Galería</a>
-                <a href="{{ route('home') }}#ubicacion" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Ubicación</a>
+                <a href="{{ route('home') }}" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Inicio</a>
+                <a href="{{ route('home') }}#nosotros" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToSection(event, '{{ route('home') }}', 'nosotros')">Nosotros</a>
+                <a href="{{ route('home') }}#servicios" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToSection(event, '{{ route('home') }}', 'servicios')">Servicios</a>
+                <a href="{{ route('galeria') }}" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToGallery(event, '{{ route('home') }}', '{{ route('galeria') }}')">Galería</a>
+                <a href="{{ route('home') }}#ubicacion" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToSection(event, '{{ route('home') }}', 'ubicacion')">Ubicación</a>
                 
                 @auth
                     <!-- Usuario logueado - Móvil -->
@@ -132,3 +132,4 @@
         </div>
     </div>
 </nav>
+
