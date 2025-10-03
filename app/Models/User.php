@@ -6,6 +6,7 @@ use App\Notifications\ResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -41,6 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'suspended_until',
         'suspension_reason',
         'last_login_at',
+        'email_verified_at',
     ];
 
     /**
@@ -79,6 +81,22 @@ class User extends Authenticatable implements MustVerifyEmail
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Productos creados por este usuario (si es administrador)
+     */
+    public function createdProducts(): HasMany
+    {
+        return $this->hasMany(Product::class, 'user_id');
+    }
+
+    /**
+     * Personalizaciones de productos hechas por este usuario (si es cliente)
+     */
+    public function productCustomizations(): HasMany
+    {
+        return $this->hasMany(ProductCustomization::class);
     }
 
     /**

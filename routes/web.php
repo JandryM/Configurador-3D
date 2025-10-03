@@ -12,6 +12,9 @@ Route::get('/proforma', function () {
     return view('proforma');
 })->name('proforma');
 
+// Ruta pública para la galería
+Route::get('/galeria', \App\Livewire\Gallery::class)->name('galeria');
+
 // Rutas para autenticación con Google
 Route::get('/auth/google', [App\Http\Controllers\SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [App\Http\Controllers\SocialAuthController::class, 'handleGoogleCallback']);
@@ -33,11 +36,6 @@ Route::middleware(['auth', 'verified', 'profile.complete', 'account.active'])->g
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
-
-    // Ruta para la galería extendida
-    Route::get('/galeria', function () {
-         return view('galeria');
-    })->name('galeria');
     // Otras rutas protegidas...
 });
 
@@ -50,6 +48,15 @@ Route::middleware(['auth', 'verified', 'profile.complete', 'account.active', 'ad
 
     // Gestión de usuarios
     Route::get('/users', \App\Livewire\Admin\Users::class)->name('users');
+
+    // Gestión de productos
+    Route::get('/products', \App\Livewire\Admin\Products\ProductIndex::class)->name('products.index');
+    Route::get('/products/create', \App\Livewire\Admin\Products\ProductCreate::class)->name('products.create');
+    Route::get('/products/{product}/edit', \App\Livewire\Admin\Products\ProductEdit::class)->name('products.edit');
+    Route::get('/products/{product}/materials', \App\Livewire\Admin\Products\ProductMaterials::class)->name('products.materials');
+
+    // Gestión de materiales
+    Route::get('/materials', \App\Livewire\Admin\Materials::class)->name('materials');
 
     // Estadísticas y reportes
     Volt::route('/reports', 'admin.reports')->name('reports');

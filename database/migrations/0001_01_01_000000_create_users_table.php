@@ -16,9 +16,25 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
+            $table->string('oauth_provider')->nullable();
+            $table->string('oauth_id')->nullable();
             $table->string('password');
+            $table->string('phone')->nullable();
+            $table->text('address')->nullable();
+            $table->string('province')->nullable();
+            $table->string('city')->nullable();
+            $table->enum('role', ['admin', 'client'])->default('client');
+            $table->boolean('is_suspended')->default(false);
+            $table->timestamp('suspended_until')->nullable();
+            $table->string('suspension_reason')->nullable();
+            $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            
+            // Índices para mejorar consultas
+            $table->index('role');
+            $table->index('is_suspended');
+            $table->index('province');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

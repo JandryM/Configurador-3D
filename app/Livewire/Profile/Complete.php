@@ -65,7 +65,7 @@ class Complete extends Component
     public function render()
     {
         return view('livewire.profile.complete', [
-            'layout' => 'components.layouts.auth',
+                        'layout' => 'components.layouts.auth',
         ]);
     }
 }
