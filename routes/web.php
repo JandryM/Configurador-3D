@@ -15,6 +15,9 @@ Route::get('/proforma', function () {
 // Ruta pública para la galería
 Route::get('/galeria', \App\Livewire\Gallery::class)->name('galeria');
 
+// Ruta pública para el configurador 3D
+Route::get('/configurador/{product}', \App\Livewire\ProductConfigurator::class)->name('configurador');
+
 // Rutas para autenticación con Google
 Route::get('/auth/google', [App\Http\Controllers\SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [App\Http\Controllers\SocialAuthController::class, 'handleGoogleCallback']);
@@ -54,6 +57,7 @@ Route::middleware(['auth', 'verified', 'profile.complete', 'account.active', 'ad
     Route::get('/products/create', \App\Livewire\Admin\Products\ProductCreate::class)->name('products.create');
     Route::get('/products/{product}/edit', \App\Livewire\Admin\Products\ProductEdit::class)->name('products.edit');
     Route::get('/products/{product}/materials', \App\Livewire\Admin\Products\ProductMaterials::class)->name('products.materials');
+    Route::get('/products/{product}/3d-model', \App\Livewire\Admin\Products\Product3DManager::class)->name('products.3d-model');
 
     // Gestión de materiales
     Route::get('/materials', \App\Livewire\Admin\Materials::class)->name('materials');

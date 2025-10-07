@@ -1,0 +1,405 @@
+<div class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Título -->
+        <div class="mb-8">
+            <div class="flex items-start gap-6">
+                <div class="flex-1">
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        Configurador 3D - {{ $product->name }}
+                    </h1>
+                    <p class="text-gray-600 mt-2">Personaliza tu producto y ve los cambios en tiempo real</p>
+                    <div class="mt-3 flex items-center gap-4 text-sm text-gray-500">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                            {{ $product->category }}
+                        </span>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-800">
+                            ✨ Generado 100% con JavaScript
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensajes -->
+        @if (session()->has('message'))
+            <div class="mb-6 rounded-md bg-green-50 p-4">
+                <p class="text-sm font-medium text-green-800">{{ session('message') }}</p>
+            </div>
+        @endif
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Visor 3D -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Información del Producto -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">{{ $product->name }}</h2>
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-600 mt-1">{{ Str::limit($product->description, 120) }}</p>
+                            <div class="mt-2 flex items-center gap-2">
+                                <span class="text-lg font-bold text-green-600">${{ number_format($calculatedPrice, 2) }}</span>
+                                <span class="text-sm text-gray-500">precio calculado por materiales</span>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs">
+                                    🎯 Modelo 3D Generativo
+                                </span>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs">
+                                    🚀 Tiempo Real
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Configurador 3D -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Vista 3D Interactiva</h2>
+                    
+                    <!-- Contenedor del modelo 3D -->
+                    <div wire:ignore id="parametric-3d-viewer" class="w-full h-96 bg-gray-900 rounded-lg border border-gray-300 relative overflow-hidden">
+                        <!-- Canvas de Three.js se insertará aquí -->
+                    </div>
+
+                    <!-- Controles del visor 3D optimizados -->
+                    <div class="mt-3 flex justify-center space-x-3">
+                        <button type="button" 
+                                onclick="resetParametricView()"
+                                class="px-3 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md transition-colors"
+                                title="Resetear vista">
+                            🔄 Resetear
+                        </button>
+                        <button type="button" 
+                                onclick="takeParametricScreenshot()"
+                                class="px-3 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
+                                title="Tomar captura">
+                            📸 Captura
+                        </button>
+                        <button type="button" 
+                                onclick="toggleParametricInfo()"
+                                class="px-3 py-2 text-sm bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors"
+                                title="Información del modelo">
+                            ℹ️ Info
+                        </button>
+                    </div>
+
+                    <!-- Información del producto -->
+                    <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <span class="font-medium text-gray-700">Ancho:</span>
+                                <span class="text-gray-600">{{ number_format($parameters['width'], 2) }}m</span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">Alto:</span>
+                                <span class="text-gray-600">{{ number_format($parameters['height'], 2) }}m</span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">Área:</span>
+                                <span class="text-gray-600">{{ number_format($parameters['width'] * $parameters['height'], 2) }}m²</span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">Precio:</span>
+                                <span class="text-green-600 font-bold">${{ number_format($calculatedPrice, 2) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desglose de Materiales -->
+                @if(!empty($materialCosts))
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        🧮 Desglose de Materiales
+                    </h3>
+                    <div class="space-y-3">
+                        @foreach($materialCosts as $material)
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">{{ $material['name'] }}</div>
+                                <div class="text-sm text-gray-500">
+                                    {{ number_format($material['quantity'], 2) }} {{ $material['unit'] }} 
+                                    × ${{ number_format($material['unit_price'], 2) }}
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-medium text-gray-900">
+                                    ${{ number_format($material['total_cost'], 2) }}
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                        
+                        <div class="pt-3 border-t-2 border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-gray-900">Total Materiales:</span>
+                                <span class="font-semibold text-gray-900">
+                                    ${{ number_format(collect($materialCosts)->sum('total_cost'), 2) }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center mt-1">
+                                <span class="text-sm text-gray-600">Margen (40%):</span>
+                                <span class="text-sm text-gray-600">
+                                    +${{ number_format(collect($materialCosts)->sum('total_cost') * 0.4, 2) }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+                                <span class="font-bold text-lg text-green-600">Precio Final:</span>
+                                <span class="font-bold text-lg text-green-600">
+                                    ${{ number_format($calculatedPrice, 2) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            </div>
+
+            <!-- Panel de controles -->
+            <div class="space-y-6">
+                <!-- Dimensiones -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Dimensiones</h3>
+                    
+                    @foreach(['width' => 'Ancho', 'height' => 'Alto', 'depth' => 'Profundidad'] as $param => $label)
+                        @if($param === 'depth' && $productType === 'window')
+                            @continue {{-- Omitir profundidad para ventanas --}}
+                        @endif
+                        @if(isset($parameterLimits[$param]))
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ $label }}: {{ number_format($parameters[$param], 3) }}m
+                                </label>
+                                <input type="range" 
+                                       wire:model.live="parameters.{{ $param }}"
+                                       wire:change="updateParameter('{{ $param }}', $event.target.value)"
+                                       min="{{ $parameterLimits[$param]['min'] }}"
+                                       max="{{ $parameterLimits[$param]['max'] }}"
+                                       step="{{ $parameterLimits[$param]['step'] }}"
+                                       class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>{{ $parameterLimits[$param]['min'] }}m</span>
+                                    <span>{{ $parameterLimits[$param]['max'] }}m</span>
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+
+                <!-- Colores -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Colores</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Color Principal</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                @foreach($colorOptions as $colorValue => $colorName)
+                                    <button type="button"
+                                            wire:click="updateParameter('color', '{{ $colorValue }}')"
+                                            class="flex items-center justify-center w-full h-10 rounded-md border-2 {{ $parameters['color'] === $colorValue ? 'border-blue-500' : 'border-gray-300' }}"
+                                            style="background-color: {{ $colorValue }};"
+                                            title="{{ $colorName }}">
+                                        @if($parameters['color'] === $colorValue)
+                                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        @endif
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                        
+
+                    </div>
+                </div>
+
+                <!-- Precio y acciones -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Precio Estimado</h3>
+                    
+                    <div class="text-3xl font-bold text-green-600 mb-4">
+                        ${{ number_format($calculatedPrice, 2) }}
+                    </div>
+
+                    <div class="space-y-3">
+                        <button type="button" 
+                                wire:click="addToCart"
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                            Agregar al Carrito
+                        </button>
+                        
+                        <button type="button" 
+                                wire:click="requestQuote"
+                                class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                            Solicitar Cotización
+                        </button>
+                        
+                        <button type="button" 
+                                wire:click="saveConfiguration"
+                                class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors">
+                            Guardar Configuración
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@script
+<script>
+    let parametricViewer = null;
+    let initAttempts = 0;
+    const maxAttempts = 10;
+
+    // Función de inicialización inmediata
+    function startViewer() {
+        initParametricViewer();
+    }
+
+    // Ejecutar inmediatamente si el DOM ya está listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startViewer);
+    } else {
+        startViewer();
+    }
+
+    function initParametricViewer() {
+        initAttempts++;
+
+        // Verificar si Three.js está disponible
+        if (typeof THREE === 'undefined') {
+            console.error('❌ Three.js no está cargado');
+            updateViewerStatus('Three.js no está disponible');
+            return;
+        }
+
+        // Verificar si nuestra función está disponible
+        if (typeof createParametricProduct3D !== 'function') {
+            console.error('❌ createParametricProduct3D function not loaded');
+            
+            if (initAttempts < maxAttempts) {
+                setTimeout(initParametricViewer, 1000);
+                return;
+            }
+            
+            updateViewerStatus('Error: Función de configurador no disponible');
+            return;
+        }
+
+        const productType = '{{ $productType }}';
+        const initialParams = @json($parameters);
+        if (productType === 'window') {
+            initialParams.depth = 1.0; // Profundidad fija para ventanas
+        }
+
+        try {
+            updateViewerStatus('Generando modelo 3D...');
+            
+            // Verificar el contenedor
+            const container = document.getElementById('parametric-3d-viewer');
+            
+            parametricViewer = createParametricProduct3D(
+                'parametric-3d-viewer', 
+                productType, 
+                initialParams
+            );
+            
+
+            
+        } catch (error) {
+            console.error('❌ Error inicializando configurador 3D:', error);
+            console.error('📋 Stack trace:', error.stack);
+            updateViewerStatus('Error generando modelo 3D: ' + error.message);
+        }
+    }
+
+    function updateViewerStatus(message) {
+        const statusElement = document.querySelector('#parametric-3d-viewer .text-center p');
+        if (statusElement) {
+            statusElement.textContent = message;
+        }
+    }
+
+    function hideLoader() {
+        const loader = document.querySelector('#parametric-3d-viewer .absolute');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    }
+
+    // Escuchar eventos de Livewire para actualizar modelo
+    Livewire.on('updateModel3D', (data) => {
+        
+        // Manejar diferentes estructuras de datos de Livewire
+        let parameters = null;
+        if (Array.isArray(data) && data.length > 0) {
+            parameters = data[0].parameters || data[0];
+        } else if (data && typeof data === 'object') {
+            parameters = data.parameters || data;
+        }
+        
+        if (parametricViewer && parameters) {
+            parametricViewer.updateParameters(parameters);
+        } else {
+            if (!parametricViewer) {
+                console.warn('⚠️ Visor 3D no está inicializado');
+            }
+            if (!parameters) {
+                console.warn('⚠️ No se pudieron extraer los parámetros del evento');
+            }
+        }
+    });
+
+    // Respaldo: Intentar inicializar después de un delay
+    setTimeout(() => {
+        if (!parametricViewer) {
+            startViewer();
+        }
+    }, 1000);
+
+    // Funciones globales para controles del visor 3D optimizadas
+    window.resetParametricView = function() {
+        if (parametricViewer) {
+            parametricViewer.resetZoom();
+        } else {
+            console.warn('⚠️ Visor 3D no disponible para reset');
+        }
+    };
+
+    window.takeParametricScreenshot = function() {
+        if (parametricViewer) {
+            const dataURL = parametricViewer.screenshot(1200, 800);
+            const link = document.createElement('a');
+            link.download = '{{ Str::slug($product->name) }}_configurador_3d.png';
+            link.href = dataURL;
+            link.click();
+        } else {
+            alert('El visor 3D no está disponible');
+        }
+    };
+
+    window.toggleParametricInfo = function() {
+        if (parametricViewer) {
+            const config = parametricViewer.getConfiguration();
+            const info = `
+🎯 INFORMACIÓN DEL MODELO 3D
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Producto: {{ $product->name }}
+🏷️ Tipo: {{ $productType }}
+📏 Dimensiones: ${config.parameters.width}m × ${config.parameters.height}m${productType !== 'window' ? ' × ' + config.parameters.depth + 'm' : ''}
+🎨 Color: ${config.parameters.color}
+💰 Precio: ${{ number_format($calculatedPrice, 2) }}
+⏰ Generado: ${new Date(config.timestamp).toLocaleString()}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+✨ Sistema: Generación paramétrica 3D
+🚀 Motor: Three.js con WebGL
+            `;
+            alert(info);
+        } else {
+            alert('El visor 3D no está disponible');
+        }
+    };
+</script>
+@endscript

@@ -20,15 +20,26 @@ class Product extends Model
         'allows_customization',
         'image',
         'user_id',
-        'is_gallery_visible'
+        'is_gallery_visible',
+        'model_3d_file',
+        'model_3d_textures',
+        'model_3d_materials',
+        'model_3d_settings',
+        'has_3d_model',
+        'model_scale'
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'base_cost' => 'decimal:2',
         'base_dimensions' => 'array',
+        'model_3d_textures' => 'array',
+        'model_3d_materials' => 'array',
+        'model_3d_settings' => 'array',
         'is_gallery_visible' => 'boolean',
-        'allows_customization' => 'boolean'
+        'allows_customization' => 'boolean',
+        'has_3d_model' => 'boolean',
+        'model_scale' => 'decimal:4'
     ];
 
     /**

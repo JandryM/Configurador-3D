@@ -1,0 +1,267 @@
+/* Estilos para el visor de modelos 3D */
+.model-3d-container {
+    position: relative;
+}
+
+.model-3d-container canvas {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.model-annotation {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    transition: opacity 0.2s ease;
+}
+
+.model-annotation:hover {
+    opacity: 0.9 !important;
+    transform: scale(1.05);
+}
+
+/* Estilos para el progreso de carga */
+.model-3d-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+}
+
+.model-3d-loading .spinner {
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 12px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estilos para controles del visor */
+.model-3d-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.model-3d-controls button {
+    font-size: 12px;
+    padding: 4px 12px;
+    border: 1px solid #d1d5db;
+    background-color: #f9fafb;
+    color: #374151;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.model-3d-controls button:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.model-3d-controls button:active {
+    transform: translateY(1px);
+}
+
+.model-3d-controls button.active {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #2563eb;
+}
+
+/* Responsividad */
+@media (max-width: 640px) {
+    .model-3d-container {
+        width: 100% !important;
+    }
+    
+    .model-3d-controls {
+        justify-content: center;
+        gap: 4px;
+    }
+    
+    .model-3d-controls button {
+        font-size: 11px;
+        padding: 3px 8px;
+    }
+}
+
+/* Estilos para el modal del visor 3D */
+.model-3d-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.model-3d-modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 90vw;
+    max-height: 90vh;
+    position: relative;
+}
+
+.model-3d-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6b7280;
+    z-index: 1001;
+}
+
+.model-3d-modal-close:hover {
+    color: #374151;
+}
+
+/* Estilos para la galería 3D */
+.model-3d-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin: 24px 0;
+}
+
+.model-3d-gallery-item {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.model-3d-gallery-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.model-3d-info {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.model-3d-info h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.model-3d-info p {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.model-3d-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: #059669;
+}
+
+/* Estilos para indicadores de estado */
+.has-3d-model::before {
+    content: "3D";
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #10b981;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 9999px;
+    z-index: 5;
+}
+
+/* Animaciones de transición */
+.model-3d-fade-in {
+    animation: modelFadeIn 0.5s ease-in-out;
+}
+
+.model-3d-slide-up {
+    animation: modelSlideUp 0.3s ease-out;
+}
+
+@keyframes modelFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modelSlideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Estilos para el modo de pantalla completa */
+.model-3d-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    background: #000 !important;
+}
+
+.model-3d-fullscreen canvas {
+    border-radius: 0 !important;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .model-3d-controls button {
+        background-color: #374151;
+        color: #f9fafb;
+        border-color: #4b5563;
+    }
+    
+    .model-3d-controls button:hover {
+        background-color: #4b5563;
+        border-color: #6b7280;
+    }
+    
+    .model-3d-gallery-item {
+        background: #1f2937;
+        color: #f9fafb;
+    }
+    
+    .model-3d-info h3 {
+        color: #f9fafb;
+    }
+    
+    .model-3d-info p {
+        color: #9ca3af;
+    }
+}

@@ -188,6 +188,11 @@
                                             <i class="fas fa-tools"></i>
                                         </a>
                                     @endif
+                                    <a href="{{ route('admin.products.3d-model', $product) }}" 
+                                       class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 {{ $product->has_3d_model ? 'bg-green-100 dark:bg-green-900 rounded px-1' : '' }}"
+                                       title="{{ $product->has_3d_model ? 'Gestionar modelo 3D (activo)' : 'Agregar modelo 3D' }}">
+                                        <i class="fas fa-cube"></i>
+                                    </a>
                                     <button wire:click="deleteProduct({{ $product->id }})" 
                                             onclick="return confirm('¿Estás seguro de eliminar este producto?')"
                                             class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"

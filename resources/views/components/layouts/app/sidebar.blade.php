@@ -9,7 +9,7 @@
 
             <!-- Logo con gradiente -->
             <div class="relative mb-6">
-                <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('dashboard') }}" 
+                <a href="{{ (auth()->check() && auth()->user()->isAdmin()) ? route('admin.dashboard') : route('dashboard') }}" 
                    class="me-5 flex items-center space-x-3 rtl:space-x-reverse p-4 rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-white/20" 
                    wire:navigate>
                     <div class="relative">
