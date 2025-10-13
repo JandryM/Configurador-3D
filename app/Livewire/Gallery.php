@@ -26,11 +26,14 @@ class Gallery extends Component
 
     public function getProductsProperty()
     {
-        $query = Product::where('is_gallery_visible', true)
+        $query = Product::with('category')
+                       ->where('is_gallery_visible', true)
                        ->orderBy('created_at', 'desc');
         
         if ($this->selectedCategory) {
-            $query->where('category', $this->selectedCategory);
+            $query->whereHas('category', function($q) {
+                $q->where('name', $this->selectedCategory);
+            });
         }
         
         return $query->get();

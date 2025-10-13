@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Material;
+use App\Models\Category;
 
 class ProductSeeder extends Seeder
 {
@@ -32,13 +33,18 @@ class ProductSeeder extends Seeder
         // Crear materiales básicos si no existen
         $this->createBasicMaterials();
 
+        // Obtener las categorías
+        $windowsCategory = Category::where('name', 'Windows')->first();
+        $doorsCategory = Category::where('name', 'Doors')->first();
+        $glassPanelsCategory = Category::where('name', 'Glass Panels')->first();
+
         // Productos de prueba para el configurador 3D
         $products = [
             [
                 'name' => 'Ventana de Aluminio Estándar',
                 'description' => 'Ventana de aluminio con vidrio templado, ideal para personalización. Permite ajustar dimensiones, colores y accesorios según las necesidades del cliente.',
                 'price' => 0.00, // Precio calculado dinámicamente por materiales
-                'category' => 'Aluminio y Vidrio',
+                'category_id' => $windowsCategory?->id,
                 'product_type' => 'customizable',
                 'image' => null, // Sin imagen - usar configurador 3D
                 'base_dimensions' => [
@@ -67,7 +73,7 @@ class ProductSeeder extends Seeder
                 'name' => 'Puerta de Madera Personalizable',
                 'description' => 'Puerta de madera sólida con herrajes incluidos. Configurador 3D permite seleccionar dimensiones, tipo de madera, color y accesorios.',
                 'price' => 450.00,
-                'category' => 'Muebles Personalizados',
+                'category_id' => $doorsCategory?->id,
                 'product_type' => 'customizable',
                 'image' => null, // Sin imagen - usar configurador 3D
                 'base_dimensions' => [
@@ -95,7 +101,7 @@ class ProductSeeder extends Seeder
                 'name' => 'Mesa de Comedor Modular',
                 'description' => 'Mesa de comedor con dimensiones ajustables. El configurador 3D permite personalizar tamaño, material de la superficie y estilo de las patas.',
                 'price' => 680.00,
-                'category' => 'Muebles de Comedor',
+                'category_id' => $glassPanelsCategory?->id, // Usando Glass Panels como ejemplo
                 'product_type' => 'customizable',
                 'image' => null, // Sin imagen - usar configurador 3D
                 'base_dimensions' => [
@@ -123,7 +129,7 @@ class ProductSeeder extends Seeder
                 'name' => 'Ventana Corrediza Premium',
                 'description' => 'Ventana corrediza de alta calidad con doble vidrio hermético. Sistema de rieles premium y múltiples opciones de personalización.',
                 'price' => 380.00,
-                'category' => 'Aluminio y Vidrio',
+                'category_id' => $windowsCategory?->id,
                 'product_type' => 'customizable',
                 'image' => null, // Sin imagen - usar configurador 3D
                 'base_dimensions' => [
@@ -142,7 +148,7 @@ class ProductSeeder extends Seeder
                 'name' => 'Escritorio Ejecutivo',
                 'description' => 'Escritorio ejecutivo con gavetas y espacio de almacenamiento. Dimensiones y acabados completamente personalizables.',
                 'price' => 520.00,
-                'category' => 'Muebles de Oficina',
+                'category_id' => $doorsCategory?->id, // Usando Doors como ejemplo
                 'product_type' => 'customizable',
                 'image' => null, // Sin imagen - usar configurador 3D
                 'base_dimensions' => [
@@ -160,7 +166,7 @@ class ProductSeeder extends Seeder
                 'name' => 'Closet Modular',
                 'description' => 'Sistema de closet modular con múltiples configuraciones. Permite ajustar altura, ancho, número de divisiones y accesorios.',
                 'price' => 890.00,
-                'category' => 'Muebles Personalizados',
+                'category_id' => $doorsCategory?->id, // Usando Doors como ejemplo
                 'product_type' => 'customizable',
                 'image' => null, // Sin imagen - usar configurador 3D
                 'base_dimensions' => [
@@ -181,7 +187,7 @@ class ProductSeeder extends Seeder
                 'name' => $productData['name'],
                 'description' => $productData['description'],
                 'price' => $productData['price'],
-                'category' => $productData['category'],
+                'category_id' => $productData['category_id'],
                 'product_type' => $productData['product_type'],
                 'base_dimensions' => $productData['base_dimensions'],
                 'base_cost' => $productData['base_cost'],
@@ -209,9 +215,9 @@ class ProductSeeder extends Seeder
 
     private function attachMaterialsToProduct($product)
     {
-        $category = strtolower($product->category);
+        $categoryName = $product->category?->name ?? '';
         
-        if (str_contains($category, 'aluminio') || str_contains($category, 'vidrio')) {
+        if (strtolower($categoryName) === 'windows') {
             // Ventanas correderas - materiales específicos reales
             
             // Perfiles del marco
@@ -261,7 +267,5 @@ class ProductSeeder extends Seeder
             }
             
         }
-        // Solo productos de ventana de aluminio usan los materiales reales
-        // Otros productos no tienen materiales definidos por ahora
     }
 }

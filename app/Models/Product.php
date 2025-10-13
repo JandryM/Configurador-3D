@@ -13,7 +13,8 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'category',
+        'category_id',
+        'category', // Mantener temporalmente para compatibilidad
         'product_type',
         'base_dimensions',
         'base_cost',
@@ -48,6 +49,23 @@ class Product extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Relación con la categoría del producto
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Relación muchos a muchos con colores
+     */
+    public function colors(): BelongsToMany
+    {
+        return $this->belongsToMany(Color::class, 'product_color')
+                    ->withTimestamps();
     }
 
     /**

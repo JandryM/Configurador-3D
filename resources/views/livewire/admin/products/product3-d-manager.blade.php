@@ -366,7 +366,7 @@
         }
 
         // Determinar tipo de producto basado en categoría
-        const productType = '{{ strtolower($product->category) }}' || 'window';
+        const productType = '{{ strtolower($product->category?->name ?? 'window') }}' || 'window';
         const supportedTypes = ['window', 'door', 'furniture'];
         const finalType = supportedTypes.includes(productType) ? productType : 'window';
 
@@ -407,7 +407,7 @@
                 '</svg>' +
                 '<h3 class="text-lg font-medium mb-2">Modelo 3D Paramétrico</h3>' +
                 '<p class="text-sm">Producto: {{ $product->name }}</p>' +
-                '<p class="text-sm">Categoría: {{ $product->category }}</p>' +
+                '<p class="text-sm">Categoría: {{ $product->category?->name ?? 'Sin categoría' }}</p>' +
                 '</div>' +
                 '</div>';
         }

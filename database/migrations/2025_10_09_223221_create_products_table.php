@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name');
             $table->text('description');
             $table->decimal('price', 10, 2)->nullable(); // Nullable para productos personalizables
-            $table->string('category');
             $table->enum('product_type', ['gallery', 'customizable'])->default('gallery');
             $table->json('base_dimensions')->nullable(); // Para productos personalizables
             $table->decimal('base_cost', 10, 2)->nullable(); // Costo base para productos personalizables
@@ -29,7 +28,6 @@ return new class extends Migration
             // Índices para mejorar consultas
             $table->index('product_type');
             $table->index('allows_customization');
-            $table->index('category');
             $table->index('is_gallery_visible');
         });
     }

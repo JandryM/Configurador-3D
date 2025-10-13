@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Product;
 use App\Models\Material;
+use App\Models\Color;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 
@@ -15,15 +16,14 @@ class ProductConfigurator extends Component
     public $materialCosts = [];
     public $showPriceBreakdown = false;
     
-    // Parámetros configurables
+    // Parámetros por defecto para la configuración
     public $parameters = [
-        'width' => 1.0,
-        'height' => 1.0,
-        'depth' => 0.1,
-        'frameWidth' => 0.05,
-        'color' => '#8B4513',
-        'glassColor' => '#87CEEB',
-        'frameColor' => '#8B4513',  // Sincronizado con color
+        'width' => 1200,            // mm
+        'height' => 1500,           // mm
+        'panelCount' => 2,          // número de paneles
+        'color' => 'Natural',       // Nombre del color desde la BD (controla tanto frame como textura)
+        'glassColor' => '#E0F6FF',  // Color del vidrio en hexadecimal
+        'frameColor' => 0xC0C0C0,   // Color base del frame en hexadecimal (se usa si no hay texturas) - Plata claro
         'material' => null,
         'glassMaterial' => null,
         'hardware' => null
@@ -50,22 +50,15 @@ class ProductConfigurator extends Component
         ]
     ];
 
-    // Opciones de colores predefinidos
-    public $colorOptions = [
-        '#8B4513' => 'Marrón Natural',
-        '#654321' => 'Marrón Oscuro',
-        '#D2691E' => 'Chocolate',
-        '#A0522D' => 'Siena',
-        '#FFFFFF' => 'Blanco',
-        '#F5F5DC' => 'Beige',
-        '#2F4F4F' => 'Gris Pizarra',
-        '#708090' => 'Gris Acero',
-        '#000000' => 'Negro'
-    ];
+        // Colores disponibles (se cargan desde la base de datos)
+    public $availableColors = [];
 
     public function mount(Product $product)
     {
         $this->product = $product;
+        
+        // Cargar colores disponibles desde la base de datos
+        $this->loadAvailableColors();
         
         // Cargar configuración inicial del producto
         if ($product->base_dimensions) {
@@ -97,11 +90,11 @@ class ProductConfigurator extends Component
 
     private function getProductType()
     {
-        $category = strtolower($this->product->category);
+        $categoryName = strtolower($this->product->category?->name ?? '');
         
-        if (str_contains($category, 'ventana') || str_contains($category, 'vidrio')) {
+        if (str_contains($categoryName, 'window') || str_contains($categoryName, 'ventana') || str_contains($categoryName, 'vidrio')) {
             return 'window';
-        } elseif (str_contains($category, 'puerta')) {
+        } elseif (str_contains($categoryName, 'door') || str_contains($categoryName, 'puerta')) {
             return 'door';
         } else {
             return 'furniture';
@@ -119,10 +112,7 @@ class ProductConfigurator extends Component
 
         $this->parameters[$parameter] = $value;
         
-        // Sincronizar frameColor con color cuando se cambie color
-        if ($parameter === 'color') {
-            $this->parameters['frameColor'] = $value;
-        }
+        // No necesitamos sincronizar frameColor ya que se obtiene dinámicamente desde la BD
         
         $this->calculatePrice();
         
@@ -131,7 +121,10 @@ class ProductConfigurator extends Component
         if ($this->getProductType() === 'window') {
             $parametersFor3D = array_merge($this->parameters, ['depth' => 1.0]);
         }
-        $this->dispatch('updateModel3D', parameters: $parametersFor3D);
+        
+    // Incluir solo la ruta de textura correspondiente al color seleccionado
+    $parametersFor3D['texturePath'] = $this->getColorTexturePath($this->parameters['color']);
+    $this->dispatch('updateModel3D', parameters: $parametersFor3D);
     }
 
     public function calculatePrice()
@@ -163,9 +156,13 @@ class ProductConfigurator extends Component
                 $totalCost += $cost;
             }
 
+            // Aplicar incremento por color
+            $colorIncrement = $this->getColorIncrement();
+            $totalCostWithColor = $totalCost * (1 + ($colorIncrement / 100));
+
             // Aplicar margen de ganancia
             $profitMargin = 1.4; // 40% margen
-            $this->calculatedPrice = $totalCost * $profitMargin;
+            $this->calculatedPrice = $totalCostWithColor * $profitMargin;
 
         } catch (\Exception $e) {
             \Log::error('Error calculating price: ' . $e->getMessage());
@@ -329,11 +326,50 @@ class ProductConfigurator extends Component
         return $this->limits[$productType][$parameter] ?? null;
     }
 
+    private function getColorIncrement()
+    {
+        // Usar directamente el nombre del color desde los parámetros
+        $selectedColorName = $this->parameters['color'] ?? 'Natural';
+        
+        // Buscar el incremento en la base de datos
+        $color = Color::where('color_name', $selectedColorName)->first();
+        
+        return $color ? $color->percentage_increment : 0;
+    }
+
+    private function loadAvailableColors()
+    {
+        // Cargar todos los colores activos
+        $this->availableColors = Color::where('is_active', true)
+                                     ->where('is_active', true)
+                                     ->orderBy('sort_order')
+                                     ->get()
+                                     ->keyBy('color_name');
+    }
+
+    public function getAvailableColors()
+    {
+        return $this->availableColors;
+    }
+
+    public function getColorTexturePath($colorName)
+    {
+        $color = $this->availableColors[$colorName] ?? null;
+        return $color ? $color->texture_path : '/textures/aluminum/natural/';
+    }
+
+
+
     public function render()
     {
+        $selectedColor = $this->availableColors[$this->parameters['color']] ?? null;
+        
         return view('livewire.product-configurator', [
             'productType' => $this->getProductType(),
-            'parameterLimits' => $this->limits[$this->getProductType()] ?? []
+            'parameterLimits' => $this->limits[$this->getProductType()] ?? [],
+            'availableColors' => $this->getAvailableColors(),
+            'selectedColor' => $selectedColor,
+            'colorTexturePath' => $this->getColorTexturePath($this->parameters['color'])
         ])->layout('components.layouts.configurator', [
             'title' => 'Configurador 3D - ' . $this->product->name,
             'description' => 'Personaliza ' . $this->product->name . ' en tiempo real con nuestro configurador 3D interactivo.'

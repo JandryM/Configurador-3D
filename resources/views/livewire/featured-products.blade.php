@@ -70,7 +70,7 @@ $products = $this->featuredProducts;
                         <h4 class="font-semibold text-lg">{{ $product->name }}</h4>
                         <p class="text-sm opacity-90 mb-2">{{ Str::limit($product->description, $productCount === 1 ? 50 : 30) }}</p>
                         @if($product->category)
-                            <span class="text-xs bg-white/20 px-2 py-1 rounded-full inline-block">{{ $product->category }}</span>
+                            <span class="text-xs bg-white/20 px-2 py-1 rounded-full inline-block">{{ $product->category->name }}</span>
                         @endif
                         @if($product->product_type === 'gallery' && $product->price)
                             <div class="mt-2">

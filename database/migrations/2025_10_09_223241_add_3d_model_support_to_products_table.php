@@ -29,7 +29,7 @@ return new class extends Migration
         Schema::table('products', function (Blueprint $table) {
             $table->dropColumn([
                 'model_3d_file',
-                'model_3d_textures', 
+                'model_3d_textures',
                 'model_3d_materials',
                 'model_3d_settings',
                 'has_3d_model',

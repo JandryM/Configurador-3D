@@ -1,5 +1,7 @@
 // Three.js se importa globalmente desde app.js
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 import { WindowModel } from './models/WindowModel.js';
 import { DoorModel } from './models/DoorModel.js';
 import { FurnitureModel } from './models/FurnitureModel.js';
@@ -37,6 +39,14 @@ class ParametricProduct3D {
         this.productMesh = null;
         this.animationId = null;
         this.cameraInitialized = false;
+
+        // Configurar loaders HDRI para WindowModel
+        this.hdriLoaders = {
+            RGBELoader: RGBELoader,
+            EXRLoader: EXRLoader
+        };
+        
+        console.log('✅ Loaders HDRI configurados (RGBELoader y EXRLoader)');
 
         // Inicializar modelos especializados
         this.models = {
@@ -372,20 +382,36 @@ class ParametricProduct3D {
             disposeObject(this.productMesh);
         }
 
+        // Preparar parámetros con scene y renderer para HDRI
+        const parametersWithHDRI = {
+            ...this.parameters,
+            scene: this.scene,        // Para configuración HDRI
+            renderer: this.renderer,  // Para PMREM generation
+            hdriLoaders: this.hdriLoaders  // Loaders HDRI
+        };
+
+        // Debug: verificar parámetros que se pasan al modelo
+        console.log('📦 Parameters passed to model:', {
+            color: parametersWithHDRI.color,
+            frameColor: parametersWithHDRI.frameColor,
+            aluminumColor: parametersWithHDRI.aluminumColor,
+            texturePath: parametersWithHDRI.texturePath
+        });
+
         // Generar nuevo producto basado en tipo
         // Usar modelos especializados
         switch (this.productType) {
             case 'window':
-                this.productMesh = this.models.window.generate(this.parameters);
+                this.productMesh = this.models.window.generate(parametersWithHDRI);
                 break;
             case 'door':
-                this.productMesh = this.models.door.generate(this.parameters);
+                this.productMesh = this.models.door.generate(parametersWithHDRI);
                 break;
             case 'furniture':
-                this.productMesh = this.models.furniture.generate(this.parameters);
+                this.productMesh = this.models.furniture.generate(parametersWithHDRI);
                 break;
             default:
-                this.productMesh = this.models.window.generate(this.parameters);
+                this.productMesh = this.models.window.generate(parametersWithHDRI);
         }
 
         if (this.productMesh) {
@@ -421,7 +447,12 @@ class ParametricProduct3D {
         
         // Si es un cambio de color y ya existe el modelo, actualizar solo los colores
         if (['color', 'frameColor', 'glassColor'].includes(key) && this.productMesh && this.productMesh.userData.updateColors) {
-            this.productMesh.userData.updateColors(this.parameters);
+            const parametersWithHDRI = {
+                ...this.parameters,
+                scene: this.scene,
+                renderer: this.renderer
+            };
+            this.productMesh.userData.updateColors(parametersWithHDRI);
         } else {
             // Para otros cambios, regenerar el producto completo
             this.generateProduct();
@@ -446,14 +477,21 @@ class ParametricProduct3D {
             this.parameters.frameColor = newParams.color;
         }
         
-        // Verificar si solo son cambios de color
+        // Verificar si solo son cambios de color (sin cambios de textura)
         const colorKeys = ['color', 'frameColor', 'glassColor'];
-        const onlyColorChanges = Object.keys(newParams).every(key => colorKeys.includes(key));
+        const textureKeys = ['texturePath'];
+        const onlyColorChanges = Object.keys(newParams).every(key => colorKeys.includes(key)) && 
+                                !Object.keys(newParams).some(key => textureKeys.includes(key));
         
 
         
         if (onlyColorChanges && this.productMesh && this.productMesh.userData.updateColors) {
-            this.productMesh.userData.updateColors(this.parameters);
+            const parametersWithHDRI = {
+                ...this.parameters,
+                scene: this.scene,
+                renderer: this.renderer
+            };
+            this.productMesh.userData.updateColors(parametersWithHDRI);
         } else {
             // Para otros cambios, regenerar el producto completo
             this.generateProduct();

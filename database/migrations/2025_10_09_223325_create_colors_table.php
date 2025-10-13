@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('colors', function (Blueprint $table) {
+            $table->id();
+            $table->string('color_name', 100)->unique();
+            $table->decimal('percentage_increment', 5, 2)->default(0.00)->comment('Price increment percentage');
+            $table->string('texture_path', 255)->nullable()->comment('Path to 3D texture files');
+            $table->boolean('is_active')->default(true);
+            $table->integer('sort_order')->default(0);
+            $table->timestamps();
+            
+            // Indexes for better performance
+            $table->index('is_active');
+            $table->index('sort_order');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('colors');
+    }
+};

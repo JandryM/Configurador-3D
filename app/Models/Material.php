@@ -51,6 +51,25 @@ class Material extends Model
     }
 
     /**
+     * Many-to-many relationship with colors
+     */
+    public function colors(): BelongsToMany
+    {
+        return $this->belongsToMany(Color::class, 'material_color')
+                    ->withPivot('category')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Many-to-many relationship with categories
+     */
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, 'category_material')
+                    ->withTimestamps();
+    }
+
+    /**
      * Calcula el área cuando se actualizan las dimensiones
      */
     protected static function boot()
@@ -135,5 +154,24 @@ class Material extends Model
         
         $piecesNeeded = $this->calculatePiecesNeeded($usedQuantity, $wastePercentage);
         return $piecesNeeded * $this->piece_price;
+    }
+
+    /**
+     * Get colors available for a specific category
+     */
+    public function getColorsForCategory(string $category): BelongsToMany
+    {
+        return $this->colors()->wherePivot('category', $category);
+    }
+
+    /**
+     * Calculate cost with color increment
+     */
+    public function calculateCostWithColor(float $usedQuantity, Color $color, float $wastePercentage = 0): float
+    {
+        $baseCost = $this->calculateCost($usedQuantity, $wastePercentage);
+        $increment = $color->percentage_increment;
+        
+        return $baseCost * (1 + ($increment / 100));
     }
 }

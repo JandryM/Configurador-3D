@@ -59,7 +59,7 @@ use Illuminate\Support\Facades\Storage;
                             <p class="text-sm opacity-90 mb-3">{{ Str::limit($product->description, 80) }}</p>
                             <div class="flex items-center justify-between">
                                 <span class="text-xs bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                                    {{ $product->category }}
+                                    {{ $product->category?->name ?? 'Sin categoría' }}
                                 </span>
                                 @if($product->product_type === 'gallery' && $product->price)
                                     <span class="text-sm font-bold bg-green-500/80 backdrop-blur-sm px-3 py-1 rounded-full">
@@ -167,7 +167,7 @@ use Illuminate\Support\Facades\Storage;
 
                         <div class="mb-6">
                             <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-full text-sm font-medium">
-                                {{ $selectedProduct->category }}
+                                {{ $selectedProduct->category?->name ?? 'Sin categoría' }}
                             </span>
                         </div>
 
@@ -280,7 +280,7 @@ use Illuminate\Support\Facades\Storage;
             <div class="absolute -bottom-16 left-0 right-0 text-center">
                 <div class="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
                     <h3 class="text-white font-bold">{{ $selectedProduct->name }}</h3>
-                    <p class="text-white/80 text-sm">{{ $selectedProduct->category }}</p>
+                    <p class="text-white/80 text-sm">{{ $selectedProduct->category?->name ?? 'Sin categoría' }}</p>
                 </div>
             </div>
             

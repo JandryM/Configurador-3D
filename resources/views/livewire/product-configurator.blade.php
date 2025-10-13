@@ -10,7 +10,7 @@
                     <p class="text-gray-600 mt-2">Personaliza tu producto y ve los cambios en tiempo real</p>
                     <div class="mt-3 flex items-center gap-4 text-sm text-gray-500">
                         <span class="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-800">
-                            {{ $product->category }}
+                            {{ $product->category?->name ?? 'Sin categoría' }}
                         </span>
                         <span class="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-800">
                             ✨ Generado 100% con JavaScript
@@ -188,29 +188,96 @@
 
                 <!-- Colores -->
                 <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Colores</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Colores Disponibles</h3>
                     
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Color Principal</label>
-                            <div class="grid grid-cols-3 gap-2">
-                                @foreach($colorOptions as $colorValue => $colorName)
-                                    <button type="button"
-                                            wire:click="updateParameter('color', '{{ $colorValue }}')"
-                                            class="flex items-center justify-center w-full h-10 rounded-md border-2 {{ $parameters['color'] === $colorValue ? 'border-blue-500' : 'border-gray-300' }}"
-                                            style="background-color: {{ $colorValue }};"
-                                            title="{{ $colorName }}">
-                                        @if($parameters['color'] === $colorValue)
-                                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Color del Aluminio</label>
+                            
+                            <!-- Selector de colores -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                @foreach($availableColors as $colorName => $color)
+                                <div class="relative">
+                                    <input type="radio" 
+                                           wire:change="updateParameter('color', '{{ $colorName }}')"
+                                           name="color_selection" 
+                                           value="{{ $colorName }}"
+                                           id="color_{{ $loop->index }}"
+                                           class="sr-only peer"
+                                           @if($parameters['color'] === $colorName) checked @endif>
+                                    
+                                    <label for="color_{{ $loop->index }}" 
+                                           class="flex items-center p-4 bg-white rounded-lg border-2 cursor-pointer transition-all
+                                                  hover:border-blue-300 hover:shadow-md
+                                                  peer-checked:border-blue-500 peer-checked:bg-blue-50">
+                                        
+                                        <!-- Muestra de color visual -->
+                                        <div class="w-12 h-12 rounded-md border-2 border-gray-200 mr-4 shadow-inner
+                                                    @if($colorName === 'Natural') bg-gradient-to-br from-gray-200 to-gray-300
+                                                    @elseif($colorName === 'White') bg-gradient-to-br from-white to-gray-100
+                                                    @elseif($colorName === 'Black Anodized') bg-gradient-to-br from-gray-800 to-black
+                                                    @elseif($colorName === 'Woody') bg-gradient-to-br from-yellow-100 to-yellow-200
+                                                    @elseif($colorName === 'Bronze') bg-gradient-to-br from-yellow-600 to-yellow-800
+                                                    @else bg-gradient-to-br from-gray-300 to-gray-400 @endif">
+                                        </div>
+                                        
+                                        <div class="flex-1">
+                                            <div class="font-medium text-gray-900">{{ $color->color_name }}</div>
+                                            <div class="text-sm text-gray-500">
+                                                Aluminio {{ strtolower($color->color_name) }}
+                                            </div>
+                                            <div class="text-sm font-medium 
+                                                        @if($color->percentage_increment == 0) text-green-600 
+                                                        @else text-orange-600 @endif">
+                                                @if($color->percentage_increment == 0)
+                                                    ✅ Sin incremento
+                                                @else
+                                                    💰 +{{ number_format($color->percentage_increment, 1) }}%
+                                                @endif
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Indicador de selección -->
+                                        <div class="ml-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                            <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                                             </svg>
-                                        @endif
-                                    </button>
+                                        </div>
+                                    </label>
+                                </div>
                                 @endforeach
                             </div>
+                            
+                            <!-- Información del color seleccionado -->
+                            @if($selectedColor)
+                            <div class="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3 flex-1">
+                                        <h4 class="text-sm font-semibold text-blue-900">
+                                            Color seleccionado: {{ $selectedColor->color_name }}
+                                        </h4>
+                                        <div class="mt-1 text-sm text-blue-700">
+                                            <div>📁 Ruta texturas: <code class="bg-white px-1 py-0.5 rounded text-xs">{{ $colorTexturePath }}</code></div>
+                                            <div class="mt-1">💰 Incremento de precio: 
+                                                <span class="font-medium">
+                                                    @if($selectedColor->percentage_increment == 0)
+                                                        <span class="text-green-600">Sin costo adicional</span>
+                                                    @else
+                                                        <span class="text-orange-600">+{{ number_format($selectedColor->percentage_increment, 1) }}%</span>
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
                         </div>
-                        
-
                     </div>
                 </div>
 
@@ -290,9 +357,16 @@
 
         const productType = '{{ $productType }}';
         const initialParams = @json($parameters);
+        const colorTexturePath = '{{ $colorTexturePath }}';
+        
         if (productType === 'window') {
             initialParams.depth = 1.0; // Profundidad fija para ventanas
         }
+        
+        // Agregar información de texturas y color
+        initialParams.texturePath = colorTexturePath;
+        initialParams.frameColor = initialParams.frameColor || 0xC0C0C0; // Plata claro como fallback
+        initialParams.glassColor = initialParams.glassColor || '#E0F6FF';
 
         try {
             updateViewerStatus('Generando modelo 3D...');
