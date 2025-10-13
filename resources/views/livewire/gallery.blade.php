@@ -4,131 +4,174 @@ use Illuminate\Support\Facades\Storage;
 
 <div>
     <!-- Hero Section -->
-    <div class="bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 py-20">
-    <div class="container mx-auto px-6 text-center">
-        <h1 class="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
-            Galería de Proyectos
-        </h1>
-        <p class="text-xl text-gray-200 mb-8">
-            Descubre todos nuestros trabajos en aluminio, vidrio, melamina, gypsum y cielo raso
-        </p>
+    <div class="bg-gradient-to-br from-slate-600 via-blue-700 to-cyan-800 py-24">
+        <div class="container mx-auto px-6 text-center">
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-slate-100/20 backdrop-blur-md rounded-2xl mb-4">
+                        <svg class="w-8 h-8 text-slate-100" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M4 4h7V2H4c-1.1 0-2 .9-2 2v7h2V4zm6 9l-4 5h12l-3-4-2.03 2.71L10 13zm7-4.5c0-.83-.67-1.5-1.5-1.5S14 7.67 14 8.5s.67 1.5 1.5 1.5S17 9.33 17 8.5zM20 2h-7v2h7v7h2V4c0-1.1-.9-2-2-2zm0 18h-7v2h7c1.1 0 2-.9 2-2v-7h-2v7zM4 13H2v7c0 1.1.9 2 2 2h7v-2H4v-7z"/>
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 text-slate-50 leading-tight">
+                    Galería de <span class="bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">Proyectos</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-slate-200 mb-8 leading-relaxed">
+                    Descubre nuestros trabajos especializados en aluminio y vidrio
+                </p>
+                <div class="flex justify-center space-x-8 text-slate-300">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-cyan-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Ventanas</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-cyan-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Portones</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-cyan-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Mallas</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Gallery Content -->
-    <div class="container mx-auto px-6 py-16">
-    <!-- Filtros -->
-    <div class="mb-12 flex justify-center">
-        <div class="max-w-md w-full">
-            <select wire:model.live="selectedCategory" 
-                    class="w-full px-6 py-4 rounded-xl border border-gray-300 dark:border-gray-600 
-                           bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
-                           focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                           shadow-lg transition-all duration-300 text-lg">
-                @foreach($categories as $value => $label)
-                    <option value="{{ $value }}">{{ $label }}</option>
-                @endforeach
-            </select>
-        </div>
-    </div>
-
-    <!-- Grid de productos -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        @forelse($this->products as $product)
-            <div class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer"
-                 wire:click="openModal({{ $product->id }})">
-                
-                <!-- Imagen -->
-                <div class="relative h-64 overflow-hidden">
-                    @if($product->image)
-                        <img src="{{ Storage::url($product->image) }}" 
-                             alt="{{ $product->name }}" 
-                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                    @else
-                        <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-                            <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+    <div class="bg-gradient-to-br from-slate-50 via-cyan-50 to-blue-50 min-h-screen">
+        <div class="container mx-auto px-6 py-20">
+            <!-- Filtros -->
+            <div class="mb-16 flex justify-center">
+                <div class="max-w-md w-full">
+                    <div class="relative">
+                        <select wire:model.live="selectedCategory" 
+                                class="w-full px-6 py-4 rounded-2xl border border-slate-300/50
+                                       bg-slate-50/80 backdrop-blur-sm text-slate-800
+                                       focus:ring-2 focus:ring-blue-500 focus:border-blue-400
+                                       shadow-lg transition-all duration-300 text-lg appearance-none
+                                       hover:shadow-xl">
+                            @foreach($categories as $value => $label)
+                                <option value="{{ $value }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
-                        </div>
-                    @endif
-                    
-                    <!-- Overlay -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div class="absolute bottom-4 left-4 right-4 text-white">
-                            <h3 class="text-lg font-bold mb-2">{{ $product->name }}</h3>
-                            <p class="text-sm opacity-90 mb-3">{{ Str::limit($product->description, 80) }}</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                                    {{ $product->category }}
-                                </span>
-                                @if($product->product_type === 'gallery' && $product->price)
-                                    <span class="text-sm font-bold bg-green-500/80 backdrop-blur-sm px-3 py-1 rounded-full">
-                                        ${{ number_format($product->price, 2) }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        
-                        <!-- Botón Ver Detalles -->
-                        <div class="absolute top-4 right-4">
-                            <div class="bg-white/20 backdrop-blur-sm rounded-full p-2">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                </svg>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        @empty
-            <div class="col-span-full text-center py-20">
-                <svg class="mx-auto h-24 w-24 text-gray-400 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">No hay productos disponibles</h3>
-                <p class="text-gray-500 dark:text-gray-400 text-lg">
-                    @if($selectedCategory)
-                        No hay productos en la categoría "{{ $selectedCategory }}".
-                        <button wire:click="$set('selectedCategory', '')" class="text-blue-600 hover:text-blue-800 underline font-semibold">
-                            Ver todos los productos
-                        </button>
-                    @else
-                        Pronto agregaremos increíbles proyectos para mostrar aquí.
-                    @endif
-                </p>
+
+            <!-- Grid de productos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                @forelse($this->products as $product)
+                    <div class="group relative overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 cursor-pointer bg-slate-50/80 backdrop-blur-sm border border-slate-200/50"
+                         wire:click="openModal({{ $product->id }})">
+                        
+                        <!-- Imagen -->
+                        <div class="relative h-72 overflow-hidden">
+                            @if($product->image)
+                                <img src="{{ Storage::url($product->image) }}" 
+                                     alt="{{ $product->name }}" 
+                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            @else
+                                <div class="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                                    <svg class="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            @endif
+                            
+                            <!-- Overlay -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute bottom-4 left-4 right-4 text-slate-50">
+                                    <h3 class="text-lg font-bold mb-2">{{ $product->name }}</h3>
+                                    <p class="text-sm opacity-90 mb-3">{{ Str::limit($product->description, 80) }}</p>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs bg-slate-100/25 backdrop-blur-md px-3 py-1 rounded-full border border-slate-300/30">
+                                            {{ $product->category }}
+                                        </span>
+                                        @if($product->product_type === 'gallery' && $product->price)
+                                            <span class="text-sm font-bold bg-emerald-500/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                                                ${{ number_format($product->price, 2) }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                
+                                <!-- Botón Ver Detalles -->
+                                <div class="absolute top-4 right-4">
+                                    <div class="bg-slate-100/25 backdrop-blur-md rounded-full p-2 border border-slate-300/30">
+                                        <svg class="w-5 h-5 text-slate-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-full text-center py-20">
+                        <div class="bg-slate-50/80 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/50 p-12 max-w-lg mx-auto">
+                            <div class="bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full p-6 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                                <svg class="w-12 h-12 text-slate-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-slate-800 mb-4">No hay proyectos disponibles</h3>
+                            <p class="text-slate-600 text-lg leading-relaxed">
+                                @if($selectedCategory)
+                                    No hay proyectos en la categoría "{{ $selectedCategory }}".
+                                    <button wire:click="$set('selectedCategory', '')" class="block mx-auto mt-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-slate-50 px-6 py-2 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105">
+                                        Ver todos los proyectos
+                                    </button>
+                                @else
+                                    Pronto agregaremos increíbles proyectos de aluminio y vidrio para mostrar aquí.
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                @endforelse
             </div>
-        @endforelse
-    </div>
-    
-    <!-- Contador de productos -->
-    @if(count($this->products) > 0)
-        <div class="text-center mt-16">
-            <div class="inline-block bg-gray-100 dark:bg-gray-800 rounded-full px-6 py-3">
-                <p class="text-gray-600 dark:text-gray-400 font-medium">
-                    Mostrando {{ count($this->products) }} producto(s)
-                    @if($selectedCategory)
-                        en "{{ $selectedCategory }}"
-                    @endif
-                </p>
-            </div>
+            
+            <!-- Contador de productos -->
+            @if(count($this->products) > 0)
+                <div class="text-center mt-16">
+                    <div class="inline-block bg-slate-50/80 backdrop-blur-sm rounded-2xl px-8 py-4 shadow-lg border border-slate-200/50">
+                        <p class="text-slate-700 font-semibold text-lg">
+                            Mostrando <span class="text-blue-600 font-bold">{{ count($this->products) }}</span> proyecto(s)
+                            @if($selectedCategory)
+                                en "<span class="text-cyan-600">{{ $selectedCategory }}</span>"
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            @endif
         </div>
-    @endif
     </div>
 
     <!-- Modal -->
     @if($showModal && $selectedProduct)
     <div class="fixed inset-0 z-50 overflow-y-auto">
         <!-- Overlay -->
-        <div class="fixed inset-0 bg-black/75 transition-opacity" wire:click="closeModal"></div>
+        <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" wire:click="closeModal"></div>
         
         <!-- Modal Content -->
         <div class="flex min-h-screen items-center justify-center p-4">
-            <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="relative bg-slate-50/95 backdrop-blur-md rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-slate-200/50">
                 
                 <!-- Botón cerrar -->
                 <button wire:click="closeModal" 
-                        class="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors">
+                        class="absolute top-6 right-6 z-10 bg-slate-800/80 hover:bg-slate-900 text-slate-100 rounded-full p-3 transition-all duration-300 backdrop-blur-sm">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -161,45 +204,48 @@ use Illuminate\Support\Facades\Storage;
 
                     <!-- Información -->
                     <div class="p-8">
-                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        <h2 class="text-3xl font-bold text-slate-800 mb-4">
                             {{ $selectedProduct->name }}
                         </h2>
 
                         <div class="mb-6">
-                            <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-full text-sm font-medium">
+                            <span class="inline-block bg-blue-50/80 backdrop-blur-sm text-blue-700 px-4 py-2 rounded-full text-sm font-semibold border border-blue-200/50">
                                 {{ $selectedProduct->category }}
                             </span>
                         </div>
 
                         <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Descripción</h3>
-                            <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                            <h3 class="text-lg font-semibold text-slate-800 mb-3">Descripción del Proyecto</h3>
+                            <p class="text-slate-600 leading-relaxed">
                                 {{ $selectedProduct->description }}
                             </p>
                         </div>
 
                         @if($selectedProduct->product_type === 'gallery' && $selectedProduct->price)
                             <div class="mb-8">
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Precio</h3>
-                                <div class="text-4xl font-bold text-green-600 dark:text-green-400">
+                                <h3 class="text-lg font-semibold text-slate-800 mb-2">Precio de Referencia</h3>
+                                <div class="text-4xl font-bold text-emerald-600">
                                     ${{ number_format($selectedProduct->price, 2) }}
                                 </div>
+                                <p class="text-sm text-slate-500 mt-1">*Precio puede variar según especificaciones</p>
                             </div>
                         @endif
 
                         @if($selectedProduct->product_type === 'customizable')
                             <div class="mb-8">
-                                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+                                <div class="bg-cyan-50/70 backdrop-blur-sm border border-cyan-200/50 rounded-2xl p-6">
                                     <div class="flex items-start">
-                                        <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                        </svg>
+                                        <div class="bg-cyan-500/20 rounded-full p-2 mr-4">
+                                            <svg class="w-6 h-6 text-cyan-700" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
                                         <div>
-                                            <h4 class="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-1">
-                                                Producto Personalizable
+                                            <h4 class="text-lg font-semibold text-cyan-800 mb-2">
+                                                Proyecto Personalizable
                                             </h4>
-                                            <p class="text-sm text-yellow-700 dark:text-yellow-300">
-                                                El precio se calcula según las dimensiones y materiales seleccionados para tu proyecto específico.
+                                            <p class="text-cyan-700 leading-relaxed">
+                                                El precio se calcula según las dimensiones, materiales y acabados seleccionados para tu proyecto específico. Solicita una cotización gratuita.
                                             </p>
                                         </div>
                                     </div>
@@ -209,15 +255,15 @@ use Illuminate\Support\Facades\Storage;
 
                         <div class="flex flex-col sm:flex-row gap-4">
                             <button wire:click="closeModal" 
-                                    class="flex-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-6 py-3 rounded-xl font-semibold transition-colors">
+                                    class="flex-1 bg-slate-100/80 hover:bg-slate-200/80 text-slate-700 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 backdrop-blur-sm border border-slate-300/50">
                                 Cerrar
                             </button>
                             @if($selectedProduct->product_type === 'customizable')
-                                <button class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105">
+                                <button class="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-slate-50 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
                                     Solicitar Cotización
                                 </button>
                             @else
-                                <button class="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold transition-all transform hover:scale-105">
+                                <button class="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-slate-50 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
                                     Contactar Ahora
                                 </button>
                             @endif
@@ -259,13 +305,13 @@ use Illuminate\Support\Facades\Storage;
     
     <div class="fixed inset-0 z-[60] flex items-center justify-center p-4">
         <!-- Overlay -->
-        <div class="fixed inset-0 bg-black/95 transition-opacity" wire:click="closeImageZoom"></div>
+        <div class="fixed inset-0 bg-slate-900/95 backdrop-blur-md transition-opacity" wire:click="closeImageZoom"></div>
         
         <!-- Contenedor de imagen -->
         <div class="relative" style="max-width: {{ $maxWidth }}; max-height: {{ $maxHeight }};">
             <!-- Botón cerrar -->
             <button wire:click="closeImageZoom" 
-                    class="absolute -top-12 -right-2 bg-white/20 hover:bg-white/30 text-white rounded-full p-3 transition-colors backdrop-blur-sm z-10">
+                    class="absolute -top-16 -right-2 bg-slate-800/80 hover:bg-slate-900 text-slate-100 rounded-full p-3 transition-all duration-300 backdrop-blur-sm z-10 shadow-xl border border-slate-700/50">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -274,21 +320,21 @@ use Illuminate\Support\Facades\Storage;
             <!-- Imagen -->
             <img src="{{ Storage::url($selectedProduct->image) }}" 
                  alt="{{ $selectedProduct->name }}" 
-                 class="w-full h-full object-contain rounded-lg shadow-2xl">
+                 class="w-full h-full object-contain rounded-2xl shadow-2xl border border-slate-300/20">
             
             <!-- Info de la imagen -->
-            <div class="absolute -bottom-16 left-0 right-0 text-center">
-                <div class="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
-                    <h3 class="text-white font-bold">{{ $selectedProduct->name }}</h3>
-                    <p class="text-white/80 text-sm">{{ $selectedProduct->category }}</p>
+            <div class="absolute -bottom-20 left-0 right-0 text-center">
+                <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl px-6 py-3 inline-block border border-slate-700/50">
+                    <h3 class="text-slate-100 font-bold text-lg">{{ $selectedProduct->name }}</h3>
+                    <p class="text-slate-300 text-sm">{{ $selectedProduct->category }} • Quality</p>
                 </div>
             </div>
             
             <!-- Botón descarga -->
-            <div class="absolute -top-12 left-0">
+            <div class="absolute -top-16 left-0">
                 <a href="{{ Storage::url($selectedProduct->image) }}" 
                    download="{{ $selectedProduct->name }}.jpg"
-                   class="bg-white/20 hover:bg-white/30 text-white rounded-full p-3 transition-colors backdrop-blur-sm inline-block"
+                   class="bg-blue-600/80 hover:bg-blue-700 text-slate-100 rounded-full p-3 transition-all duration-300 backdrop-blur-sm inline-block shadow-xl border border-blue-500/50"
                    title="Descargar imagen">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>

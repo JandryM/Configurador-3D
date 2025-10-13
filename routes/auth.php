@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\VerifyEmailController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -26,6 +27,16 @@ Route::middleware('auth')->group(function () {
     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
         ->middleware(['signed', 'throttle:6,1'])
         ->name('verification.verify');
+
+    Route::post('email/verification-notification', function (Request $request) {
+        if ($request->user()->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email already verified'], 400);
+        }
+        
+        $request->user()->sendEmailVerificationNotification();
+        
+        return response()->json(['message' => 'Verification link sent!']);
+    })->middleware('throttle:6,1')->name('verification.send');
 
     Volt::route('confirm-password', 'auth.confirm-password')
         ->name('password.confirm');

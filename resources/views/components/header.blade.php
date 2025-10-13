@@ -1,62 +1,76 @@
 <!-- Navegación -->
-<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-md transition-all duration-300">
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md transition-all duration-300 border-b border-slate-200/50 shadow-sm">
     <div class="container mx-auto px-6 py-4">
         <div class="flex items-center justify-between">
             <!-- Logo -->
             <div class="flex items-center space-x-3">
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl p-2">
-                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
-                    </svg>
-                </div>
-                <a href="{{ route('home') }}" class="text-2xl font-bold text-white">Quality</a>
+                <a href="{{ route('home') }}" class="flex items-center space-x-3">
+                    <img src="{{ asset('images/logo.png') }}" alt="Quality Logo" class="h-12 w-auto object-contain">
+                    <span class="text-2xl font-bold text-black">Quality</span>
+                </a>
             </div>
             
             <!-- Navegación Desktop -->
-            <div class="hidden md:flex items-center space-x-8">
-                <a href="{{ route('home') }}" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Inicio</a>
-                <a href="{{ route('home') }}#nosotros" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToSection(event, '{{ route('home') }}', 'nosotros')">Nosotros</a>
-                <a href="{{ route('home') }}#servicios" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToSection(event, '{{ route('home') }}', 'servicios')">Servicios</a>
-                <a href="{{ route('galeria') }}" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToGallery(event, '{{ route('home') }}', '{{ route('galeria') }}')">Galería</a>
-                <a href="{{ route('proforma') }}" target="_blank" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium bg-gradient-to-r from-green-500 to-blue-500 px-4 py-2 rounded-lg font-semibold ml-2">Proforma</a>
-                <a href="{{ route('home') }}#ubicacion" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToSection(event, '{{ route('home') }}', 'ubicacion')">Ubicación</a>
+            <div class="hidden md:flex items-center space-x-2">
+                <!-- Links principales -->
+                <div class="flex items-center space-x-2">
+                    <a href="{{ route('home') }}" class="nav-link text-slate-800 hover:text-blue-600 hover:bg-slate-100 backdrop-blur-sm transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md">Inicio</a>
+                    <a href="{{ route('home') }}#nosotros" class="nav-link text-slate-800 hover:text-blue-600 hover:bg-slate-100 backdrop-blur-sm transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md" onclick="navigateToSection(event, '{{ route('home') }}', 'nosotros')">Nosotros</a>
+                    <a href="{{ route('home') }}#servicios" class="nav-link text-slate-800 hover:text-blue-600 hover:bg-slate-100 backdrop-blur-sm transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md" onclick="navigateToSection(event, '{{ route('home') }}', 'servicios')">Productos</a>
+                    <a href="{{ route('galeria') }}" class="nav-link text-slate-800 hover:text-blue-600 hover:bg-slate-100 backdrop-blur-sm transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md" onclick="navigateToGallery(event, '{{ route('home') }}', '{{ route('galeria') }}')">Proyectos</a>
+                    <a href="{{ route('home') }}#ubicacion" class="nav-link text-slate-800 hover:text-blue-600 hover:bg-slate-100 backdrop-blur-sm transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md" onclick="navigateToSection(event, '{{ route('home') }}', 'ubicacion')">Contacto</a>
+                    <a href="{{ route('proforma') }}" target="_blank" class="nav-link text-slate-800 hover:text-blue-600 hover:bg-slate-100 backdrop-blur-sm transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md">Cotizar</a>
+                </div>
                 
-                @auth
-                    <!-- Usuario logueado -->
-                    <div class="flex items-center space-x-4">
-                        <a href="{{ route('dashboard') }}" class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
-                            Dashboard
-                        </a>
+                <!-- Autenticación -->
+                <div class="flex items-center space-x-2 ml-4">
+                    
+                    @auth
+                        <!-- Usuario logueado -->
                         <div class="relative group">
-                            <button class="flex items-center space-x-2 text-white/90 hover:text-white transition-colors duration-300">
-                                <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
-                                    <span class="text-sm font-semibold">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                            <button class="flex items-center space-x-2 text-slate-800 hover:text-blue-600 hover:bg-slate-100 backdrop-blur-sm transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md">
+                                <div class="w-6 h-6 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full flex items-center justify-center shadow-sm">
+                                    <span class="text-xs font-semibold text-white">{{ substr(auth()->user()->name, 0, 1) }}</span>
                                 </div>
-                                <span class="font-medium">{{ auth()->user()->name }}</span>
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <span class="font-medium text-sm max-w-20 truncate">{{ explode(' ', auth()->user()->name)[0] }}</span>
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
                             </button>
                             <!-- Dropdown menu -->
-                            <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="absolute right-0 mt-2 w-52 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-slate-200/50">
                                 <div class="py-2">
-                                    <a href="{{ route('settings.profile') }}" class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300">
-                                        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <div class="px-4 py-3 border-b border-slate-200/50">
+                                        <p class="text-sm font-semibold text-slate-800">{{ auth()->user()->name }}</p>
+                                        <p class="text-xs text-slate-600 truncate">{{ auth()->user()->email }}</p>
+                                    </div>
+                                    <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 text-slate-700 hover:bg-blue-50 transition-colors duration-300">
+                                        <svg class="w-4 h-4 mr-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                                        </svg>
+                                        Panel de Control
+                                    </a>
+                                    <button onclick="openProfileModal()" 
+                                            class="flex items-center px-4 py-2 text-slate-700 hover:bg-slate-50 transition-colors duration-300 w-full text-left">
+                                        <svg class="w-4 h-4 mr-3 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
                                         </svg>
                                         Mi Perfil
-                                    </a>
-                                    <a href="{{ route('settings.appearance') }}" class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300">
-                                        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
-                                        </svg>
-                                        Configuración
-                                    </a>
-                                    <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+                                        <livewire:profile-status />
+                                    </button>
+                                    @if(empty(auth()->user()->oauth_provider))
+                                        <button onclick="openPasswordModal()" class="flex items-center px-4 py-2 text-slate-700 hover:bg-slate-50 transition-colors duration-300 w-full text-left">
+                                            <svg class="w-4 h-4 mr-3 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Cambiar Contraseña
+                                        </button>
+                                    @endif
+                                    <div class="border-t border-slate-200/50 mt-1"></div>
                                     <form method="POST" action="{{ route('logout') }}" class="block">
                                         @csrf
-                                        <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-300">
-                                            <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <button type="submit" class="flex items-center w-full px-4 py-2 text-red-600 hover:bg-red-50 transition-colors duration-300">
+                                            <svg class="w-4 h-4 mr-3" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
                                             </svg>
                                             Cerrar Sesión
@@ -65,71 +79,186 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @else
-                    <!-- Usuario no logueado -->
-                    <div class="flex items-center space-x-4">
-                        <a href="{{ route('login') }}" class="text-white/90 hover:text-white font-medium transition-colors duration-300">
-                            Iniciar Sesión
-                        </a>
-                        <a href="{{ route('register') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
-                            Registrarse
-                        </a>
-                    </div>
-                @endauth
+                    @else
+                        <!-- Usuario no logueado -->
+                        <div class="flex items-center space-x-2">
+                            <a href="{{ route('login') }}" class="text-slate-800 hover:text-blue-600 hover:bg-slate-100 backdrop-blur-sm transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md">
+                                Ingresar
+                            </a>
+                            <a href="{{ route('register') }}" class="text-slate-800 hover:text-blue-600 hover:bg-slate-100 backdrop-blur-sm transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md">
+                                Crear Cuenta
+                            </a>
+                        </div>
+                    @endauth
+                </div>
             </div>
             
             <!-- Botón menú móvil -->
-            <button data-mobile-menu class="md:hidden text-white focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button data-mobile-menu class="md:hidden text-black hover:text-blue-600 focus:outline-none bg-white/80 hover:bg-white/90 backdrop-blur-sm p-2 rounded-xl border border-slate-300/50 shadow-sm transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
             </button>
         </div>
 
         <!-- Menú móvil -->
-        <div data-mobile-menu-content class="hidden md:hidden mt-4 py-4 border-t border-white/20">
-            <div class="flex flex-col space-y-3">
-                <a href="{{ route('home') }}" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Inicio</a>
-                <a href="{{ route('home') }}#nosotros" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToSection(event, '{{ route('home') }}', 'nosotros')">Nosotros</a>
-                <a href="{{ route('home') }}#servicios" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToSection(event, '{{ route('home') }}', 'servicios')">Servicios</a>
-                <a href="{{ route('galeria') }}" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToGallery(event, '{{ route('home') }}', '{{ route('galeria') }}')">Galería</a>
-                <a href="{{ route('home') }}#ubicacion" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium" onclick="navigateToSection(event, '{{ route('home') }}', 'ubicacion')">Ubicación</a>
-                
-                @auth
-                    <!-- Usuario logueado - Móvil -->
-                    <div class="border-t border-white/20 pt-3 mt-3">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
-                                <span class="text-sm font-semibold text-white">{{ substr(auth()->user()->name, 0, 1) }}</span>
+        <div data-mobile-menu-content class="hidden md:hidden mt-6 pb-4">
+            <div class="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/50 shadow-xl p-4">
+                <div class="flex flex-col space-y-1">
+                    <!-- Links principales -->
+                    <a href="{{ route('home') }}" class="nav-link text-black hover:text-blue-600 hover:bg-slate-50 transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-transparent hover:border-slate-200/50">Inicio</a>
+                    <a href="{{ route('home') }}#nosotros" class="nav-link text-black hover:text-blue-600 hover:bg-slate-50 transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-transparent hover:border-slate-200/50" onclick="navigateToSection(event, '{{ route('home') }}', 'nosotros')">Nosotros</a>
+                    <a href="{{ route('home') }}#servicios" class="nav-link text-black hover:text-blue-600 hover:bg-slate-50 transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-transparent hover:border-slate-200/50" onclick="navigateToSection(event, '{{ route('home') }}', 'servicios')">Productos</a>
+                    <a href="{{ route('galeria') }}" class="nav-link text-black hover:text-blue-600 hover:bg-slate-50 transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-transparent hover:border-slate-200/50" onclick="navigateToGallery(event, '{{ route('home') }}', '{{ route('galeria') }}')">Proyectos</a>
+                    <a href="{{ route('home') }}#ubicacion" class="nav-link text-black hover:text-blue-600 hover:bg-slate-50 transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-transparent hover:border-slate-200/50" onclick="navigateToSection(event, '{{ route('home') }}', 'ubicacion')">Contacto</a>
+                    <a href="{{ route('proforma') }}" target="_blank" class="nav-link text-black hover:text-blue-600 hover:bg-slate-50 transition-all duration-300 font-bold px-3 py-2 rounded-lg border border-transparent hover:border-slate-200/50">Cotizar</a>
+                    
+                    
+                    <!-- Separador -->
+                    <div class="border-t border-slate-200/50 my-3"></div>
+                    
+                    @auth
+                        <!-- Usuario logueado - Móvil -->
+                        <div class="pt-1">
+                            <div class="flex items-center space-x-3 mb-3 px-3 py-2 bg-slate-50 rounded-xl">
+                                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full flex items-center justify-center shadow-lg">
+                                    <span class="text-sm font-semibold text-white">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-slate-800 text-sm">{{ auth()->user()->name }}</p>
+                                    <p class="text-xs text-slate-500 truncate">{{ auth()->user()->email }}</p>
+                                </div>
                             </div>
-                            <span class="font-medium text-white">{{ auth()->user()->name }}</span>
-                        </div>
-                        <div class="flex flex-col space-y-2">
-                            <a href="{{ route('dashboard') }}" class="text-white/90 hover:text-white transition-colors duration-300 font-medium">Dashboard</a>
-                            <a href="{{ route('settings.profile') }}" class="text-white/90 hover:text-white transition-colors duration-300 font-medium">Mi Perfil</a>
-                            <a href="{{ route('settings.appearance') }}" class="text-white/90 hover:text-white transition-colors duration-300 font-medium">Configuración</a>
-                            <form method="POST" action="{{ route('logout') }}" class="inline">
-                                @csrf
-                                <button type="submit" class="text-red-400 hover:text-red-300 transition-colors duration-300 font-medium">
-                                    Cerrar Sesión
+                            <div class="flex flex-col space-y-1">
+                                <a href="{{ route('dashboard') }}" class="text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-all duration-300 font-medium px-3 py-2 rounded-xl flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                                    </svg>
+                                    <span>Panel de Control</span>
+                                </a>
+                                <button onclick="openProfileModal()" 
+                                        class="w-full text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-all duration-300 font-medium px-3 py-2 rounded-xl flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Mi Perfil</span>
+                                    <livewire:profile-status />
                                 </button>
-                            </form>
+                                @if(empty(auth()->user()->oauth_provider))
+                                    <button onclick="openPasswordModal()" class="w-full text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-all duration-300 font-medium px-3 py-2 rounded-xl flex items-center space-x-2">
+                                        <svg class="w-4 h-4 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span>Cambiar Contraseña</span>
+                                    </button>
+                                @endif
+                                <form method="POST" action="{{ route('logout') }}" class="inline">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-300 font-medium px-3 py-2 rounded-xl flex items-center space-x-2">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span>Cerrar Sesión</span>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                    </div>
-                @else
-                    <!-- Usuario no logueado - Móvil -->
-                    <div class="border-t border-white/20 pt-3 mt-3 flex flex-col space-y-2">
-                        <a href="{{ route('login') }}" class="text-white/90 hover:text-white font-medium transition-colors duration-300">
-                            Iniciar Sesión
-                        </a>
-                        <a href="{{ route('register') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold inline-block text-center">
-                            Registrarse
-                        </a>
-                    </div>
-                @endauth
+                    @else
+                        <!-- Usuario no logueado - Móvil -->
+                        <div class="pt-1 flex flex-col space-y-1">
+                            <a href="{{ route('login') }}" class="text-black hover:text-blue-600 hover:bg-slate-50 font-bold transition-all duration-300 px-3 py-2 rounded-lg border border-transparent hover:border-slate-200/50 text-center">
+                                Ingresar
+                            </a>
+                            <a href="{{ route('register') }}" class="text-black hover:text-blue-600 hover:bg-slate-50 font-bold transition-all duration-300 px-3 py-2 rounded-lg border border-transparent hover:border-slate-200/50 text-center">
+                                Crear Cuenta
+                            </a>
+                        </div>
+                    @endauth
+                </div>
             </div>
         </div>
     </div>
 </nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Menú móvil
+    const mobileMenuButton = document.querySelector('[data-mobile-menu]');
+    const mobileMenuContent = document.querySelector('[data-mobile-menu-content]');
+    
+    if (mobileMenuButton && mobileMenuContent) {
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenuContent.classList.toggle('hidden');
+        });
+        
+        // Cerrar menú al hacer clic fuera
+        document.addEventListener('click', function(event) {
+            if (!mobileMenuButton.contains(event.target) && !mobileMenuContent.contains(event.target)) {
+                mobileMenuContent.classList.add('hidden');
+            }
+        });
+        
+        // Cerrar menú al hacer clic en un enlace
+        const mobileLinks = mobileMenuContent.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenuContent.classList.add('hidden');
+            });
+        });
+    }
+    
+    // Navbar scroll effect
+    let lastScrollTop = 0;
+    const navbar = document.getElementById('navbar');
+    
+    window.addEventListener('scroll', function() {
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Cambiar opacidad y sombra basado en scroll
+        if (scrollTop > 50) {
+            navbar.classList.add('bg-white/95', 'shadow-lg');
+            navbar.classList.remove('bg-white/90', 'shadow-sm');
+        } else {
+            navbar.classList.add('bg-white/90', 'shadow-sm');
+            navbar.classList.remove('bg-white/95', 'shadow-lg');
+        }
+        
+        lastScrollTop = scrollTop;
+    });
+});
+
+// Funciones de navegación existentes
+function navigateToSection(event, homeRoute, sectionId) {
+    event.preventDefault();
+    
+    if (window.location.pathname === '/') {
+        // Estamos en home, hacer scroll suave
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    } else {
+        // Redirigir a home con hash
+        window.location.href = homeRoute + '#' + sectionId;
+    }
+}
+
+function navigateToGallery(event, homeRoute, galleryRoute) {
+    event.preventDefault();
+    window.location.href = galleryRoute;
+}
+
+function openProfileModal() {
+    // Siempre abrir modal para editar perfil
+    Livewire.dispatch('openProfileModal');
+}
+
+function openPasswordModal() {
+    // Abrir modal para cambiar contraseña
+    Livewire.dispatch('openPasswordModal');
+}
+</script>
 
