@@ -33,11 +33,11 @@
             {{-- Categoría --}}
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categoría</label>
-                <select wire:model.live="category" 
+                <select wire:model.live="category_id" 
                         class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                     <option value="">Todas las categorías</option>
                     @foreach($categories as $cat)
-                        <option value="{{ $cat }}">{{ $cat }}</option>
+                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -137,7 +137,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                    {{ $product->category }}
+                                    {{ $product->category ? $product->category->name : 'Sin categoría' }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">

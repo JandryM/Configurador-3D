@@ -16,23 +16,18 @@ class ProductEdit extends Component
     public $name = '';
     public $description = '';
     public $price = '';
-    public $category = '';
+    public $category_id = '';
     public $image;
     public $currentImage;
     public $is_gallery_visible = true;
 
-    public $categories = [
-        'Aluminio y Vidrio',
-        'Melamina', 
-        'Gypsum',
-        'Cielo Raso'
-    ];
+    public $categories = [];
 
     protected $rules = [
         'name' => 'required|string|max:255',
         'description' => 'required|string',
         'price' => 'required|numeric|min:0',
-        'category' => 'required|string|max:255',
+        'category_id' => 'required|exists:categories,id',
         'image' => 'nullable|image|max:2048',
         'is_gallery_visible' => 'boolean',
     ];
@@ -43,7 +38,8 @@ class ProductEdit extends Component
         'price.required' => 'El precio del producto es obligatorio.',
         'price.numeric' => 'El precio debe ser un número válido.',
         'price.min' => 'El precio debe ser mayor o igual a 0.',
-        'category.required' => 'La categoría es obligatoria.',
+        'category_id.required' => 'La categoría es obligatoria.',
+        'category_id.exists' => 'La categoría seleccionada no existe.',
         'image.image' => 'El archivo debe ser una imagen.',
         'image.max' => 'La imagen no debe ser mayor a 2MB.',
     ];
@@ -54,9 +50,10 @@ class ProductEdit extends Component
         $this->name = $product->name;
         $this->description = $product->description;
         $this->price = $product->price;
-        $this->category = $product->category;
+        $this->category_id = $product->category_id;
         $this->currentImage = $product->image;
         $this->is_gallery_visible = $product->is_gallery_visible;
+        $this->categories = \App\Models\Category::orderBy('name')->get();
     }
 
     public function updated($propertyName)
@@ -92,7 +89,7 @@ class ProductEdit extends Component
             'name' => $this->name,
             'description' => $this->description,
             'price' => $this->price,
-            'category' => $this->category,
+            'category_id' => $this->category_id,
             'image' => $imagePath,
             'is_gallery_visible' => $this->is_gallery_visible,
         ]);

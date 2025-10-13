@@ -98,18 +98,18 @@
 
                         {{-- Categoría --}}
                         <div>
-                            <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label for="category_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Categoría *
                             </label>
-                            <select id="category"
-                                    wire:model.blur="category" 
+                            <select id="category_id"
+                                    wire:model.blur="category_id" 
                                     class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">Selecciona una categoría</option>
                                 @foreach($categories as $cat)
-                                    <option value="{{ $cat }}">{{ $cat }}</option>
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
                             </select>
-                            @error('category')
+                            @error('category_id')
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                             @enderror
                         </div>
@@ -120,18 +120,18 @@
                         {{-- Categoría y Costo Base --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label for="category_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Categoría *
                                 </label>
-                                <select id="category"
-                                        wire:model.blur="category" 
+                                <select id="category_id"
+                                        wire:model.blur="category_id" 
                                         class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500">
                                     <option value="">Selecciona una categoría</option>
                                     @foreach($categories as $cat)
-                                        <option value="{{ $cat }}">{{ $cat }}</option>
+                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                     @endforeach
                                 </select>
-                                @error('category')
+                                @error('category_id')
                                     <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                                 @enderror
                             </div>

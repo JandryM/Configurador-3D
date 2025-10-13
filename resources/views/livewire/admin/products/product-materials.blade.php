@@ -160,7 +160,7 @@
                                     </option>
                                 @endforeach
                             @else
-                                <option value="">No hay materiales disponibles para la categoría "{{ $product->category }}"</option>
+                                <option value="">No hay materiales disponibles para la categoría "{{ $product->category ? $product->category->name : 'Sin categoría' }}"</option>
                             @endif
                         </select>
                         @error('selectedMaterialId') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror

@@ -11,14 +11,14 @@ class ProductIndex extends Component
     use WithPagination;
 
     public $search = '';
-    public $category = '';
+    public $category_id = '';
     public $productType = '';
     public $galleryVisible = '';
     public $perPage = 10;
 
     protected $queryString = [
         'search' => ['except' => ''],
-        'category' => ['except' => ''],
+        'category_id' => ['except' => ''],
         'productType' => ['except' => ''],
         'galleryVisible' => ['except' => ''],
     ];
@@ -28,7 +28,7 @@ class ProductIndex extends Component
         $this->resetPage();
     }
 
-    public function updatingCategory()
+    public function updatingCategoryId()
     {
         $this->resetPage();
     }
@@ -62,13 +62,13 @@ class ProductIndex extends Component
     public function render()
     {
         $products = Product::query()
-            ->with('creator')
+            ->with(['creator', 'category'])
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                       ->orWhere('description', 'like', '%' . $this->search . '%');
             })
-            ->when($this->category, function ($query) {
-                $query->where('category', $this->category);
+            ->when($this->category_id, function ($query) {
+                $query->where('category_id', $this->category_id);
             })
             ->when($this->productType, function ($query) {
                 $query->where('product_type', $this->productType);
@@ -79,7 +79,8 @@ class ProductIndex extends Component
             ->latest()
             ->paginate($this->perPage);
 
-        $categories = Product::distinct()->pluck('category')->filter();
+        // Obtener todas las categorías disponibles
+        $categories = \App\Models\Category::orderBy('name')->get();
 
         return view('livewire.admin.products.product-index', [
             'products' => $products,

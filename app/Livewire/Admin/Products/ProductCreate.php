@@ -14,7 +14,7 @@ class ProductCreate extends Component
     public $name = '';
     public $description = '';
     public $price = '';
-    public $category = '';
+    public $category_id = '';
     public $product_type = 'gallery';
     public $base_cost = '';
     public $base_dimensions = [];
@@ -22,16 +22,7 @@ class ProductCreate extends Component
     public $image;
     public $is_gallery_visible = true;
 
-    public $categories = [
-        'Aluminio y Vidrio',
-        'Melamina', 
-        'Gypsum',
-        'Cielo Raso',
-        'Muebles de Comedor',
-        'Muebles de Sala',
-        'Muebles de Oficina',
-        'Muebles Personalizados'
-    ];
+    public $categories = [];
 
     public $productTypes = [
         'gallery' => 'Producto de Galería (Precio Fijo)',
@@ -43,7 +34,7 @@ class ProductCreate extends Component
         $rules = [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'category' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
             'product_type' => 'required|in:gallery,customizable',
             'image' => 'nullable|image|max:2048',
             'is_gallery_visible' => 'boolean',
@@ -58,6 +49,10 @@ class ProductCreate extends Component
         }
 
         return $rules;
+    }
+    public function mount()
+    {
+        $this->categories = \App\Models\Category::orderBy('name')->get();
     }
 
     protected $messages = [
