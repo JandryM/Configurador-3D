@@ -51,11 +51,7 @@ class SocialAuthController extends Controller
             // Iniciar sesión
             Auth::login($user, true);
 
-            // Redirigir según estado de perfil
-            if ($needsProfileCompletion) {
-                return redirect()->route('profile.complete');
-            }
-
+            // Siempre redirigir a la página principal
             return redirect()->intended('/');
 
         } catch (\Exception $e) {

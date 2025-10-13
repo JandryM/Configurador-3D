@@ -19,6 +19,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $password = '';
 
     public bool $remember = false;
+    public bool $showPassword = false;
 
     /**
      * Handle an incoming authentication request.
@@ -86,84 +87,176 @@ new #[Layout('components.layouts.auth')] class extends Component {
     {
         return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
     }
+    
+    /**
+     * Toggle password visibility.
+     */
+    public function togglePassword(): void
+    {
+        $this->showPassword = !$this->showPassword;
+    }
 }; ?>
 
-<div class="flex flex-col gap-6">
-    <x-auth-header :title="__('Log in to your account')" :description="__('Enter your email and password below to log in')" />
+<div>
+    <!-- Encabezado del formulario -->
+    <div class="text-center mb-4">
+        <h1 class="text-lg font-bold text-white mb-1">Bienvenido de vuelta</h1>
+        <p class="text-slate-200 text-xs">Accede a tu cuenta para continuar</p>
+    </div>
 
     <!-- Session Status -->
-    <x-auth-session-status class="text-center" :status="session('status')" />
+    <x-auth-session-status class="mb-2" :status="session('status')" />
 
-    <form method="POST" wire:submit="login" class="flex flex-col gap-6">
-        <!-- Email Address -->
-        <flux:input
-            wire:model="email"
-            :label="__('Email address')"
-            type="email"
-            required
-            autofocus
-            autocomplete="email"
-            placeholder="email@example.com"
-        />
-
-        <!-- Password -->
+    <form method="POST" wire:submit="login" class="space-y-3">
+    <!-- Email Address -->
+    <div class="space-y-1">
+        <label for="email" class="block text-xs font-semibold text-white">
+            Correo Electrónico
+        </label>
         <div class="relative">
-            <flux:input
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                </svg>
+            </div>
+            <input
+                wire:model="email"
+                type="email"
+                id="email"
+                required
+                autofocus
+                autocomplete="email"
+                placeholder="tu@email.com"
+                class="w-full pl-10 pr-4 py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 focus:outline-none transition-all duration-300"
+            />
+        </div>
+        @error('email') 
+            <p class="text-red-300 text-sm mt-1">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <!-- Password -->
+    <div class="space-y-1">
+        <label for="password" class="block text-xs font-semibold text-white">
+            Contraseña
+        </label>
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                </svg>
+            </div>
+            <input
                 wire:model="password"
-                :label="__('Password')"
-                type="password"
+                type="{{ $showPassword ? 'text' : 'password' }}"
+                id="password"
                 required
                 autocomplete="current-password"
-                :placeholder="__('Password')"
-                viewable
+                placeholder="••••••••"
+                class="w-full pl-10 pr-12 py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 focus:outline-none transition-all duration-300"
             />
-
-            @if (Route::has('password.request'))
-                <flux:link class="absolute end-0 top-0 text-sm" :href="route('password.request')" wire:navigate>
-                    {{ __('Forgot your password?') }}
-                </flux:link>
-            @endif
+            <button type="button" 
+                    wire:click="togglePassword"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-300 hover:text-white transition-colors duration-200">
+                @if($showPassword)
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+                    </svg>
+                @else
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                @endif
+            </button>
         </div>
-
-        <!-- Remember Me -->
-        <flux:checkbox wire:model="remember" :label="__('Remember me')" />
-
-        <div class="flex items-center justify-end">
-            <flux:button variant="primary" type="submit" class="w-full">{{ __('Log in') }}</flux:button>
-        </div>
-    </form>
-
-    <!-- Separador con texto -->
-    <div class="relative mt-4">
-        <div class="absolute inset-0 flex items-center">
-            <span class="w-full border-t border-gray-300 dark:border-gray-700"></span>
-        </div>
-        <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-white dark:bg-zinc-900 text-gray-500 dark:text-gray-400">
-                {{ __('Or continue with') }}
-            </span>
-        </div>
+        @error('password')
+            <p class="text-red-300 text-xs mt-1">{{ $message }}</p>
+        @enderror
     </div>
 
-    <!-- Botón de Google -->
-    <div class="mt-4">
-        <a href="{{ route('auth.google') }}" class="flex items-center justify-center w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700">
-            <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
-                    <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/>
-                    <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/>
-                    <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"/>
-                    <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/>
-                </g>
+    <!-- Remember Me and Forgot Password -->
+    <div class="flex items-center justify-between py-2">
+        <div class="flex items-center">
+            <input
+                id="remember"
+                name="remember"
+                type="checkbox"
+                wire:model="remember"
+                class="h-3 w-3 rounded border-slate-300 bg-white/20 text-slate-400 focus:ring-slate-400 focus:ring-2 transition-colors"
+            />
+            <label for="remember" class="ml-2 block text-xs text-slate-300">
+                Recordarme
+            </label>
+        </div>
+
+        @if (Route::has('password.request'))
+            <a href="{{ route('password.request') }}" wire:navigate class="text-xs text-slate-300 hover:text-white transition-colors">
+                ¿Olvidaste tu contraseña?
+            </a>
+        @endif
+    </div>
+
+    <!-- Sign In Button -->
+    <div class="space-y-2">
+        <!-- Botón de Login -->
+                    <button type="submit" 
+                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-700 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <svg class="h-4 w-4 text-slate-300 group-hover:text-slate-200" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 616 0z" clip-rule="evenodd" />
+                        </svg>
+                    </span>
+                    Iniciar Sesión
+                </button>
+</form>
+
+<!-- Separador -->
+<div class="relative my-4">
+    <div class="absolute inset-0 flex items-center">
+        <div class="w-full border-t border-white/20"></div>
+    </div>
+    <div class="relative flex justify-center text-xs">
+        <span class="px-2 text-slate-300 bg-transparent">O continúa con</span>
+    </div>
+</div>
+
+<!-- Botón de Google rediseñado -->
+<div class="space-y-4">
+                    <button type="button" onclick="window.location='{{ route('auth.google') }}'"
+                    class="group relative w-full flex justify-center py-2 px-4 border border-slate-300 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <svg class="h-5 w-5 text-slate-600" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                    </span>
+                    Continuar con Google
+                </button>
+</div>
+
+<!-- Link de registro -->
+@if (Route::has('register'))
+    <div class="text-center mt-3">
+        <p class="text-slate-300 text-xs">
+            ¿No tienes una cuenta? 
+            <a href="{{ route('register') }}" wire:navigate class="text-slate-300 hover:text-white font-semibold transition-colors duration-300">
+                Regístrate aquí
+            </a>
+        </p>
+    </div>
+@endif
+
+    <!-- Volver al inicio -->
+    <div class="text-center mt-2">
+        <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center text-slate-300 hover:text-white transition-colors duration-300 text-xs">
+            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
             </svg>
-            {{ __('Continue with Google') }}
+            Volver al inicio
         </a>
     </div>
-
-    @if (Route::has('register'))
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
-            <span>{{ __('Don\'t have an account?') }}</span>
-            <flux:link :href="route('register')" wire:navigate>{{ __('Sign up') }}</flux:link>
-        </div>
-    @endif
 </div>

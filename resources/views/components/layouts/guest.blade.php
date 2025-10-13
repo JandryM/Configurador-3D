@@ -68,6 +68,23 @@
     <body class="min-h-screen bg-white antialiased dark:bg-gray-900">
         <!-- Navegación utilizando el componente header -->
         <x-header />
+        
+        <!-- Modal de Perfil -->
+        @auth
+            <livewire:profile-modal />
+        @endauth
+        
+        <!-- Modal de Contraseña -->
+        @auth
+            @if(empty(auth()->user()->oauth_provider))
+                <livewire:password-modal />
+            @endif
+        @endauth
+        
+        <!-- Modal de Verificación de Email -->
+        @auth
+            <livewire:verification-modal />
+        @endauth
 
         <!-- Contenido Principal -->
         <main>

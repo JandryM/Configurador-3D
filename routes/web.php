@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
@@ -27,10 +28,13 @@ Route::get('/profile/complete', App\Livewire\Profile\Complete::class)
     ->middleware(['auth'])
     ->name('profile.complete');
 
-// Todas las rutas protegidas que requieren autenticación, verificación de email Y perfil completo
-Route::middleware(['auth', 'verified', 'profile.complete', 'account.active'])->group(function () {
+// Todas las rutas protegidas que requieren autenticación y verificación de email
+Route::middleware(['auth', 'verified', 'account.active'])->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
         return view('dashboard');
     })->name('dashboard');
 
@@ -43,7 +47,7 @@ Route::middleware(['auth', 'verified', 'profile.complete', 'account.active'])->g
 });
 
 // Rutas específicas para administradores
-Route::middleware(['auth', 'verified', 'profile.complete', 'account.active', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', 'account.active', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard de administrador
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
