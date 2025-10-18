@@ -267,147 +267,42 @@
             </div>
 
             <!-- Mobile Responsive Menu -->
-            <div class="lg:hidden" x-show="open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-x-full" x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-full">
-                <div class="fixed inset-0 z-40 flex">
-                    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" x-on:click="open = false"></div>
-                    
-                    <div class="relative flex w-full max-w-xs flex-1 flex-col bg-gradient-to-br from-slate-900 via-gray-900 to-zinc-900 shadow-2xl">
-                        <div class="absolute right-0 top-0 -mr-12 pt-2">
-                            <button type="button" class="ml-1 flex h-10 w-10 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white/50 bg-white/10 backdrop-blur-sm" x-on:click="open = false">
-                                <span class="sr-only">Close sidebar</span>
-                                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div class="h-0 flex-1 overflow-y-auto pb-4">
-                            <!-- Mobile Logo -->
-                            <div class="flex shrink-0 items-center px-6 py-6">
-                                <div class="flex items-center space-x-3">
-                                    <div class="relative">
-                                        <div class="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl blur-lg opacity-60 animate-pulse"></div>
-                                        <div class="relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 p-3 rounded-xl shadow-2xl">
-                                            <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 8.172V5L8 4z"></path>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h1 class="text-xl font-bold text-white">Quality</h1>
-                                        <p class="text-sm text-gray-300 font-medium">Management</p>
-                                    </div>
-                                </div>
+            <div x-data="{ open: false }">
+                <div class="lg:hidden" x-show="open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-x-full" x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-full">
+                    <div class="fixed inset-0 z-40 flex">
+                        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" x-on:click="open = false"></div>
+                        
+                        <div class="relative flex w-full max-w-xs flex-1 flex-col bg-gradient-to-br from-slate-900 via-gray-900 to-zinc-900 shadow-2xl">
+                            <div class="absolute right-0 top-0 -mr-12 pt-2">
+                                <button type="button" class="ml-1 flex h-10 w-10 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white/50 bg-white/10 backdrop-blur-sm" x-on:click="open = false">
+                                    <span class="sr-only">Close sidebar</span>
+                                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             </div>
 
-                            <!-- Mobile Navigation -->
-                            <nav class="mt-2 space-y-2 px-4">
-                                <!-- Platform Section -->
-                                <div class="mb-6">
-                                    <h3 class="mb-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Plataforma</h3>
-                                    <div class="space-y-1">
-                                        <a href="{{ route('dashboard') }}" wire:navigate
-                                           class="group flex items-center rounded-xl px-3 py-3 text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-blue-600/10 to-indigo-600/10 border border-blue-600/20 hover:from-blue-600/20 hover:to-indigo-600/20 text-blue-100 hover:text-white">
-                                            <svg class="mr-3 h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 7 5 5 5-5"></path>
-                                            </svg>
-                                            Dashboard
-                                        </a>
-
-                                        @if(auth()->user()->isAdmin())
-                                            <a href="{{ route('admin.products.index') }}" wire:navigate
-                                               class="group flex items-center rounded-xl px-3 py-3 text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-blue-600/10 to-indigo-600/10 border border-blue-600/20 hover:from-blue-600/20 hover:to-indigo-600/20 text-blue-100 hover:text-white">
-                                                <svg class="mr-3 h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M9 4.5v15M15 4.5v15"></path>
+                            <div class="h-0 flex-1 overflow-y-auto pb-4">
+                                <!-- Mobile Logo -->
+                                <div class="flex shrink-0 items-center px-6 py-6">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="relative">
+                                            <div class="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl blur-lg opacity-60 animate-pulse"></div>
+                                            <div class="relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 p-3 rounded-xl shadow-2xl">
+                                                <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 8.172V5L8 4z"></path>
                                                 </svg>
-                                                Productos
-                                            </a>
-                                        @endif
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h1 class="text-xl font-bold text-white">Quality</h1>
+                                            <p class="text-sm text-gray-300 font-medium">Management</p>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- Account Section -->
-                                <div class="mb-6">
-                                    <h3 class="mb-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Cuenta</h3>
-                                    <div class="space-y-1">
-                                        <a href="{{ route('settings.profile') }}" wire:navigate
-                                           class="group flex items-center rounded-xl px-3 py-3 text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-purple-600/10 to-pink-600/10 border border-purple-600/20 hover:from-purple-600/20 hover:to-pink-600/20 text-purple-100 hover:text-white">
-                                            <svg class="mr-3 h-5 w-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                            </svg>
-                                            Perfil
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <!-- Gallery Section -->
-                                <div class="mb-6">
-                                    <h3 class="mb-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Galería</h3>
-                                    <div class="space-y-1">
-                                        <a href="/gallery" 
-                                           class="group flex items-center rounded-xl px-3 py-3 text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-green-600/10 to-emerald-600/10 border border-green-600/20 hover:from-green-600/20 hover:to-emerald-600/20 text-green-100 hover:text-white">
-                                            <svg class="mr-3 h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                            </svg>
-                                            Nuestros Trabajos
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <!-- Quality System Section -->
-                                <div class="mb-6">
-                                    <h3 class="mb-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Sistema de Calidad</h3>
-                                    <div class="space-y-1">
-                                        <a href="/quality" 
-                                           class="group flex items-center rounded-xl px-3 py-3 text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-yellow-600/10 to-orange-600/10 border border-yellow-600/20 hover:from-yellow-600/20 hover:to-orange-600/20 text-yellow-100 hover:text-white">
-                                            <svg class="mr-3 h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            Control de Calidad
-                                        </a>
-                                    </div>
-                                </div>
-                            </nav>
-
-                            <!-- Mobile User Profile -->
-                            <div class="border-t border-gray-700/50 px-4 pt-4 mt-6">
-                                <div class="flex items-center space-x-3 p-3 rounded-xl bg-gradient-to-r from-gray-800/50 to-gray-700/50 border border-gray-600/30 backdrop-blur-sm">
-                                    <div class="relative">
-                                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold shadow-lg">
-                                            {{ auth()->user()->initials() }}
-                                        </span>
-                                        @php
-                                            $color = auth()->user()->getAccountStatusColor();
-                                        @endphp
-                                        <span class="absolute -bottom-1 -right-1 block h-3 w-3 rounded-full ring-2 ring-gray-800
-                                            @if($color === 'green') bg-gradient-to-r from-green-400 to-emerald-500
-                                            @elseif($color === 'yellow') bg-gradient-to-r from-yellow-400 to-orange-500
-                                            @elseif($color === 'orange') bg-gradient-to-r from-orange-400 to-red-500
-                                            @elseif($color === 'red') bg-gradient-to-r from-red-400 to-red-600
-                                            @else bg-gradient-to-r from-gray-400 to-gray-500
-                                            @endif"></span>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-semibold text-white truncate">{{ auth()->user()->name }}</p>
-                                        <p class="text-xs text-gray-300 truncate">{{ auth()->user()->email }}</p>
-                                        @if(auth()->user()->isAdmin())
-                                            <span class="inline-block text-xs font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Admin</span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <div class="mt-3 space-y-1">
-                                    <form method="POST" action="{{ route('logout') }}" onsubmit="if(window.authSync) window.authSync.notifyLogout();">
-                                        @csrf
-                                        <button type="submit" class="group flex w-full items-center rounded-xl px-3 py-3 text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-red-600/10 to-pink-600/10 border border-red-600/20 hover:from-red-600/20 hover:to-pink-600/20 text-red-100 hover:text-white">
-                                            <svg class="mr-3 h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                                            </svg>
-                                            Cerrar Sesión
-                                        </button>
-                                    </form>
-                                </div>
+                                <!-- Mobile Navigation -->
+                                ...existing code...
                             </div>
                         </div>
                     </div>

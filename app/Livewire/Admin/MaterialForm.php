@@ -9,7 +9,7 @@ class MaterialForm extends Component
 {
     public $materialId;
     public $name = '';
-    public $category = '';
+    public $category_id = '';
     public $description = '';
     public $unit_measure = '';
     public $unit_price = 0;
@@ -22,12 +22,7 @@ class MaterialForm extends Component
     public $price_type = 'per_unit'; // 'per_unit' o 'total_piece'
     public $material_type = 'units'; // 'units', 'pieces', 'dimensions'
 
-    public $categories = [
-        'Aluminio y Vidrio',
-        'Melamina', 
-        'Gypsum',
-        'Cielo Raso'
-    ];
+    public $categories = [];
 
     // Unidades de medida por tipo
     public function getAvailableUnitsProperty()
@@ -66,6 +61,7 @@ class MaterialForm extends Component
     {
         return [
             'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'unit_measure' => 'required|string|max:100',
             'unit_price' => ($this->is_by_piece || $this->has_dimensions) ? 'nullable' : 'required|numeric|min:0',
@@ -88,9 +84,11 @@ class MaterialForm extends Component
 
     public function mount($material = null)
     {
+        $this->categories = \App\Models\Category::orderBy('name')->get();
         if ($material) {
             $this->materialId = $material->id;
             $this->name = $material->name;
+            $this->category_id = $material->category_id;
             $this->description = $material->description;
             $this->unit_measure = $material->unit_measure;
             $this->unit_price = $material->unit_price;
@@ -222,6 +220,7 @@ class MaterialForm extends Component
 
             $materialData = [
                 'name' => trim($this->name),
+                'category_id' => $this->category_id,
                 'description' => trim($this->description) ?: null,
                 'unit_measure' => $this->unit_measure,
                 'unit_price' => ($this->is_by_piece || $this->has_dimensions) ? (float)$this->unit_price : (float)$this->unit_price,

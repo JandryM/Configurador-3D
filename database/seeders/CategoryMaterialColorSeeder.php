@@ -22,15 +22,21 @@ class CategoryMaterialColorSeeder extends Seeder
         $slidingCategory = Category::where('name', 'Sliding Systems')->first();
         $securityCategory = Category::where('name', 'Security')->first();
 
-        // Get materials by current category field
-        $aluminumMaterials = Material::where('category', 'perfil_aluminio')->get();
-        $glassMaterials = Material::where('category', 'vidrio')->get();
-        $hardwareMaterials = Material::where('category', 'herraje')->get();
-        $sealingMaterials = Material::where('category', 'sellado')->get();
+        // Obtener los IDs de categoría
+        $aluminumCategoryId = Category::where('name', 'perfil_aluminio')->value('id');
+        $glassCategoryId = Category::where('name', 'vidrio')->value('id');
+        $hardwareCategoryId = Category::where('name', 'herraje')->value('id');
+        $sealingCategoryId = Category::where('name', 'sellado')->value('id');
+
+        // Get materials by category_id
+        $aluminumMaterials = Material::where('category_id', $aluminumCategoryId)->get();
+        $glassMaterials = Material::where('category_id', $glassCategoryId)->get();
+        $hardwareMaterials = Material::where('category_id', $hardwareCategoryId)->get();
+        $sealingMaterials = Material::where('category_id', $sealingCategoryId)->get();
 
         // Get colors
-        $aluminumColors = Color::whereIn('color_name', ['Natural', 'White', 'Black Anodized', 'Champagne', 'Bronze'])->get();
-        $glassColors = Color::whereIn('color_name', ['Clear Glass', 'Bronze Glass', 'Gray Glass', 'Reflective Glass'])->get();
+        $aluminumColors = Color::whereIn('color_name', ['Natural', 'White', 'Black Anodized', 'Woody', 'Bronze'])->get();
+        $glassColors = Color::whereIn('color_name', ['Transparent Glass', 'Reflective Blue Sky Glass', 'Reflective Gray Dark Glass'])->get();
 
         // Assign aluminum materials to all categories (can be used in windows, doors, etc.)
         $allCategories = [$windowsCategory, $doorsCategory, $glassCategory, $slidingCategory, $securityCategory];

@@ -52,33 +52,26 @@ class ColorSeeder extends Seeder
             ],
             // Glass colors
             [
-                'color_name' => 'Clear Glass',
+                'color_name' => 'Transparent Glass',
                 'percentage_increment' => 0.00,
-                'texture_path' => '/textures/glass/clear/',
+                'texture_path' => '/textures/glass/transparent/',
                 'is_active' => true,
                 'sort_order' => 10
             ],
             [
-                'color_name' => 'Bronze Glass',
+                'color_name' => 'Reflective Blue Sky Glass',
                 'percentage_increment' => 8.00,
-                'texture_path' => '/textures/glass/bronze/',
+                'texture_path' => '/textures/glass/reflective_blue/',
                 'is_active' => true,
                 'sort_order' => 11
             ],
             [
-                'color_name' => 'Gray Glass',
+                'color_name' => 'Reflective Gray Dark Glass',
                 'percentage_increment' => 8.00,
-                'texture_path' => '/textures/glass/gray/',
+                'texture_path' => '/textures/glass/reflective_gray_dark/',
                 'is_active' => true,
                 'sort_order' => 12
             ],
-            [
-                'color_name' => 'Reflective Glass',
-                'percentage_increment' => 25.00,
-                'texture_path' => '/textures/glass/reflective/',
-                'is_active' => true,
-                'sort_order' => 13
-            ]
         ];
 
         foreach ($colors as $colorData) {

@@ -178,15 +178,13 @@ class ProductMaterials extends Component
 
     public function render()
     {
-        // Filtrar materiales por la categoría del producto
+        // Filtrar materiales por la categoría del producto usando category_id
         $availableMaterials = collect();
-        
-        if ($this->product && $this->product->category) {
-            $availableMaterials = Material::where('category', $this->product->category)
+        if ($this->product && $this->product->category_id) {
+            $availableMaterials = Material::where('category_id', $this->product->category_id)
                                         ->orderBy('name')
                                         ->get();
         }
-        
         return view('livewire.admin.products.product-materials', [
             'availableMaterials' => $availableMaterials
         ]);

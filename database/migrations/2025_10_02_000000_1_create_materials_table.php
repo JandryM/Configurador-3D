@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('category')->nullable()->comment('Categoría del material (Aluminio y Vidrio, Melamina, etc.)');
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade')->comment('Categoría del material');
             $table->text('description')->nullable();
             $table->string('unit_measure');
             $table->decimal('unit_price', 10, 2);
@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('piece_size', 10, 3)->comment('Tamaño de la pieza completa (ej: 6.4 metros)');
             $table->decimal('piece_price', 10, 2)->comment('Precio de la pieza completa');
             $table->boolean('is_by_piece')->default(true)->comment('Si se maneja por piezas completas o por unidad');
+            $table->boolean('supports_colors')->default(false)->comment('Si el material cambia a diferentes colores');
             
             // Campos para dimensiones
             $table->boolean('has_dimensions')->default(false)->comment('Si el material se maneja por dimensiones (ancho x alto)');
@@ -33,7 +34,6 @@ return new class extends Migration
             $table->timestamps();
             
             // Índices para mejorar consultas
-            $table->index('category');
             $table->index('is_by_piece');
             $table->index('has_dimensions');
         });

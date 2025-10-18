@@ -15,57 +15,81 @@ class ColorMaterialSeeder extends Seeder
      */
     public function run(): void
     {
+        // Limpiar tabla para evitar duplicados
+        DB::table('material_color')->truncate();
         // Get aluminum colors (for aluminum profiles)
         $aluminumColors = Color::whereIn('color_name', [
-            'Natural', 'White', 'Black Anodized', 'Champagne', 'Bronze'
+            'Natural', 'White', 'Black Anodized', 'Woody', 'Bronze'
         ])->get();
 
         // Get glass colors (for glass materials)
         $glassColors = Color::whereIn('color_name', [
-            'Clear Glass', 'Bronze Glass', 'Gray Glass', 'Reflective Glass'
+            'Transparent Glass', 'Reflective Blue Sky Glass', 'Reflective Gray Dark Glass',
         ])->get();
 
-        // Get materials by category
-        $aluminumMaterials = Material::where('category', 'perfil_aluminio')->get();
-        $glassMaterials = Material::where('category', 'vidrio')->get();
+        // Obtener los IDs de categoría desde la tabla categories con los nuevos nombres
+        $windowsCategoryId = DB::table('categories')->where('name', 'Windows')->value('id');
+        $doorsCategoryId = DB::table('categories')->where('name', 'Doors')->value('id');
+        $glassPanelsCategoryId = DB::table('categories')->where('name', 'Glass Panels')->value('id');
+        $slidingSystemsCategoryId = DB::table('categories')->where('name', 'Sliding Systems')->value('id');
+        $securityCategoryId = DB::table('categories')->where('name', 'Security')->value('id');
 
-        // Assign aluminum colors to aluminum materials
+        // Puedes ajustar la lógica según cómo quieras asignar colores/materiales a cada categoría
+        // Ejemplo: asignar colores de aluminio a ventanas y puertas
+        $aluminumMaterials = Material::whereIn('category_id', [$windowsCategoryId, $doorsCategoryId])->where('supports_colors', true)->whereRaw('lower(name) not like ?', ['%vidrio%'])->get();
+        $glassMaterials = Material::where('supports_colors', true)->whereRaw('lower(name) like ?', ['%vidrio%'])->get();
+        $otherMaterials = Material::whereIn('category_id', [$slidingSystemsCategoryId, $securityCategoryId])->get();
+
+        // Asignar colores de aluminio a materiales de aluminio (ventanas y puertas)
+        $colorIncreases = [
+            'Natural' => 0,
+            'White' => 0,
+            'Black Anodized' => 4,
+            'Woody' => 10,
+            'Bronze' => 4
+        ];
         foreach ($aluminumMaterials as $material) {
             foreach ($aluminumColors as $color) {
+                $increase = $colorIncreases[$color->color_name] ?? 0;
                 DB::table('material_color')->insert([
                     'color_id' => $color->id,
                     'material_id' => $material->id,
-                    'category' => 'aluminum_profile',
+                    'category_id' => $material->category_id,
+                    'increase_value' => $increase,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]);
             }
         }
 
-        // Assign glass colors to glass materials
+        // Asignar colores de vidrio a materiales de vidrio (paneles de vidrio)
+        $glassIncreases = [
+            'Transparent Glass' => 0,
+            'Reflective Blue Sky Glass' => 10,
+            'Reflective Gray Dark Glass' => 20
+        ];
         foreach ($glassMaterials as $material) {
             foreach ($glassColors as $color) {
+                $increase = $glassIncreases[$color->color_name] ?? 0;
                 DB::table('material_color')->insert([
                     'color_id' => $color->id,
                     'material_id' => $material->id,
-                    'category' => 'glass',
+                    'category_id' => $material->category_id,
+                    'increase_value' => $increase,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]);
             }
         }
 
-        // Other materials (herraje, sellado) typically don't have color variations
-        // but we can assign neutral colors if needed
-        $otherMaterials = Material::whereIn('category', ['herraje', 'sellado'])->get();
+        // Otros materiales (sliding systems, security) típicamente no tienen variaciones de color
         $neutralColor = Color::where('color_name', 'Natural')->first();
-
         foreach ($otherMaterials as $material) {
             if ($neutralColor) {
                 DB::table('material_color')->insert([
                     'color_id' => $neutralColor->id,
                     'material_id' => $material->id,
-                    'category' => $material->category,
+                    'category_id' => $material->category_id,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]);

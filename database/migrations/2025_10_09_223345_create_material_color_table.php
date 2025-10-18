@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('material_id')->constrained('materials')->onDelete('cascade');
             $table->foreignId('color_id')->constrained('colors')->onDelete('cascade');
-            $table->string('category', 50)->nullable()->comment('Additional categorization');
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
+            $table->decimal('increase_value', 8, 2)->default(0);
             $table->timestamps();
             
             // Prevent duplicates
-            $table->unique(['material_id', 'color_id']);
-            $table->index('category');
+            $table->unique(['material_id', 'color_id', 'category_id']);
         });
     }
 
