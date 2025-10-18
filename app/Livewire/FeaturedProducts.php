@@ -9,7 +9,8 @@ class FeaturedProducts extends Component
 {
     public function getFeaturedProductsProperty()
     {
-        return Product::where('is_gallery_visible', true)
+        return Product::with('category')
+                     ->where('is_gallery_visible', true)
                      ->orderBy('created_at', 'desc')
                      ->limit(6)
                      ->get();

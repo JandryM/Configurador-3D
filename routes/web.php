@@ -54,20 +54,40 @@ Route::middleware(['auth', 'verified', 'account.active', 'admin'])->prefix('admi
     })->name('dashboard');
 
     // Gestión de usuarios
-    Route::get('/users', \App\Livewire\Admin\Users::class)->name('users');
+    Route::get('/users', function () {
+        return view('admin.users.index');
+    })->name('users.index');
+    
+    // Acciones de usuarios
+    Route::post('/users/{user}/suspend', [App\Http\Controllers\Admin\UserController::class, 'suspend'])->name('users.suspend');
+    Route::post('/users/{user}/unsuspend', [App\Http\Controllers\Admin\UserController::class, 'unsuspend'])->name('users.unsuspend');
+    Route::post('/users/{user}/verify-email', [App\Http\Controllers\Admin\UserController::class, 'verifyEmail'])->name('users.verify-email');
+    Route::delete('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
 
     // Gestión de productos
-    Route::get('/products', \App\Livewire\Admin\Products\ProductIndex::class)->name('products.index');
-    Route::get('/products/create', \App\Livewire\Admin\Products\ProductCreate::class)->name('products.create');
-    Route::get('/products/{product}/edit', \App\Livewire\Admin\Products\ProductEdit::class)->name('products.edit');
-    Route::get('/products/{product}/materials', \App\Livewire\Admin\Products\ProductMaterials::class)->name('products.materials');
-    Route::get('/products/{product}/3d-model', \App\Livewire\Admin\Products\Product3DManager::class)->name('products.3d-model');
+    Route::get('/products', function () {
+        return view('admin.products.index');
+    })->name('products.index');
 
     // Gestión de materiales
-    Route::get('/materials', \App\Livewire\Admin\Materials::class)->name('materials');
+    Route::get('/materials', function () {
+        return view('admin.materials.index');
+    })->name('materials.index');
 
-    // Estadísticas y reportes
-    Volt::route('/reports', 'admin.reports')->name('reports');
+    // Gestión de proformas
+    Route::get('/proformas', function () {
+        return view('admin.proformas.index');
+    })->name('proformas.index');
+
+    // Gestión de materiales  
+    Route::get('/materials', function () {
+        return view('admin.materials.index');
+    })->name('materials.index');
+
+    // Gestión de proformas
+    Route::get('/proformas', function () {
+        return view('admin.proformas.index');
+    })->name('proformas.index');
 });
 
 require __DIR__.'/auth.php';

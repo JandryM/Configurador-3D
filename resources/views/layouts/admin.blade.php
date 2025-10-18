@@ -1,144 +1,323 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    @include('partials.head')
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>{{ $title ?? config('app.name', 'Laravel') }} - Admin</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>@yield('title', $title ?? 'Panel de Administración') - Quality</title>
+    <style>
+        /* Gradientes personalizados Quality */
+        .gradient-bg {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .sidebar-collapsed {
+            width: 70px;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .main-content-expanded {
+            margin-left: 70px;
+        }
+        
+        /* Efectos glassmorphism premium */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+        
+        .glass-sidebar {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Animaciones */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Sidebar Navigation */
+        .nav-item {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-right: 3px solid #3b82f6;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+                height: 100vh;
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+    @livewireStyles
 </head>
-<body class="font-sans antialiased bg-gray-100">
-    <div class="min-h-screen flex">
-        <!-- Sidebar -->
-        <div class="bg-gray-800 text-white w-64 min-h-screen shadow-lg">
-            <div class="p-6">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold">Q</span>
-                    </div>
-                    <span class="font-bold text-xl">Quality Admin</span>
+<body class="min-h-screen gradient-bg antialiased">
+    <!-- Overlay para móvil -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-full glass-sidebar z-50">
+        <!-- Logo y Header del Sidebar -->
+        <div class="flex items-center justify-between p-6 border-b border-white/10">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center shadow-lg">
+                    <span class="text-white font-bold text-sm">Q</span>
+                </div>
+                <div id="sidebar-text" class="sidebar-text">
+                    <h2 class="text-white font-bold text-lg">Quality</h2>
+                    <p class="text-slate-300 text-xs">Admin Panel</p>
+                </div>
+            </div>
+            <button id="sidebar-toggle" class="text-white hover:text-blue-400 transition-colors lg:block hidden">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Navegación -->
+        <nav class="mt-6 px-3 space-y-2">
+            <!-- Dashboard -->
+            <a href="{{ route('admin.dashboard') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 8a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 12a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"></path>
+                </svg>
+                <span class="sidebar-text">Dashboard</span>
+            </a>
+            
+            <!-- Usuarios -->
+            <a href="{{ route('admin.users.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                </svg>
+                <span class="sidebar-text">Usuarios</span>
+            </a>
+            
+            <!-- Productos -->
+            <a href="{{ route('admin.products.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v1.101a7.002 7.002 0 011.586 2.433A4.993 4.993 0 016 8a4.993 4.993 0 012.414.564A7.002 7.002 0 0110.414 6.1V5a2 2 0 00-2-2H4z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="sidebar-text">Productos</span>
+            </a>
+            
+            <!-- Materiales -->
+            <a href="{{ route('admin.materials.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.materials.*') ? 'active' : '' }}">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="sidebar-text">Materiales</span>
+            </a>
+            
+            <!-- Proformas -->
+            <a href="{{ route('admin.proformas.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.proformas.*') ? 'active' : '' }}">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 002 2h6a2 2 0 002-2V3a2 2 0 012 2v6.5a1.5 1.5 0 01-1.5 1.5h-6A1.5 1.5 0 019 11.5V4H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-1V4a1 1 0 10-2 0v1H7V4a1 1 0 10-2 0v1z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="sidebar-text">Proformas</span>
+            </a>
+        </nav>
+        
+        <!-- Información del usuario y logout -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
+            <div class="flex items-center space-x-3 mb-3">
+                <div class="w-8 h-8 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                    <span class="text-sm font-bold text-white">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                    </span>
+                </div>
+                <div class="sidebar-text min-w-0">
+                    <p class="text-white text-sm font-medium truncate">{{ auth()->user()->name }}</p>
+                    <p class="text-slate-300 text-xs truncate">{{ auth()->user()->email }}</p>
                 </div>
             </div>
             
-            <nav class="mt-6">
-                <div class="px-6 py-2">
-                    <h3 class="text-xs uppercase tracking-wider text-gray-400 font-semibold">Administración</h3>
-                </div>
-                <ul class="mt-2 space-y-1">
-                    <li>
-                        <a href="{{ route('admin.dashboard') }}" 
-                           class="flex items-center px-6 py-3 text-sm hover:bg-gray-700 {{ request()->routeIs('admin.dashboard') ? 'bg-gray-700 border-r-2 border-blue-500' : '' }}">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
-                            </svg>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.users') }}" 
-                           class="flex items-center px-6 py-3 text-sm hover:bg-gray-700 {{ request()->routeIs('admin.users') ? 'bg-gray-700 border-r-2 border-blue-500' : '' }}">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                            </svg>
-                            Usuarios
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.products.index') }}" 
-                           class="flex items-center px-6 py-3 text-sm hover:bg-gray-700 {{ request()->routeIs('admin.products.*') ? 'bg-gray-700 border-r-2 border-blue-500' : '' }}">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                            </svg>
-                            Productos
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.materials') }}" 
-                           class="flex items-center px-6 py-3 text-sm hover:bg-gray-700 {{ request()->routeIs('admin.materials') ? 'bg-gray-700 border-r-2 border-blue-500' : '' }}">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                            </svg>
-                            Materiales
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.reports') }}" 
-                           class="flex items-center px-6 py-3 text-sm hover:bg-gray-700 {{ request()->routeIs('admin.reports') ? 'bg-gray-700 border-r-2 border-blue-500' : '' }}">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
-                            Reportes
-                        </a>
-                    </li>
-                </ul>
-
-                <div class="px-6 py-2 mt-8">
-                    <h3 class="text-xs uppercase tracking-wider text-gray-400 font-semibold">Usuario</h3>
-                </div>
-                <ul class="mt-2 space-y-1">
-                    <li>
-                        <a href="{{ route('dashboard') }}" 
-                           class="flex items-center px-6 py-3 text-sm hover:bg-gray-700">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                            </svg>
-                            Volver al sitio
-                        </a>
-                    </li>
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="w-full flex items-center px-6 py-3 text-sm hover:bg-gray-700 text-left">
-                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                                </svg>
-                                Cerrar sesión
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </nav>
+            <!-- Botones de acción -->
+            <div class="flex space-x-2">
+                <a href="{{ route('dashboard') }}" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 px-3 rounded-lg transition-colors text-center">
+                    <span class="sidebar-text">Ver Sitio</span>
+                    <span class="sidebar-collapsed-text hidden">🏠</span>
+                </a>
+                <form method="POST" action="{{ route('logout') }}" class="flex-1">
+                    @csrf
+                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white text-xs py-2 px-3 rounded-lg transition-colors">
+                        <span class="sidebar-text">Logout</span>
+                        <span class="sidebar-collapsed-text hidden">🚪</span>
+                    </button>
+                </form>
+            </div>
         </div>
-
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
-            <!-- Top Bar -->
-            <header class="bg-white shadow-sm border-b border-gray-200">
-                <div class="px-6 py-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h1 class="text-2xl font-semibold text-gray-900">
-                                {{ $title ?? 'Panel de Administración' }}
-                            </h1>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <span class="text-sm text-gray-600">
-                                {{ auth()->user()->name }}
-                            </span>
-                            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                                <span class="text-white text-sm font-medium">
-                                    {{ substr(auth()->user()->name, 0, 1) }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Page Content -->
-            <main class="flex-1 p-6">
-                {{ $slot }}
-            </main>
+    </aside>
+    
+    <!-- Contenido Principal -->
+    <main id="main-content" class="main-content min-h-screen">
+        <!-- Header con botón de menú móvil -->
+        <header class="glass-card border-b border-slate-200/50 px-6 py-4 lg:hidden">
+            <div class="flex items-center justify-between">
+                <h1 class="text-lg font-semibold text-slate-800">@yield('page-title', $title ?? 'Dashboard')</h1>
+                <button id="mobile-menu-toggle" class="text-slate-600 hover:text-slate-800 transition-colors">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Contenido de la página -->
+        <div class="p-6">
+            @yield('content')
         </div>
-    </div>
+    </main>
+    
+    <!-- Modales (si son necesarios) -->
+    @auth
+        <livewire:profile-modal />
+        @if(empty(auth()->user()->oauth_provider))
+            <livewire:password-modal />
+        @endif
+        <livewire:verification-modal />
+    @endauth
 
+    
     @livewireScripts
+    
+    <!-- Scripts del Sidebar -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const sidebarTexts = document.querySelectorAll('.sidebar-text');
+            const sidebarCollapsedTexts = document.querySelectorAll('.sidebar-collapsed-text');
+            
+            let isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+            
+            // Aplicar estado inicial
+            if (isCollapsed && window.innerWidth >= 1024) {
+                collapseSidebar();
+            }
+            
+            // Toggle sidebar desktop
+            sidebarToggle?.addEventListener('click', function() {
+                if (sidebar.classList.contains('sidebar-collapsed')) {
+                    expandSidebar();
+                } else {
+                    collapseSidebar();
+                }
+            });
+            
+            // Toggle sidebar móvil
+            mobileMenuToggle?.addEventListener('click', function() {
+                sidebar.classList.toggle('mobile-open');
+                sidebarOverlay.classList.toggle('hidden');
+            });
+            
+            // Cerrar sidebar móvil al hacer clic en overlay
+            sidebarOverlay?.addEventListener('click', function() {
+                sidebar.classList.remove('mobile-open');
+                sidebarOverlay.classList.add('hidden');
+            });
+            
+            function collapseSidebar() {
+                sidebar.classList.add('sidebar-collapsed');
+                mainContent.classList.add('main-content-expanded');
+                sidebarTexts.forEach(text => text.classList.add('hidden'));
+                sidebarCollapsedTexts.forEach(text => text.classList.remove('hidden'));
+                localStorage.setItem('sidebar-collapsed', 'true');
+            }
+            
+            function expandSidebar() {
+                sidebar.classList.remove('sidebar-collapsed');
+                mainContent.classList.remove('main-content-expanded');
+                sidebarTexts.forEach(text => text.classList.remove('hidden'));
+                sidebarCollapsedTexts.forEach(text => text.classList.add('hidden'));
+                localStorage.setItem('sidebar-collapsed', 'false');
+            }
+            
+            // Responsive handling
+            window.addEventListener('resize', function() {
+                if (window.innerWidth < 1024) {
+                    sidebar.classList.remove('sidebar-collapsed');
+                    mainContent.classList.remove('main-content-expanded');
+                    sidebarTexts.forEach(text => text.classList.remove('hidden'));
+                    sidebarCollapsedTexts.forEach(text => text.classList.add('hidden'));
+                } else {
+                    sidebar.classList.remove('mobile-open');
+                    sidebarOverlay.classList.add('hidden');
+                    if (isCollapsed) {
+                        collapseSidebar();
+                    }
+                }
+            });
+        });
+        
+        // Funciones para modales (compatibilidad)
+        function openProfileModal() {
+            Livewire.dispatch('openProfileModal');
+        }
+        
+        function openPasswordModal() {
+            Livewire.dispatch('openPasswordModal');
+        }
+    </script>
+    
+    @stack('scripts')
 </body>
 </html>

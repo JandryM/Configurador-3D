@@ -13,12 +13,26 @@ class SocialAuthController extends Controller
 {
     public function redirectToGoogle()
     {
+        // Configuración temporal para desarrollo - deshabilitar verificación SSL
+        if (app()->environment('local')) {
+            config(['services.google.guzzle' => [
+                'verify' => false
+            ]]);
+        }
+        
         return Socialite::driver('google')->redirect();
     }
 
     public function handleGoogleCallback()
     {
         try {
+            // Configuración temporal para desarrollo - deshabilitar verificación SSL
+            if (app()->environment('local')) {
+                config(['services.google.guzzle' => [
+                    'verify' => false
+                ]]);
+            }
+            
             $googleUser = Socialite::driver('google')->user();
 
             // Buscar usuario existente o crear uno nuevo
@@ -44,12 +58,36 @@ class SocialAuthController extends Controller
                 $user->save();
             }
 
+            // IMPORTANTE: Verificar si el usuario está suspendido ANTES de hacer login
+            if ($user->isSuspended()) {
+                $message = 'Tu cuenta ha sido suspendida y no puedes iniciar sesión.';
+                
+                if ($user->suspended_until) {
+                    $message = 'Tu cuenta está suspendida hasta el ' . $user->suspended_until->format('d/m/Y H:i') . '.';
+                } else {
+                    $message = 'Tu cuenta ha sido suspendida indefinidamente.';
+                }
+
+                if ($user->suspension_reason) {
+                    $message .= ' Motivo: ' . $user->suspension_reason;
+                }
+
+                $message .= ' Contacta al administrador para más información.';
+
+                return redirect('/login')->withErrors([
+                    'email' => $message
+                ]);
+            }
+
             // IMPORTANTE: Verificar si falta información de perfil
             // y forzar la redirección independientemente de si es usuario nuevo
             $needsProfileCompletion = empty($user->address) || empty($user->phone) || empty($user->province) || empty($user->city);
 
-            // Iniciar sesión
+            // Iniciar sesión solo si no está suspendido
             Auth::login($user, true);
+
+            // Actualizar último login
+            $user->updateLastLogin();
 
             // Siempre redirigir a la página principal
             return redirect()->intended('/');

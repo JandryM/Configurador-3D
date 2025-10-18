@@ -20,7 +20,7 @@ Route::middleware('guest')->group(function () {
 
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth'])->group(function () {
     Volt::route('verify-email', 'auth.verify-email')
         ->name('verification.notice');
 
@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
         ->name('password.confirm');
 });
 
+// Logout route - accesible para todos los usuarios autenticados
 Route::post('logout', App\Livewire\Actions\Logout::class)
     ->name('logout');
 
