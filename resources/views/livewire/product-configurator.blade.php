@@ -197,54 +197,56 @@
                             <!-- Selector de colores -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 @foreach($availableColors as $colorName => $color)
-                                <div class="relative">
-                                    <input type="radio" 
-                                           wire:change="updateParameter('color', '{{ $colorName }}')"
-                                           name="color_selection" 
-                                           value="{{ $colorName }}"
-                                           id="color_{{ $loop->index }}"
-                                           class="sr-only peer"
-                                           @if($parameters['color'] === $colorName) checked @endif>
-                                    
-                                    <label for="color_{{ $loop->index }}" 
-                                           class="flex items-center p-4 bg-white rounded-lg border-2 cursor-pointer transition-all
-                                                  hover:border-blue-300 hover:shadow-md
-                                                  peer-checked:border-blue-500 peer-checked:bg-blue-50">
+                                    @if(!str_contains(strtolower($colorName), 'glass') && !str_contains(strtolower($colorName), 'vidrio'))
+                                    <div class="relative">
+                                        <input type="radio" 
+                                               wire:change="updateParameter('color', '{{ $colorName }}')"
+                                               name="color_selection" 
+                                               value="{{ $colorName }}"
+                                               id="color_{{ $loop->index }}"
+                                               class="sr-only peer"
+                                               @if($parameters['color'] === $colorName) checked @endif>
                                         
-                                        <!-- Muestra de color visual -->
-                                        <div class="w-12 h-12 rounded-md border-2 border-gray-200 mr-4 shadow-inner
-                                                    @if($colorName === 'Natural') bg-gradient-to-br from-gray-200 to-gray-300
-                                                    @elseif($colorName === 'White') bg-gradient-to-br from-white to-gray-100
-                                                    @elseif($colorName === 'Black Anodized') bg-gradient-to-br from-gray-800 to-black
-                                                    @elseif($colorName === 'Woody') bg-gradient-to-br from-yellow-100 to-yellow-200
-                                                    @elseif($colorName === 'Bronze') bg-gradient-to-br from-yellow-600 to-yellow-800
-                                                    @else bg-gradient-to-br from-gray-300 to-gray-400 @endif">
-                                        </div>
-                                        
-                                        <div class="flex-1">
-                                            <div class="font-medium text-gray-900">{{ $color->color_name }}</div>
-                                            <div class="text-sm text-gray-500">
-                                                Aluminio {{ strtolower($color->color_name) }}
+                                        <label for="color_{{ $loop->index }}" 
+                                               class="flex items-center p-4 bg-white rounded-lg border-2 cursor-pointer transition-all
+                                                      hover:border-blue-300 hover:shadow-md
+                                                      peer-checked:border-blue-500 peer-checked:bg-blue-50">
+                                            
+                                            <!-- Muestra de color visual -->
+                                            <div class="w-12 h-12 rounded-md border-2 border-gray-200 mr-4 shadow-inner
+                                                        @if($colorName === 'Natural') bg-gradient-to-br from-gray-200 to-gray-300
+                                                        @elseif($colorName === 'White') bg-gradient-to-br from-white to-gray-100
+                                                        @elseif($colorName === 'Black Anodized') bg-gradient-to-br from-gray-800 to-black
+                                                        @elseif($colorName === 'Woody') bg-gradient-to-br from-yellow-100 to-yellow-200
+                                                        @elseif($colorName === 'Bronze') bg-gradient-to-br from-yellow-600 to-yellow-800
+                                                        @else bg-gradient-to-br from-gray-300 to-gray-400 @endif">
                                             </div>
-                                            <div class="text-sm font-medium 
-                                                        @if($color->percentage_increment == 0) text-green-600 
-                                                        @else text-orange-600 @endif">
-                                                @if($color->percentage_increment == 0)
-                                                    ✅ Sin incremento
-                                                @else
-                                                    💰 +{{ number_format($color->percentage_increment, 1) }}%
-                                                @endif
+                                            
+                                            <div class="flex-1">
+                                                <div class="font-medium text-gray-900">{{ $color->color_name }}</div>
+                                                <div class="text-sm text-gray-500">
+                                                    Aluminio {{ strtolower($color->color_name) }}
+                                                </div>
+                                                <div class="text-sm font-medium 
+                                                            @if($color->percentage_increment == 0) text-green-600 
+                                                            @else text-orange-600 @endif">
+                                                    @if($color->percentage_increment == 0)
+                                                        ✅ Sin incremento
+                                                    @else
+                                                        💰 +{{ number_format($color->percentage_increment, 1) }}%
+                                                    @endif
+                                                </div>
                                             </div>
-                                        </div>
-                                        
-                                        <!-- Indicador de selección -->
-                                        <div class="ml-2 opacity-0 peer-checked:opacity-100 transition-opacity">
-                                            <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                            </svg>
-                                        </div>
-                                    </label>
-                                </div>
+                                            
+                                            <!-- Indicador de selección -->
+                                            <div class="ml-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                                <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    @endif
                                 @endforeach
                             </div>
                             
@@ -277,6 +279,47 @@
                                 </div>
                             </div>
                             @endif
+                        </div>
+                        <!-- Selector de color de vidrio -->
+                        <div class="mt-8">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Color del Vidrio</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                @foreach($availableColors as $colorName => $color)
+                                    @if(str_contains(strtolower($colorName), 'glass') || str_contains(strtolower($colorName), 'vidrio'))
+                                    <div class="relative">
+                                        <input type="radio"
+                                               wire:change="updateParameter('glassColor', '{{ $colorName }}')"
+                                               name="glass_color_selection"
+                                               value="{{ $colorName }}"
+                                               id="glass_color_{{ $loop->index }}"
+                                               class="sr-only peer"
+                                               @if($parameters['glassColor'] === $colorName) checked @endif>
+                                        <label for="glass_color_{{ $loop->index }}"
+                                               class="flex items-center p-4 bg-white rounded-lg border-2 cursor-pointer transition-all
+                                                      hover:border-blue-300 hover:shadow-md
+                                                      peer-checked:border-blue-500 peer-checked:bg-blue-50">
+                                            <div class="w-12 h-12 rounded-md border-2 border-gray-200 mr-4 shadow-inner bg-gradient-to-br from-blue-100 to-blue-300"></div>
+                                            <div class="flex-1">
+                                                <div class="font-medium text-gray-900">{{ $color->color_name }}</div>
+                                                <div class="text-sm text-gray-500">Vidrio {{ strtolower($color->color_name) }}</div>
+                                                <div class="text-sm font-medium @if($color->percentage_increment == 0) text-green-600 @else text-orange-600 @endif">
+                                                    @if($color->percentage_increment == 0)
+                                                        ✅ Sin incremento
+                                                    @else
+                                                        💰 +{{ number_format($color->percentage_increment, 1) }}%
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="ml-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                                <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    @endif
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 </div>

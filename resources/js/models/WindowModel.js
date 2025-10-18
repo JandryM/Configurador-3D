@@ -236,6 +236,12 @@ export class WindowModel {
         // Limpiar recursos
         hdriTexture.dispose();
         pmremGenerator.dispose();
+
+        // Forzar actualización de materiales si el modelo ya existe
+        if (this.model && this.model.userData && typeof this.model.userData.updateColors === 'function') {
+            // Usar los últimos parámetros conocidos
+            this.model.userData.updateColors(parameters);
+        }
     }
 
     // Cargar imagen de respaldo si HDRI falla
@@ -307,13 +313,16 @@ export class WindowModel {
         // TODO: Optimizar esto en producción para no limpiar siempre
         this.clearMaterialCache();
         
-        // Crear clave única solo con la textura (si quieres tintar, puedes incluir color)
+        // Crear clave única combinando textura de aluminio y textura/color de vidrio
         const texturePath = parameters.texturePath || '/textures/aluminum/natural/';
-        const colorKey = `${texturePath}`;
+        const glassTexturePath = parameters.glassTexturePath || '/textures/glass/transparent/';
+        // Si hay color de vidrio, incluirlo en la clave
+        const glassColor = parameters.glassColor || '';
+        const colorKey = `${texturePath}|${glassTexturePath}|${glassColor}`;
         console.log('🔑 Cache key:', colorKey);
         // Verificar si ya tenemos los materiales en cache
         if (!this.materialCache.has(colorKey)) {
-            console.log('🆕 Creating new materials for:', colorKey);
+            //console.log('🆕 Creating new materials for:', colorKey);
             const newMaterials = this.createRealisticMaterials(parameters);
             this.materialCache.set(colorKey, newMaterials);
         } else {
@@ -385,91 +394,110 @@ export class WindowModel {
 
    // Crear materiales realistas con PBR avanzado - OPTIMIZADO CON CACHE
 createRealisticMaterials(parameters) {
-    // Obtener colores dinámicos desde los parámetros o usar valores por defecto
-    const glassColor = parameters.glassColor || '#E0F6FF'; // Vidrio dinámico o azul claro por defecto
-    
+    // Usar solo la textura del vidrio, sin color hex
+    const glassTexturePath = parameters.glassTexturePath || '/textures/glass/transparent/';
+    let glassTexture = null;
+    if (glassTexturePath) {
+        try {
+            glassTexture = new this.THREE.TextureLoader().load(`${glassTexturePath}vidrio.jpg`);
+            glassTexture.wrapS = this.THREE.RepeatWrapping;
+            glassTexture.wrapT = this.THREE.RepeatWrapping;
+            glassTexture.repeat.set(1, 1);
+            glassTexture.generateMipmaps = true;
+            glassTexture.minFilter = this.THREE.LinearMipmapLinearFilter;
+            glassTexture.magFilter = this.THREE.LinearFilter;
+            glassTexture.anisotropy = 4;
+        } catch (e) {
+            glassTexture = null;
+        }
+    }
 
-    // Lógica especial para color blanco
+    // Lógica especial para color blanco (solo aluminio)
     let texturePath = parameters.texturePath || '/textures/aluminum/natural/';
     let useWhiteTexture = false;
     if (parameters.color && parameters.color.toLowerCase() === 'white') {
-        // Usar textura especial para blanco
         texturePath = '/textures/aluminum/white/';
         useWhiteTexture = true;
     }
 
-    // Asegurar que la ruta termine con '/'
-    const basePath = texturePath.endsWith('/') ? texturePath : texturePath + '/';
+    // Solo cargar texturas de aluminio si la ruta es de aluminio
+    let baseColor, roughness, normal, metalness, displacement;
+    let aluminumMaterial;
+    if (texturePath.includes('/aluminum/')) {
+        const basePath = texturePath.endsWith('/') ? texturePath : texturePath + '/';
+        let textureSet = this.textureCache.get(basePath);
+        if (!textureSet) {
+            textureSet = this.loadTextureSet(basePath);
+            this.textureCache.set(basePath, textureSet);
+        }
+        ({ baseColor, roughness, normal, metalness, displacement } = textureSet);
 
-    // Verificar cache de texturas primero
-    let textureSet = this.textureCache.get(basePath);
-
-    if (!textureSet) {
-        // Solo cargar texturas si no están en cache
-        textureSet = this.loadTextureSet(basePath);
-        this.textureCache.set(basePath, textureSet);
+        // Crear material de aluminio usando solo la textura base y mapas
+        const materialConfig = {
+            metalness: 0.8,
+            roughness: 0.4,
+            envMapIntensity: 0.3,
+            clearcoat: 0.1,
+            clearcoatRoughness: 0.2,
+            opacity: 1.0,
+            transparent: false,
+        };
+        if (baseColor) {
+            materialConfig.map = baseColor;
+        }
+        if (metalness) {
+            materialConfig.normalMap = metalness;
+            materialConfig.normalScale = new this.THREE.Vector2(0.3, 0.3);
+        }
+        if (roughness) {
+            materialConfig.roughnessMap = roughness;
+            materialConfig.aoMap = roughness;
+            materialConfig.aoMapIntensity = 0.2;
+        }
+        if (displacement) {
+            materialConfig.displacementMap = displacement;
+            materialConfig.displacementScale = 0.005;
+            materialConfig.displacementBias = -0.002;
+        }
+        if (useWhiteTexture) {
+            materialConfig.color = new this.THREE.Color('#F8F8FF');
+            materialConfig.metalness = 0.4;
+        }
+        aluminumMaterial = new this.THREE.MeshPhysicalMaterial(materialConfig);
+    } else {
+        // Si no es aluminio, usar material básico
+        aluminumMaterial = new this.THREE.MeshPhysicalMaterial({
+            color: '#CCCCCC',
+            metalness: 0.8,
+            roughness: 0.4,
+            envMapIntensity: 0.3,
+            clearcoat: 0.1,
+            clearcoatRoughness: 0.2,
+            opacity: 1.0,
+            transparent: false,
+        });
     }
-
-    const { baseColor, roughness, normal, metalness, displacement } = textureSet;
-
-    // Crear material usando solo la textura base y mapas
-    const materialConfig = {
-        metalness: 0.8,
-        roughness: 0.4,
-        envMapIntensity: 0.3,
-        clearcoat: 0.1,
-        clearcoatRoughness: 0.2,
-        opacity: 1.0,
-        transparent: false,
-    };
-
-    // Usar textura base para el color del aluminio
-    if (baseColor) {
-        materialConfig.map = baseColor;
-    }
-    if (metalness) {
-        materialConfig.normalMap = metalness;
-        materialConfig.normalScale = new this.THREE.Vector2(0.3, 0.3);
-    }
-    if (roughness) {
-        materialConfig.roughnessMap = roughness;
-        materialConfig.aoMap = roughness;
-        materialConfig.aoMapIntensity = 0.2;
-    }
-    if (displacement) {
-        materialConfig.displacementMap = displacement;
-        materialConfig.displacementScale = 0.005;
-        materialConfig.displacementBias = -0.002;
-    }
-
-    // Si es blanco, ajustar el color base para que se vea realmente blanco
-    if (useWhiteTexture) {
-        materialConfig.color = new this.THREE.Color('#F8F8FF'); // Blanco pastel muy claro
-        materialConfig.metalness = 0.4;
-    }
-
-    // Usar MeshPhysicalMaterial para funciones avanzadas con HDRI
-    const aluminumMaterial = new this.THREE.MeshPhysicalMaterial(materialConfig);
 
     return {
         aluminum: aluminumMaterial,
-        
-        
-        // Vidrio técnico con propiedades físicas reales
+        // Vidrio técnico con propiedades físicas reales, solo textura
         glass: new this.THREE.MeshPhysicalMaterial({
-            color: new this.THREE.Color(glassColor),
+            map: glassTexture || null,
             transparent: true,
-            transmission: 0.95,  // Transmisión de luz realista
-            opacity: 0.1,       // Muy transparente
-            metalness: 0.0,
-            roughness: 0.02,    // Muy suave para reflejos claros
-            ior: 1.52,          // Índice de refracción del vidrio
-            thickness: 0.01,    // Grosor para cálculo de transmisión
-            specularIntensity: 1.0,
-            envMapIntensity: 2.0,
+            transmission: 1.0,
+            opacity: 1.0,
+            metalness: 0.7,
+            roughness: 0.05,
+            transmission: 0.001,
+            ior: 1.52,
+            thickness: 0.01,
+            specularIntensity: 4.0,
+            envMapIntensity: 5.0,
+            envMap: this.envMap || null,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.05,
             side: this.THREE.DoubleSide
         }),
-        
         // Material de acero inoxidable (texturas procedurales)
         stainlessSteel: new this.THREE.MeshPhysicalMaterial({
             color: 0xE8E8E8, // Plata más brillante para diferenciar del aluminio
@@ -480,19 +508,17 @@ createRealisticMaterials(parameters) {
             envMapIntensity: 1.5, // Más reflectivo
             normalScale: new this.THREE.Vector2(0.03, 0.03)
         }),
-
-        
-        
         // Vidrio interior con menos reflectividad
         innerGlass: new this.THREE.MeshPhysicalMaterial({
-            color: new this.THREE.Color(glassColor),
+            map: glassTexture || null,
             transparent: true,
             transmission: 0.85,
-            opacity: 0.15,
+            opacity: 0.2,
             metalness: 0.0,
             roughness: 0.1,
             ior: 1.45,
-            envMapIntensity: 1.0
+            envMapIntensity: 1.0,
+            envMap: this.envMap || null
         })
     };
 }
@@ -868,8 +894,8 @@ createVerticalProfile(width, height, depth) {
 // Crear vidrio de panel específico
 createPanelGlass(width, height, frameWidth, glassMaterial) {
     // Hacer el vidrio más pequeño para que no oculte los perfiles verticales
-    const glassWidth = width - frameWidth * 4; // Más margen para los perfiles verticales
-    const glassHeight = height - frameWidth * 4; // Más margen para los perfiles horizontales
+    const glassWidth = width - frameWidth * 3; // Más margen para los perfiles verticales
+    const glassHeight = height - frameWidth * 2; // Más margen para los perfiles horizontales
     
     const glassGeometry = new this.THREE.PlaneGeometry(glassWidth, glassHeight);
     const glass = new this.THREE.Mesh(glassGeometry, glassMaterial);
@@ -1263,13 +1289,44 @@ createAdvancedRubberSeals(width, height, depth) {
         if (panel1) {
             panel1.userData.onPointerDown = (event) => {
                 event.stopPropagation();
+                // Forzar que no se marque el panel ni cambie color
+                if (panel1.material) {
+                    panel1.material.emissive = new this.THREE.Color(0x000000);
+                    panel1.material.emissiveIntensity = 0;
+                    panel1.material.colorWrite = false;
+                }
+                // Si el panel tiene hijos (vidrio), también forzar emissive y colorWrite
+                panel1.traverse(child => {
+                    if (child.isMesh && child.material) {
+                        if (child.material.emissive !== undefined) {
+                            child.material.emissive = new this.THREE.Color(0x000000);
+                            child.material.emissiveIntensity = 0;
+                        }
+                        child.material.colorWrite = false;
+                    }
+                });
                 group.userData.onPanelClick('1');
             };
         }
-        
+
         if (panel2) {
             panel2.userData.onPointerDown = (event) => {
                 event.stopPropagation();
+                // Forzar que no se marque el panel ni cambie color
+                if (panel2.material) {
+                    panel2.material.emissive = new this.THREE.Color(0x000000);
+                    panel2.material.emissiveIntensity = 0;
+                    panel2.material.colorWrite = false;
+                }
+                panel2.traverse(child => {
+                    if (child.isMesh && child.material) {
+                        if (child.material.emissive !== undefined) {
+                            child.material.emissive = new this.THREE.Color(0x000000);
+                            child.material.emissiveIntensity = 0;
+                        }
+                        child.material.colorWrite = false;
+                    }
+                });
                 group.userData.onPanelClick('2');
             };
         }

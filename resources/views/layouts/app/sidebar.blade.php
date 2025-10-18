@@ -4,7 +4,9 @@
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:border-zinc-700 dark:bg-gradient-to-b dark:from-zinc-900 dark:via-gray-900 dark:to-zinc-900 shadow-xl">
+        <!-- Alpine.js: Inicializa variable 'open' para el menú móvil -->
+        <div x-data="{ open: false }">
+    <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-gradient-to-b from-zinc-50 via-white to-zinc-50 dark:border-zinc-700 dark:bg-gradient-to-b dark:from-zinc-900 dark:via-gray-900 dark:to-zinc-900 shadow-xl">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
             <!-- Logo con gradiente -->
@@ -413,7 +415,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+    </div>
     </flux:sidebar>
 </aside>
 
@@ -470,5 +472,6 @@
         {{ $slot }}
 
         @fluxScripts
+        </div> <!-- Fin x-data Alpine.js -->
     </body>
 </html>

@@ -12,17 +12,14 @@ class Gallery extends Component
     public $showModal = false;
     public $showImageZoom = false;
     
-    public $categories = [
-        '' => 'Todas las categorías',
-        'Aluminio y Vidrio' => 'Aluminio y Vidrio',
-        'Melamina' => 'Melamina', 
-        'Gypsum' => 'Gypsum',
-        'Cielo Raso' => 'Cielo Raso',
-        'Muebles de Comedor' => 'Muebles de Comedor',
-        'Muebles de Sala' => 'Muebles de Sala',
-        'Muebles de Oficina' => 'Muebles de Oficina',
-        'Muebles Personalizados' => 'Muebles Personalizados'
-    ];
+    public $categories = [];
+    public function mount()
+    {
+        $this->categories = ['' => 'Todas las categorías'];
+        foreach (\App\Models\Category::orderBy('name')->get() as $cat) {
+            $this->categories[$cat->name] = $cat->name;
+        }
+    }
 
     public function getProductsProperty()
     {

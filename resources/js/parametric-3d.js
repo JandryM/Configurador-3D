@@ -45,8 +45,6 @@ class ParametricProduct3D {
             RGBELoader: RGBELoader,
             EXRLoader: EXRLoader
         };
-        
-        console.log('✅ Loaders HDRI configurados (RGBELoader y EXRLoader)');
 
         // Inicializar modelos especializados
         this.models = {
@@ -122,58 +120,6 @@ class ParametricProduct3D {
         this.animate();
     }
 
-    // Efecto visual para panel específico
-    flashPanel(panel) {
-        if (!panel) return;
-        
-        // Guardar material original
-        const originalMaterials = [];
-        panel.traverse((child) => {
-            if (child.isMesh && child.material) {
-                originalMaterials.push({
-                    mesh: child,
-                    material: child.material
-                });
-            }
-        });
-        
-        // Material de destaque temporal
-        const flashMaterial = new this.THREE.MeshBasicMaterial({
-            color: 0x00ff00,
-            transparent: true,
-            opacity: 0.5
-        });
-        
-        // Aplicar efecto de flash
-        panel.traverse((child) => {
-            if (child.isMesh && child.material) {
-                child.material = flashMaterial;
-            }
-        });
-        
-        // Restaurar materiales originales después de 200ms
-        setTimeout(() => {
-            originalMaterials.forEach(({ mesh, material }) => {
-                mesh.material = material;
-            });
-        }, 200);
-    }
-    
-    // Efecto visual para ventana completa
-    flashWindow(windowGroup) {
-        if (!windowGroup) return;
-        
-        // Flash más sutil para toda la ventana
-        const panel1 = windowGroup.getObjectByName('slidingPanel1');
-        const panel2 = windowGroup.getObjectByName('slidingPanel2');
-        
-        if (panel1) this.flashPanel(panel1);
-        if (panel2) {
-            setTimeout(() => {
-                this.flashPanel(panel2);
-            }, 100); // Efecto escalonado
-        }
-    }
     
     // Agregar controles de teclado
     setupKeyboardControls() {
@@ -285,14 +231,12 @@ class ParametricProduct3D {
                             windowGroup.userData.slidePanel(panelNumber, 'toggle');
                         }
                         
-                        // Efecto visual en el panel específico
-                        this.flashPanel(windowGroup.getObjectByName(specificPanel));
+                        // ...efecto visual eliminado...
                     } else {
                         // Click general en la ventana
                         windowGroup.userData.slideWindow('toggle');
                         
-                        // Efecto visual general
-                        this.flashWindow(windowGroup);
+                        // ...efecto visual eliminado...
                     }
                 }
             }
@@ -422,19 +366,6 @@ class ParametricProduct3D {
             this.fitCameraToProduct(isUpdate);
         }
     }
-
-    // Métodos de generación movidos a archivos especializados
-    // Ver: WindowModel.js, DoorModel.js, FurnitureModel.js
-
-
-
-
-
-
-
-
-
-
 
     // Actualizar parámetros en tiempo real
     updateParameter(key, value) {

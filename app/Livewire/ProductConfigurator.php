@@ -1,9 +1,6 @@
 <?php
-
 namespace App\Livewire;
-
 use App\Models\Product;
-use App\Models\Material;
 use App\Models\Color;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
@@ -11,29 +8,20 @@ use Illuminate\Support\Facades\DB;
 class ProductConfigurator extends Component
 {
     public Product $product;
-    public $configuration = [];
     public $calculatedPrice = 0;
     public $materialCosts = [];
-    public $showPriceBreakdown = false;
-    
     // Parámetros por defecto para la configuración
     public $parameters = [
-        'width' => 1200,            // mm
-        'height' => 1500,           // mm
-        'panelCount' => 2,          // número de paneles
-        'color' => 'Natural',       // Nombre del color desde la BD (controla tanto frame como textura)
-        'glassColor' => '#E0F6FF',  // Color del vidrio en hexadecimal
-        'frameColor' => 0xC0C0C0,   // Color base del frame en hexadecimal (se usa si no hay texturas) - Plata claro
-        'material' => null,
-        'glassMaterial' => null,
-        'hardware' => null
+        'width' => 1.2,
+        'height' => 1.5,
+        'color' => 'Natural',
+        'glassColor' => 'Transparent Glass',
     ];
-
     // Límites por tipo de producto
     public $limits = [
         'window' => [
-            'width' => ['min' => 0.3, 'max' => 3.0, 'step' => 0.1],
-            'height' => ['min' => 0.3, 'max' => 2.5, 'step' => 0.1],
+            'width' => ['min' => 0.5, 'max' => 4.0, 'step' => 0.1],
+            'height' => ['min' => 0.3, 'max' => 3.5, 'step' => 0.1],
             'depth' => ['min' => 0.05, 'max' => 0.15, 'step' => 0.01],
             'frameWidth' => ['min' => 0.02, 'max' => 0.1, 'step' => 0.01]
         ],
@@ -49,9 +37,51 @@ class ProductConfigurator extends Component
             'depth' => ['min' => 0.3, 'max' => 1.0, 'step' => 0.1]
         ]
     ];
-
-        // Colores disponibles (se cargan desde la base de datos)
+    // Colores disponibles (se cargan desde la base de datos)
     public $availableColors = [];
+
+    // Métodos de cálculo de costos
+    private function calcularCostoVidrio($material, $quantity)
+    {
+        $glassColor = $this->parameters['glassColor'] ?? 'Transparent Glass';
+        $colorId = Color::where('color_name', $glassColor)->value('id');
+        $pivot = DB::table('material_color')
+            ->where('material_id', $material->id)
+            ->where('color_id', $colorId)
+            ->where('category_id', $material->category_id)
+            ->first();
+        $increase = $pivot ? $pivot->increase_value ?? 0 : 0;
+        $pieceSize = $material->piece_size;
+        $piecePrice = $material->piece_price;
+        $precioVidrioFinal = $piecePrice + $increase;
+        if ($pieceSize > 0) {
+            $proporcion = $quantity / $pieceSize;
+            $cost = $precioVidrioFinal * $proporcion;
+        } else {
+            $cost = $precioVidrioFinal * $quantity;
+        }
+        return [$cost, $increase];
+    }
+
+    private function calcularCostoAluminio($material, $quantity)
+    {
+        $colorParam = $this->parameters['color'] ?? 'Natural';
+        $colorId = Color::where('color_name', $colorParam)->value('id');
+        $pivot = DB::table('material_color')
+            ->where('material_id', $material->id)
+            ->where('color_id', $colorId)
+            ->where('category_id', $material->category_id)
+            ->first();
+        $increase = 0;
+        $pieceSize = $material->piece_size;
+        $unitPrice = $material->unit_price;
+        if ($pivot && $pivot->increase_value > 0 && $pieceSize > 0) {
+            $ratio = $quantity / $pieceSize;
+            $increase = round($pivot->increase_value * $ratio, 2);
+        }
+        $cost = $unitPrice * $quantity + $increase;
+        return [$cost, $increase];
+    }
 
     public function mount(Product $product)
     {
@@ -112,8 +142,6 @@ class ProductConfigurator extends Component
 
         $this->parameters[$parameter] = $value;
         
-        // No necesitamos sincronizar frameColor ya que se obtiene dinámicamente desde la BD
-        
         $this->calculatePrice();
         
         // Dispatch evento para actualizar modelo 3D
@@ -122,53 +150,66 @@ class ProductConfigurator extends Component
             $parametersFor3D = array_merge($this->parameters, ['depth' => 1.0]);
         }
         
-    // Incluir solo la ruta de textura correspondiente al color seleccionado
+    // Incluir la ruta de textura correspondiente al color seleccionado para el frame
     $parametersFor3D['texturePath'] = $this->getColorTexturePath($this->parameters['color']);
-    $this->dispatch('updateModel3D', parameters: $parametersFor3D);
+    // Incluir la ruta de textura correspondiente al color seleccionado para el vidrio
+    $parametersFor3D['glassTexturePath'] = $this->getGlassTexturePath($this->parameters['glassColor']);
+        $this->dispatch('updateModel3D', parameters: $parametersFor3D);
     }
 
     public function calculatePrice()
     {
         try {
             $this->materialCosts = [];
-            $totalCost = 0; // Sin costo base - solo materiales
+            $totalCost = 0;
 
-            // Calcular área/volumen según el tipo de producto
             $area = $this->parameters['width'] * $this->parameters['height'];
-            $depth = $this->getProductType() === 'window' ? 1.0 : $this->parameters['depth'];
+            $depth = $this->getProductType() === 'window' ? 1.0 : ($this->parameters['depth'] ?? 1.0);
             $volume = $area * $depth;
 
-            // Obtener materiales del producto
-            $materials = $this->product->materials;
-
-            foreach ($materials as $material) {
+            foreach ($this->product->materials as $material) {
                 $quantity = $this->calculateMaterialQuantity($material, $area, $volume);
-                $cost = $material->calculateCost($quantity);
-                
+                $cost = 0;
+                $increase = 0;
+                if (str_contains(strtolower($material->name), 'vidrio')) {
+                    list($cost, $increase) = $this->calcularCostoVidrio($material, $quantity);
+                } else if ($material->supports_colors) {
+                    list($cost, $increase) = $this->calcularCostoAluminio($material, $quantity);
+                } else {
+                    $cost = $material->unit_price * $quantity;
+                }
                 $this->materialCosts[] = [
                     'name' => $material->name,
                     'quantity' => $quantity,
                     'unit' => $material->unit_measure,
                     'unit_price' => $material->unit_price,
-                    'total_cost' => $cost
+                    'total_cost' => $cost,
+                    'color_increase' => $increase
                 ];
-
                 $totalCost += $cost;
             }
 
-            // Aplicar incremento por color
-            $colorIncrement = $this->getColorIncrement();
-            $totalCostWithColor = $totalCost * (1 + ($colorIncrement / 100));
+            // Obtener porcentaje de costo directo para el producto
+            $directCost = DB::table('product_cost_settings')
+                ->where('product_id', $this->product->id)
+                ->value('direct_cost_percentage');
+            $directCost = $directCost !== null ? $directCost : 0;
 
-            // Aplicar margen de ganancia
-            $profitMargin = 1.4; // 40% margen
-            $this->calculatedPrice = $totalCostWithColor * $profitMargin;
+            // Obtener porcentaje de costo indirecto global
+            $indirectCost = DB::table('global_cost_settings')
+                ->orderByDesc('id')
+                ->value('indirect_cost_percentage');
+            $indirectCost = $indirectCost !== null ? $indirectCost : 0;
 
+            // Aplicar costos directos e indirectos
+            $directAmount = $totalCost * ($directCost / 100);
+            $indirectAmount = $totalCost * ($indirectCost / 100);
+            $this->calculatedPrice = $totalCost + $directAmount + $indirectAmount;
         } catch (\Exception $e) {
-            \Log::error('Error calculating price: ' . $e->getMessage());
             $this->calculatedPrice = $this->product->price ?? 0;
         }
     }
+
 
     private function calculateMaterialQuantity($material, $area, $volume)
     {
@@ -269,30 +310,6 @@ class ProductConfigurator extends Component
         }
     }
 
-    public function addToCart()
-    {
-        try {
-            $cartItem = [
-                'product_id' => $this->product->id,
-                'name' => $this->product->name,
-                'configuration' => $this->parameters,
-                'price' => $this->calculatedPrice,
-                'quantity' => 1,
-                'is_custom' => true
-            ];
-
-            // Agregar al carrito (usando sesión por simplicidad)
-            $cart = session('cart', []);
-            $cart[] = $cartItem;
-            session(['cart' => $cart]);
-
-            session()->flash('message', '¡Producto personalizado agregado al carrito!');
-            
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error al agregar al carrito: ' . $e->getMessage());
-        }
-    }
-
     public function requestQuote()
     {
         $this->saveConfiguration();
@@ -326,22 +343,10 @@ class ProductConfigurator extends Component
         return $this->limits[$productType][$parameter] ?? null;
     }
 
-    private function getColorIncrement()
-    {
-        // Usar directamente el nombre del color desde los parámetros
-        $selectedColorName = $this->parameters['color'] ?? 'Natural';
-        
-        // Buscar el incremento en la base de datos
-        $color = Color::where('color_name', $selectedColorName)->first();
-        
-        return $color ? $color->percentage_increment : 0;
-    }
-
     private function loadAvailableColors()
     {
         // Cargar todos los colores activos
         $this->availableColors = Color::where('is_active', true)
-                                     ->where('is_active', true)
                                      ->orderBy('sort_order')
                                      ->get()
                                      ->keyBy('color_name');
@@ -358,6 +363,12 @@ class ProductConfigurator extends Component
         return $color ? $color->texture_path : '/textures/aluminum/natural/';
     }
 
+    public function getGlassTexturePath($glassColorName)
+    {
+        $color = $this->availableColors[$glassColorName] ?? null;
+        // Si no existe, usar textura por defecto de vidrio
+        return $color ? $color->texture_path : '/textures/glass/transparent/';
+    }
 
 
     public function render()
