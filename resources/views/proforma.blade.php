@@ -1,86 +1,122 @@
-<x-layouts.guest>
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl md:text-4xl font-bold mb-8 text-center">Personaliza tu Proforma</h1>
+@php use Illuminate\Support\Str; @endphp
+<style>
+    .proforma-header { text-align: center; margin-bottom: 20px; }
+    .proforma-section { margin-bottom: 20px; }
+    .proforma-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+    .proforma-table th, .proforma-table td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+    .proforma-table th { background: #f5f5f5; }
+    .proforma-total { font-weight: bold; font-size: 16px; }
+</style>
 
-        <!-- Tabla de productos agregados -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full bg-white dark:bg-gray-900 rounded-xl shadow-lg">
-                <thead>
-                    <tr class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                        <th class="px-4 py-3 text-left">Diseño</th>
-                        <th class="px-4 py-3 text-left">Dimensiones</th>
-                        <th class="px-4 py-3 text-center">Cantidad</th>
-                        <th class="px-4 py-3 text-left">Acabado</th>
-                        <th class="px-4 py-3 text-left">Opciones</th>
-                        <th class="px-4 py-3 text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{-- Simulación de productos agregados --}}
-                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                        <td class="px-4 py-2">Ventana corrediza</td>
-                        <td class="px-4 py-2">
-                            <span class="block text-xs text-gray-500">Ancho:</span> <input type="number" min="0" value="120" class="w-16 px-2 py-1 rounded border border-gray-300 dark:border-gray-600" /> cm<br>
-                            <span class="block text-xs text-gray-500">Alto:</span> <input type="number" min="0" value="100" class="w-16 px-2 py-1 rounded border border-gray-300 dark:border-gray-600" /> cm
-                        </td>
-                        <td class="px-4 py-2 text-center">
-                            <input type="number" min="1" value="2" class="w-16 px-2 py-1 rounded border border-gray-300 dark:border-gray-600" />
-                        </td>
-                        <td class="px-4 py-2">
-                            <select class="w-32 px-2 py-1 rounded border border-gray-300 dark:border-gray-600">
-                                <option>Aluminio natural</option>
-                                <option>Blanco</option>
-                                <option>Negro</option>
-                            </select>
-                        </td>
-                        <td class="px-4 py-2">
-                            <input type="checkbox" id="mosquitero1" class="mr-2"> <label for="mosquitero1">Mosquitero</label>
-                        </td>
-                        <td class="px-4 py-2 text-center">
-                            <button class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:scale-105 transition">Eliminar</button>
-                        </td>
-                    </tr>
-                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                        <td class="px-4 py-2">Closet melamina</td>
-                        <td class="px-4 py-2">
-                            <span class="block text-xs text-gray-500">Ancho:</span> <input type="number" min="0" value="180" class="w-16 px-2 py-1 rounded border border-gray-300 dark:border-gray-600" /> cm<br>
-                            <span class="block text-xs text-gray-500">Alto:</span> <input type="number" min="0" value="220" class="w-16 px-2 py-1 rounded border border-gray-300 dark:border-gray-600" /> cm<br>
-                            <span class="block text-xs text-gray-500">Profundidad:</span> <input type="number" min="0" value="60" class="w-16 px-2 py-1 rounded border border-gray-300 dark:border-gray-600" /> cm
-                        </td>
-                        <td class="px-4 py-2 text-center">
-                            <input type="number" min="1" value="1" class="w-16 px-2 py-1 rounded border border-gray-300 dark:border-gray-600" />
-                        </td>
-                        <td class="px-4 py-2">
-                            <select class="w-32 px-2 py-1 rounded border border-gray-300 dark:border-gray-600">
-                                <option>Blanco mate</option>
-                                <option>Roble</option>
-                                <option>Negro</option>
-                            </select>
-                        </td>
-                        <td class="px-4 py-2">
-                            <input type="checkbox" id="puertas1" class="mr-2"> <label for="puertas1">Puertas corredizas</label>
-                        </td>
-                        <td class="px-4 py-2 text-center">
-                            <button class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:scale-105 transition">Eliminar</button>
-                        </td>
-                    </tr>
-                    {{-- Puedes agregar más productos simulados aquí --}}
-                </tbody>
-            </table>
+<div class="proforma-header text-gray-800">
+    <h2>Proforma de Producto</h2>
+    <p class="font-bold text-lg mb-1">{{ $product->name }}</p>
+    <p>Fecha: {{ now()->format('d/m/Y H:i') }}</p>
+    @if(isset($user) && $user)
+        <div class="mt-2 text-sm text-left" style="margin: 0 auto; max-width: 400px;">
+            <strong>Cliente:</strong> {{ $user->name ?? $user->email ?? 'Usuario' }}<br>
+            @if(!empty($user->email))<strong>Email:</strong> {{ $user->email }}<br>@endif
+            @if(!empty($user->phone))<strong>Teléfono:</strong> {{ $user->phone }}<br>@endif
+            @if(!empty($user->address))<strong>Dirección:</strong> {{ $user->address }}<br>@endif
+            @if(!empty($user->province))<strong>Provincia:</strong> {{ $user->province }}<br>@endif
+            @if(!empty($user->city))<strong>Ciudad:</strong> {{ $user->city }}<br>@endif
         </div>
+    @endif
+</div>
 
-        <!-- Botón para generar proforma y ver precios -->
-        <div class="flex justify-center mt-10">
-            <button type="button" class="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-10 py-4 rounded-2xl font-bold text-xl shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl">
-                Generar Proforma y Ver Precios
-            </button>
-        </div>
+<div class="proforma-section text-gray-800">
+    <h4 class="font-semibold mb-2">Parámetros Seleccionados</h4>
+    <table class="proforma-table text-gray-800">
+        <tbody>
+        @php
+            $paramLabels = [
+                'width' => 'Ancho',
+                'height' => 'Alto',
+                'depth' => 'Profundidad',
+                'frameWidth' => 'Ancho del Marco',
+                'color' => 'Color del Marco',
+                'glassColor' => 'Color del Vidrio',
+                'notes' => 'Notas',
+                // Agrega aquí más traducciones si tienes más parámetros
+            ];
+        @endphp
+        @if(empty($parameters))
+            <tr><td colspan="2" class="text-center text-gray-400">Sin parámetros</td></tr>
+        @else
+            @foreach($parameters as $key => $value)
+                <tr>
+                    <th>{{ $paramLabels[$key] ?? Str::headline($key) }}</th>
+                    <td>{{ is_array($value) ? json_encode($value) : $value }}</td>
+                </tr>
+            @endforeach
+        @endif
+        </tbody>
+    </table>
+</div>
 
-        <!-- Comentarios para integración backend -->
-        {{-- 
-            - Aquí solo se personalizan productos, no se muestran precios ni totales.
-            - Al hacer clic en "Generar Proforma y Ver Precios" se debe procesar la orden y mostrar los precios en la siguiente vista o PDF.
-            - Integra la lógica de costeo por orden de trabajo en el backend.
-        --}}
+
+@php
+    $totalMateriales = collect($materialCosts)->sum('total_cost');
+    $directCost = $directCost ?? null;
+    $indirectCost = $indirectCost ?? null;
+    $directAmount = $directCost ? $totalMateriales * ($directCost / 100) : 0;
+    $indirectAmount = $indirectCost ? $totalMateriales * ($indirectCost / 100) : 0;
+@endphp
+
+<div class="proforma-section text-gray-800">
+    <h4 class="font-semibold mb-2">Desglose de Materiales</h4>
+    <table class="proforma-table text-gray-800">
+        <thead>
+            <tr>
+                <th>Material</th>
+                <th>Cantidad</th>
+                <th>Unidad</th>
+                <th>Precio Unitario</th>
+                <th>Incremento Color</th>
+                <th>Costo Total</th>
+            </tr>
+        </thead>
+        <tbody>
+        @if(empty($materialCosts))
+            <tr><td colspan="6" class="text-center text-gray-400">Sin materiales</td></tr>
+        @else
+            @foreach($materialCosts as $mat)
+                <tr>
+                    <td>{{ $mat['name'] ?? '-' }}</td>
+                    <td>{{ $mat['quantity'] ?? '-' }}</td>
+                    <td>{{ $mat['unit'] ?? '-' }}</td>
+                    <td>${{ isset($mat['unit_price']) ? number_format($mat['unit_price'], 2) : '-' }}</td>
+                    <td>${{ isset($mat['color_increase']) ? number_format($mat['color_increase'], 2) : '-' }}</td>
+                    <td>${{ isset($mat['total_cost']) ? number_format($mat['total_cost'], 2) : '-' }}</td>
+                </tr>
+            @endforeach
+        @endif
+        </tbody>
+    </table>
+    <div class="mt-2">
+        <div><strong>Total Materiales:</strong> ${{ number_format($totalMateriales, 2) }}</div>
+        @if($directCost)
+            <div><strong>Mano de Obra ({{ $directCost }}%):</strong> ${{ number_format($directAmount, 2) }}</div>
+        @endif
+        @if($indirectCost)
+            <div><strong>Costos Indirectos ({{ $indirectCost }}%):</strong> ${{ number_format($indirectAmount, 2) }}</div>
+        @endif
     </div>
-</x-layouts.guest>
+</div>
+
+<div class="proforma-section proforma-total text-gray-800">
+    Precio Total: ${{ number_format($calculatedPrice, 2) }}
+</div>
+
+@if(!empty($notes))
+<div class="proforma-section">
+    <strong>Notas del Cliente:</strong>
+    <p>{{ $notes }}</p>
+</div>
+@endif
+
+@if(isset($showDownloadButton) && $showDownloadButton)
+<div class="flex justify-end mt-4">
+    <button type="button" wire:click="downloadProformaPdf" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold">Descargar PDF</button>
+</div>
+@endif

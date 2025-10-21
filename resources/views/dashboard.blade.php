@@ -162,19 +162,8 @@
                         </div>
 
                         <!-- Contenido de proformas -->
-                        <div class="px-8 py-12">
-                            <div class="text-center">
-                                <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <svg class="w-12 h-12 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 002 2h6a2 2 0 002-2V3a2 2 0 012 2v6.5a1.5 1.5 0 01-1.5 1.5h-6A1.5 1.5 0 019 11.5V4H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-1V4a1 1 0 10-2 0v1H7V4a1 1 0 10-2 0v1z" clip-rule="evenodd"></path>
-                                    </svg>
-                                </div>
-                                <h3 class="text-xl font-semibold text-slate-800 mb-2">Aún no tienes proformas</h3>
-                                <p class="text-slate-600 max-w-sm mx-auto">
-                                    Tus proformas aparecerán aquí una vez que las crees desde nuestros productos
-                                </p>
-                            </div>
+                        <div class="px-2 py-8">
+                            <livewire:user-proformas />
                         </div>
                     </div>
                 </div>

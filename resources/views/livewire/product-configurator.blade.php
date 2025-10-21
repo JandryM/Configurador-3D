@@ -106,53 +106,6 @@
                     </div>
                 </div>
 
-                <!-- Desglose de Materiales -->
-                @if(!empty($materialCosts))
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        🧮 Desglose de Materiales
-                    </h3>
-                    <div class="space-y-3">
-                        @foreach($materialCosts as $material)
-                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                            <div class="flex-1">
-                                <div class="font-medium text-gray-900">{{ $material['name'] }}</div>
-                                <div class="text-sm text-gray-500">
-                                    {{ number_format($material['quantity'], 2) }} {{ $material['unit'] }} 
-                                    × ${{ number_format($material['unit_price'], 2) }}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium text-gray-900">
-                                    ${{ number_format($material['total_cost'], 2) }}
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                        
-                        <div class="pt-3 border-t-2 border-gray-200">
-                            <div class="flex justify-between items-center">
-                                <span class="font-semibold text-gray-900">Total Materiales:</span>
-                                <span class="font-semibold text-gray-900">
-                                    ${{ number_format(collect($materialCosts)->sum('total_cost'), 2) }}
-                                </span>
-                            </div>
-                            <div class="flex justify-between items-center mt-1">
-                                <span class="text-sm text-gray-600">Margen (40%):</span>
-                                <span class="text-sm text-gray-600">
-                                    +${{ number_format(collect($materialCosts)->sum('total_cost') * 0.4, 2) }}
-                                </span>
-                            </div>
-                            <div class="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
-                                <span class="font-bold text-lg text-green-600">Precio Final:</span>
-                                <span class="font-bold text-lg text-green-600">
-                                    ${{ number_format($calculatedPrice, 2) }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endif
             </div>
 
             <!-- Panel de controles -->
@@ -333,23 +286,68 @@
                     </div>
 
                     <div class="space-y-3">
-                        <button type="button" 
-                                wire:click="addToCart"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
-                            Agregar al Carrito
-                        </button>
-                        
-                        <button type="button" 
-                                wire:click="requestQuote"
-                                class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
-                            Solicitar Cotización
-                        </button>
-                        
-                        <button type="button" 
-                                wire:click="saveConfiguration"
-                                class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors">
-                            Guardar Configuración
-                        </button>
+                        @if(Auth::check())
+                            <button type="button"
+                                    wire:click="$set('showProformaModal', true)"
+                                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                                Visualizar Proforma
+                            </button>
+                        @else
+                            <div class="w-full bg-yellow-100 text-yellow-800 font-medium py-2 px-4 rounded-lg text-center">
+                                Debes iniciar sesión para visualizar y guardar la proforma.
+                            </div>
+                        @endif
+                    </div>
+
+<!-- Modal de Proforma -->
+@if($showProformaModal ?? false)
+    @if(Auth::check())
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 relative">
+                <button type="button" wire:click="$set('showProformaModal', false)" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                <h2 class="text-xl font-bold mb-4 text-center">Proforma de Producto</h2>
+                @if (session()->has('message'))
+                    <div x-data="{ show: true }" x-show="show" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-40">
+                        <div class="bg-white rounded-lg shadow-2xl max-w-sm w-full p-6 relative border-2 border-green-500">
+                            <button type="button" @click="show = false" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                            <div class="flex flex-col items-center">
+                                <svg class="w-16 h-16 text-green-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 12l2 2l4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <h3 class="text-xl font-bold text-green-700 mb-2">¡Proforma guardada!</h3>
+                                <p class="text-green-800 text-center">{{ session('message') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                <div class="overflow-y-auto max-h-[70vh]">
+                    @include('proforma', [
+                        'product' => $product,
+                        'parameters' => $parameters,
+                        'materialCosts' => $materialCosts,
+                        'calculatedPrice' => $calculatedPrice,
+                        'notes' => $parameters['notes'] ?? null,
+                        'directCost' => $directCost ?? null,
+                        'indirectCost' => $indirectCost ?? null
+                    ])
+                </div>
+                <div class="mt-4 flex justify-end gap-2">
+                    <button type="button" wire:click="guardarProforma" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold">Guardar Proforma</button>
+                    @if(session()->has('message'))
+                        <button type="button" wire:click="downloadProformaPdf" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold">Descargar PDF</button>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-8 relative flex flex-col items-center">
+                <button type="button" wire:click="$set('showProformaModal', false)" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                <svg class="w-16 h-16 text-yellow-400 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <h3 class="text-xl font-bold text-yellow-700 mb-2">Acceso restringido</h3>
+                <p class="text-yellow-800 text-center">Debes iniciar sesión para visualizar, guardar o descargar la proforma.</p>
+            </div>
+        </div>
+    @endif
+@endif
                     </div>
                 </div>
             </div>

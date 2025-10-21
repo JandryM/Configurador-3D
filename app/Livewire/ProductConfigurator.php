@@ -7,6 +7,37 @@ use Illuminate\Support\Facades\DB;
 
 class ProductConfigurator extends Component
 {
+    public $showProformaModal = false;
+    public function downloadProformaPdf()
+    {
+        if (!auth()->check()) {
+            abort(403, 'No autorizado. Debes iniciar sesión para descargar la proforma.');
+        }
+        $product = $this->product;
+        $parameters = $this->parameters;
+        $materialCosts = $this->materialCosts;
+        $calculatedPrice = $this->calculatedPrice;
+        $notes = $this->parameters['notes'] ?? null;
+
+        $directCost = $this->getDirectCostPercentage();
+        $indirectCost = $this->getIndirectCostPercentage();
+
+        $user = auth()->user();
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('proforma', compact('product', 'parameters', 'materialCosts', 'calculatedPrice', 'notes', 'directCost', 'indirectCost', 'user'));
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->stream();
+        }, 'proforma_' . now()->format('Ymd_His') . '.pdf');
+    }
+
+    public function guardarProforma()
+    {
+        if (!auth()->check()) {
+            abort(403, 'No autorizado. Debes iniciar sesión para guardar la proforma.');
+        }
+        $this->saveConfiguration();
+    }
     public Product $product;
     public $calculatedPrice = 0;
     public $materialCosts = [];
@@ -50,16 +81,11 @@ class ProductConfigurator extends Component
             ->where('color_id', $colorId)
             ->where('category_id', $material->category_id)
             ->first();
-        $increase = $pivot ? $pivot->increase_value ?? 0 : 0;
+        $increase = $pivot->increase_value ?? 0;
         $pieceSize = $material->piece_size;
         $piecePrice = $material->piece_price;
         $precioVidrioFinal = $piecePrice + $increase;
-        if ($pieceSize > 0) {
-            $proporcion = $quantity / $pieceSize;
-            $cost = $precioVidrioFinal * $proporcion;
-        } else {
-            $cost = $precioVidrioFinal * $quantity;
-        }
+        $cost = $pieceSize > 0 ? $precioVidrioFinal * ($quantity / $pieceSize) : $precioVidrioFinal * $quantity;
         return [$cost, $increase];
     }
 
@@ -72,13 +98,11 @@ class ProductConfigurator extends Component
             ->where('color_id', $colorId)
             ->where('category_id', $material->category_id)
             ->first();
-        $increase = 0;
         $pieceSize = $material->piece_size;
         $unitPrice = $material->unit_price;
-        if ($pivot && $pivot->increase_value > 0 && $pieceSize > 0) {
-            $ratio = $quantity / $pieceSize;
-            $increase = round($pivot->increase_value * $ratio, 2);
-        }
+        $increase = ($pivot && $pivot->increase_value > 0 && $pieceSize > 0)
+            ? round($pivot->increase_value * ($quantity / $pieceSize), 2)
+            : 0;
         $cost = $unitPrice * $quantity + $increase;
         return [$cost, $increase];
     }
@@ -189,25 +213,31 @@ class ProductConfigurator extends Component
                 $totalCost += $cost;
             }
 
-            // Obtener porcentaje de costo directo para el producto
-            $directCost = DB::table('product_cost_settings')
-                ->where('product_id', $this->product->id)
-                ->value('direct_cost_percentage');
-            $directCost = $directCost !== null ? $directCost : 0;
+            $directCost = $this->getDirectCostPercentage();
+            $indirectCost = $this->getIndirectCostPercentage();
 
-            // Obtener porcentaje de costo indirecto global
-            $indirectCost = DB::table('global_cost_settings')
-                ->orderByDesc('id')
-                ->value('indirect_cost_percentage');
-            $indirectCost = $indirectCost !== null ? $indirectCost : 0;
-
-            // Aplicar costos directos e indirectos
             $directAmount = $totalCost * ($directCost / 100);
             $indirectAmount = $totalCost * ($indirectCost / 100);
             $this->calculatedPrice = $totalCost + $directAmount + $indirectAmount;
         } catch (\Exception $e) {
             $this->calculatedPrice = $this->product->price ?? 0;
         }
+    }
+    // Helpers para evitar código duplicado de obtención de porcentajes
+    private function getDirectCostPercentage()
+    {
+        $directCost = \DB::table('product_cost_settings')
+            ->where('product_id', $this->product->id)
+            ->value('direct_cost_percentage');
+        return $directCost !== null ? $directCost : 0;
+    }
+
+    private function getIndirectCostPercentage()
+    {
+        $indirectCost = \DB::table('global_cost_settings')
+            ->orderByDesc('id')
+            ->value('indirect_cost_percentage');
+        return $indirectCost !== null ? $indirectCost : 0;
     }
 
 
@@ -312,9 +342,7 @@ class ProductConfigurator extends Component
 
     public function requestQuote()
     {
-        $this->saveConfiguration();
-        
-        // Redirigir a formulario de cotización con la configuración
+        // Redirigir a formulario de cotización con la configuración (sin guardar aquí)
         return redirect()->route('quote.request')->with([
             'product_configuration' => [
                 'product_id' => $this->product->id,
@@ -374,13 +402,18 @@ class ProductConfigurator extends Component
     public function render()
     {
         $selectedColor = $this->availableColors[$this->parameters['color']] ?? null;
-        
+        $directCost = $this->getDirectCostPercentage();
+        $indirectCost = $this->getIndirectCostPercentage();
+        $user = auth()->user();
         return view('livewire.product-configurator', [
             'productType' => $this->getProductType(),
             'parameterLimits' => $this->limits[$this->getProductType()] ?? [],
             'availableColors' => $this->getAvailableColors(),
             'selectedColor' => $selectedColor,
-            'colorTexturePath' => $this->getColorTexturePath($this->parameters['color'])
+            'colorTexturePath' => $this->getColorTexturePath($this->parameters['color']),
+            'directCost' => $directCost,
+            'indirectCost' => $indirectCost,
+            'user' => $user
         ])->layout('components.layouts.configurator', [
             'title' => 'Configurador 3D - ' . $this->product->name,
             'description' => 'Personaliza ' . $this->product->name . ' en tiempo real con nuestro configurador 3D interactivo.'
