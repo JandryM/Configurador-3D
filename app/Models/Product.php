@@ -27,7 +27,9 @@ class Product extends Model
         'model_3d_materials',
         'model_3d_settings',
         'has_3d_model',
-        'model_scale'
+        'model_scale',
+        'height',
+        'width'
     ];
 
     protected $casts = [

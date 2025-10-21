@@ -19,14 +19,6 @@
                     <p class="text-slate-600">Administra cuentas de usuarios y permisos del sistema</p>
                 </div>
             </div>
-            <div class="flex space-x-3">
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
-                    </svg>
-                    <span>Nuevo Usuario</span>
-                </button>
-            </div>
         </div>
     </div>
 </div>
@@ -235,21 +227,6 @@
                             </td>
                             <td class="py-4 px-4 user-actions">
                                 <div class="flex justify-center space-x-2">
-                                    <!-- Ver detalles -->
-                                    <button class="text-blue-600 hover:text-blue-800 transition-colors" title="Ver detalles del usuario">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
-                                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
-                                        </svg>
-                                    </button>
-                                    
-                                    <!-- Editar -->
-                                    <button class="text-green-600 hover:text-green-800 transition-colors" title="Editar información del usuario">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
-                                        </svg>
-                                    </button>
-                                    
                                     @if(!$user->isAdmin() || (\App\Models\User::where('role', 'admin')->count() > 1))
                                         <!-- Suspender/Reactivar -->
                                         @if($user->isSuspended())

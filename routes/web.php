@@ -69,6 +69,63 @@ Route::middleware(['auth', 'verified', 'account.active', 'admin'])->prefix('admi
         return view('admin.products.index');
     })->name('products.index');
 
+    // Crear producto
+    Route::get('/products/create', function () {
+        return view('admin.products.create');
+    })->name('products.create');
+
+    // Almacenar producto
+    Route::post('/products', function (\Illuminate\Http\Request $request) {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'nullable|numeric|min:0',
+            'product_type' => 'required|in:gallery,customizable',
+            'image' => 'nullable|image|max:2048',
+            'category_id' => 'required|exists:categories,id',
+            'height' => 'required|numeric|min:0',
+            'width' => 'required|numeric|min:0',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
+        $validated['user_id'] = auth()->id();
+        $validated['height'] = $request->input('height');
+        $validated['width'] = $request->input('width');
+
+        \App\Models\Product::create($validated);
+
+        return redirect()->route('admin.products.index')->with('success', 'Producto creado exitosamente.');
+    })->name('products.store');
+
+    // Editar producto
+    Route::get('/products/{product}/edit', function (\App\Models\Product $product) {
+        return view('admin.products.edit', compact('product'));
+    })->name('products.edit');
+
+    // Actualizar producto
+    Route::put('/products/{product}', function (\Illuminate\Http\Request $request, \App\Models\Product $product) {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'nullable|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'image' => 'nullable|image|max:2048',
+            'is_gallery_visible' => 'boolean',
+            'height' => 'required|numeric|min:0',
+            'width' => 'required|numeric|min:0',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        $product->update($validated);
+
+        return redirect()->route('admin.products.index')->with('success', 'Producto actualizado exitosamente.');
+    })->name('products.update');
+
     // Gestión de materiales
     Route::get('/materials', function () {
         return view('admin.materials.index');
@@ -79,15 +136,30 @@ Route::middleware(['auth', 'verified', 'account.active', 'admin'])->prefix('admi
         return view('admin.proformas.index');
     })->name('proformas.index');
 
-    // Gestión de materiales  
-    Route::get('/materials', function () {
-        return view('admin.materials.index');
-    })->name('materials.index');
+    // Obtener dimensiones de una categoría
+    Route::get('/categories/{category}/dimensions', function (\App\Models\Category $category) {
+        // Simulación de dimensiones asociadas a la categoría
+        $dimensions = match ($category->id) {
+            1 => [
+                ['name' => 'height', 'label' => 'Alto'],
+                ['name' => 'width', 'label' => 'Ancho']
+            ],
+            2 => [
+                ['name' => 'height', 'label' => 'Alto'],
+                ['name' => 'width', 'label' => 'Ancho'],
+                ['name' => 'depth', 'label' => 'Profundidad']
+            ],
+            default => []
+        };
 
-    // Gestión de proformas
-    Route::get('/proformas', function () {
-        return view('admin.proformas.index');
-    })->name('proformas.index');
+        return response()->json(['dimensions' => $dimensions], 200);
+    });
+
+    // Alternar visibilidad de producto en galería
+    Route::patch('/products/{product}/toggle-visibility', function (\App\Models\Product $product) {
+        $product->update(['is_gallery_visible' => !$product->is_gallery_visible]);
+        return redirect()->route('admin.products.index')->with('success', 'Visibilidad del producto actualizada.');
+    })->name('products.toggleVisibility');
 });
 
 require __DIR__.'/auth.php';

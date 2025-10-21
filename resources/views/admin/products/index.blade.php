@@ -20,12 +20,12 @@
                 </div>
             </div>
             <div class="flex space-x-3">
-                <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
+                <a href="{{ route('admin.products.create') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
                     </svg>
                     <span>Nuevo Producto</span>
-                </button>
+                </a>
             </div>
         </div>
     </div>
@@ -176,16 +176,26 @@
                             </td>
                             <td class="py-4 px-4">
                                 <div class="flex justify-center space-x-2">
-                                    <button class="text-blue-600 hover:text-blue-800 transition-colors">
+                                    <a href="{{ route('admin.products.edit', $product) }}" class="text-blue-600 hover:text-blue-800 transition-colors">
                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                                         </svg>
-                                    </button>
-                                    <button class="text-green-600 hover:text-green-800 transition-colors">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
-                                        </svg>
-                                    </button>
+                                    </a>
+                                    <form action="{{ route('admin.products.toggleVisibility', $product) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="text-gray-600 hover:text-gray-800 transition-colors">
+                                            @if($product->is_gallery_visible)
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-6 h-6">
+                                                    <path d="M12 4.5C7.305 4.5 3.135 7.225 1.5 12c1.635 4.775 5.805 7.5 10.5 7.5s8.865-2.725 10.5-7.5c-1.635-4.775-5.805-7.5-10.5-7.5zm0 12c-2.485 0-4.5-2.015-4.5-4.5s2.015-4.5 4.5-4.5 4.5 2.015 4.5 4.5-2.015 4.5-4.5 4.5zm0-7.5c-1.655 0-3 1.345-3 3s1.345 3 3 3 3-1.345 3-3-1.345-3-3-3z" />
+                                                </svg>
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-6 h-6">
+                                                    <path d="M12 4.5C7.305 4.5 3.135 7.225 1.5 12c1.635 4.775 5.805 7.5 10.5 7.5s8.865-2.725 10.5-7.5c-1.635-4.775-5.805-7.5-10.5-7.5zm0 12c-2.485 0-4.5-2.015-4.5-4.5s2.015-4.5 4.5-4.5 4.5 2.015 4.5 4.5-2.015 4.5-4.5 4.5zm0-7.5c-1.655 0-3 1.345-3 3s1.345 3 3 3 3-1.345 3-3-1.345-3-3-3zM2.707 2.707l18.586 18.586-1.414 1.414L1.293 4.121l1.414-1.414z" />
+                                                </svg>
+                                            @endif
+                                        </button>
+                                    </form>
                                     <button class="text-red-600 hover:text-red-800 transition-colors">
                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>

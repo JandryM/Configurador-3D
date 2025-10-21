@@ -17,7 +17,7 @@
         }
         
         .sidebar-collapsed {
-            width: 70px;
+            width: 100px; /* Cambiado de 70px a 100px */
         }
         
         .main-content {
@@ -26,7 +26,27 @@
         }
         
         .main-content-expanded {
-            margin-left: 70px;
+            margin-left: 100px; /* Cambiado de 70px a 100px */
+        }
+        
+        /* Ajustar el contenido del sidebar contraído */
+        .sidebar-collapsed .nav-item {
+            justify-content: center; /* Centrar los iconos */
+        }
+        
+        .sidebar-collapsed .menu-item-icon {
+            font-size: 24px;
+            margin: auto;
+        }
+        
+        /* Ocultar texto en el estado contraído */
+        .sidebar-collapsed .sidebar-text {
+            display: none;
+        }
+        
+        /* Mostrar solo iconos en el estado contraído */
+        .sidebar-collapsed .sidebar-collapsed-text {
+            display: block;
         }
         
         /* Efectos glassmorphism premium */
@@ -114,12 +134,12 @@
         <!-- Logo y Header del Sidebar -->
         <div class="flex items-center justify-between p-6 border-b border-white/10">
             <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center shadow-lg">
-                    <span class="text-white font-bold text-sm">Q</span>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg">
+                    <img src="{{ asset('images/logo.png') }}" alt="Quality Logo" class="w-full h-full object-contain">
                 </div>
                 <div id="sidebar-text" class="sidebar-text">
                     <h2 class="text-white font-bold text-lg">Quality</h2>
-                    <p class="text-slate-300 text-xs">Admin Panel</p>
+                    <p class="text-slate-300 text-xs">Panel Admin</p>
                 </div>
             </div>
             <button id="sidebar-toggle" class="text-white hover:text-blue-400 transition-colors lg:block hidden">
@@ -189,7 +209,7 @@
             
             <!-- Botones de acción -->
             <div class="flex space-x-2">
-                <a href="{{ route('dashboard') }}" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 px-3 rounded-lg transition-colors text-center">
+                <a href="{{ route('home') }}" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 px-3 rounded-lg transition-colors text-center">
                     <span class="sidebar-text">Ver Sitio</span>
                     <span class="sidebar-collapsed-text hidden">🏠</span>
                 </a>
