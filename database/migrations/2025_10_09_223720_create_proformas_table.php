@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_configurations', function (Blueprint $table) {
+    Schema::create('proformas', function (Blueprint $table) {
             $table->id();
+            $table->string('number')->unique()->comment('Código único de la proforma');
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->string('name')->nullable()->comment('Nombre personalizado para la configuración');
@@ -37,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product_configurations');
+    Schema::dropIfExists('proformas');
     }
 };

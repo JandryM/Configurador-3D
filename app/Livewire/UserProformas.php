@@ -16,7 +16,7 @@ class UserProformas extends Component
     {
         $user = auth()->user();
         if ($user) {
-            $this->proformas = DB::table('product_configurations')
+            $this->proformas = DB::table('proformas')
                 ->where('user_id', $user->id)
                 ->orderByDesc('created_at')
                 ->get()

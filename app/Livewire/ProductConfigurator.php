@@ -320,7 +320,11 @@ class ProductConfigurator extends Component
 
             // Si el usuario está autenticado, guardarlo en la base de datos
             if (auth()->check()) {
-                DB::table('product_configurations')->insert([
+                // Generar número/código único de proforma (ej: PRF-0001)
+                $lastId = DB::table('proformas')->max('id');
+                $nextNumber = 'PRF-' . str_pad(($lastId + 1), 4, '0', STR_PAD_LEFT);
+                DB::table('proformas')->insert([
+                    'number' => $nextNumber,
                     'user_id' => auth()->id(),
                     'product_id' => $this->product->id,
                     'configuration' => json_encode($configuration),

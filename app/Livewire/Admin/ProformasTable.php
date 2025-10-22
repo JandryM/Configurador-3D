@@ -14,7 +14,7 @@ class ProformasTable extends Component
 
     public function mount()
     {
-        $this->proformas = DB::table('product_configurations')
+    $this->proformas = DB::table('proformas')
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($row) {
