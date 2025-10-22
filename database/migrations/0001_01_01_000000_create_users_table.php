@@ -23,7 +23,7 @@ return new class extends Migration
             $table->text('address')->nullable();
             $table->string('province')->nullable();
             $table->string('city')->nullable();
-            $table->enum('role', ['admin', 'client'])->default('client');
+            $table->enum('role', ['admin', 'owner', 'seller', 'client'])->default('client');
             $table->boolean('is_suspended')->default(false);
             $table->timestamp('suspended_until')->nullable();
             $table->string('suspension_reason')->nullable();

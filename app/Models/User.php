@@ -23,6 +23,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public const ROLE_CLIENT = 'client';
 
+    public const ROLE_OWNER = 'owner';
+
+    public const ROLE_SELLER = 'seller';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -132,12 +136,30 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Check if user is an owner
+     */
+    public function isOwner(): bool
+    {
+        return $this->role === self::ROLE_OWNER;
+    }
+
+    /**
+     * Check if user is a seller
+     */
+    public function isSeller(): bool
+    {
+        return $this->role === self::ROLE_SELLER;
+    }
+
+    /**
      * Get all available roles
      */
     public static function getRoles(): array
     {
         return [
             self::ROLE_ADMIN,
+            self::ROLE_OWNER,
+            self::ROLE_SELLER,
             self::ROLE_CLIENT,
         ];
     }
