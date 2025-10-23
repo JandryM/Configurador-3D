@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
     <head>
-        @include('partials.head')
+        @include('layouts.admin')
         <title>Panel de Control - Quality</title>
         <style>
             /* Gradientes personalizados */
@@ -202,3 +202,5 @@
         </script>
     </body>
 </html>
+
+<!-- Este archivo ya no se utiliza. El dashboard principal ahora está en layouts/admin.blade.php -->

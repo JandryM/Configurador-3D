@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class UserController extends Controller
@@ -175,6 +177,54 @@ class UserController extends Controller
                 'success' => false,
                 'message' => 'Error al eliminar el usuario: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Crear un nuevo usuario
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:owner,seller',
+        ]);
+
+        $currentUser = Auth::user();
+
+        // Validar permisos según el rol del usuario autenticado
+        if (
+            ($currentUser->isOwner() && $request->role !== User::ROLE_SELLER) ||
+            (!$currentUser->isAdmin() && !$currentUser->isOwner())
+        ) {
+            return redirect()->back()->withErrors(['role' => 'No tienes permiso para asignar este rol.']);
+        }
+
+        // Validar que no haya restricciones para el rol de propietario
+        if ($request->role === User::ROLE_OWNER && !$currentUser->isAdmin()) {
+            return redirect()->back()->withErrors(['role' => 'Solo un administrador puede asignar el rol de propietario.']);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role,
+                'email_verified_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.users.index')->with('success', 'Usuario creado exitosamente.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->back()->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
         }
     }
 }

@@ -32,10 +32,17 @@ Route::get('/profile/complete', App\Livewire\Profile\Complete::class)
 Route::middleware(['auth', 'verified', 'account.active'])->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {
-        if (Auth::user()->isAdmin()) {
+        $user = Auth::user();
+
+        if ($user->isAdmin() || $user->role === 'owner') {
             return redirect()->route('admin.dashboard');
+        } elseif ($user->role === 'seller') {
+            return view('seller.dashboard');
+        } elseif ($user->role === 'client') {
+            return view('client.dashboard');
         }
-        return view('dashboard');
+
+        abort(403, 'Acceso no autorizado');
     })->name('dashboard');
 
     // Rutas de configuración
@@ -63,6 +70,13 @@ Route::middleware(['auth', 'verified', 'account.active', 'admin'])->prefix('admi
     Route::post('/users/{user}/unsuspend', [App\Http\Controllers\Admin\UserController::class, 'unsuspend'])->name('users.unsuspend');
     Route::post('/users/{user}/verify-email', [App\Http\Controllers\Admin\UserController::class, 'verifyEmail'])->name('users.verify-email');
     Route::delete('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+
+    // Crear usuario
+    Route::get('/users/create', function () {
+        return view('admin.users.create');
+    })->name('users.create');
+
+    Route::post('/users', [App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
 
     // Gestión de productos
     Route::get('/products', function () {

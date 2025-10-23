@@ -150,6 +150,10 @@
         </div>
         
         <!-- Navegación -->
+        @php
+            $userRole = auth()->user()->role;
+        @endphp
+
         <nav class="mt-6 px-3 space-y-2">
             <!-- Dashboard -->
             <a href="{{ route('admin.dashboard') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -158,31 +162,33 @@
                 </svg>
                 <span class="sidebar-text">Dashboard</span>
             </a>
-            
-            <!-- Usuarios -->
-            <a href="{{ route('admin.users.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
-                </svg>
-                <span class="sidebar-text">Usuarios</span>
-            </a>
-            
-            <!-- Productos -->
-            <a href="{{ route('admin.products.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
-                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v1.101a7.002 7.002 0 011.586 2.433A4.993 4.993 0 016 8a4.993 4.993 0 012.414.564A7.002 7.002 0 0110.414 6.1V5a2 2 0 00-2-2H4z" clip-rule="evenodd"></path>
-                </svg>
-                <span class="sidebar-text">Productos</span>
-            </a>
-            
-            <!-- Materiales -->
-            <a href="{{ route('admin.materials.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.materials.*') ? 'active' : '' }}">
-                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4z" clip-rule="evenodd"></path>
-                </svg>
-                <span class="sidebar-text">Materiales</span>
-            </a>
-            
+
+            @if($userRole === 'admin' || $userRole === 'owner')
+                <!-- Usuarios -->
+                <a href="{{ route('admin.users.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                    </svg>
+                    <span class="sidebar-text">Usuarios</span>
+                </a>
+
+                <!-- Productos -->
+                <a href="{{ route('admin.products.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v1.101a7.002 7.002 0 011.586 2.433A4.993 4.993 0 016 8a4.993 4.993 0 012.414.564A7.002 7.002 0 0110.414 6.1V5a2 2 0 00-2-2H4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="sidebar-text">Productos</span>
+                </a>
+
+                <!-- Materiales -->
+                <a href="{{ route('admin.materials.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.materials.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="sidebar-text">Materiales</span>
+                </a>
+            @endif
+
             <!-- Proformas -->
             <a href="{{ route('admin.proformas.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.proformas.*') ? 'active' : '' }}">
                 <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">

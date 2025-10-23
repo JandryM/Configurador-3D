@@ -9,6 +9,7 @@
     $totalProducts = \App\Models\Product::count();
     $totalMaterials = \App\Models\Material::count();
     $recentUsers = \App\Models\User::latest()->take(5)->get();
+    $userRole = auth()->user()->role;
 @endphp
 <!-- Encabezado de bienvenida Admin -->
 <div class="fade-in mb-8">
@@ -23,10 +24,18 @@
                     </div>
                     <div>
                         <h1 class="text-3xl font-bold mb-2 text-slate-800">
-                            Panel de Administración
+                            @if($userRole === 'admin')
+                                Panel de Administración
+                            @elseif($userRole === 'owner')
+                                Panel del Propietario
+                            @elseif($userRole === 'seller')
+                                Panel de Ventas
+                            @else
+                                Panel de Usuario
+                            @endif
                         </h1>
                         <p class="text-lg text-slate-600">
-                            Gestión completa del sistema Quality
+                            Bienvenido, {{ auth()->user()->name }}
                         </p>
                     </div>
                 </div>
@@ -50,95 +59,113 @@
     </div>
 </div>
 
-<!-- Estadísticas principales -->
-<div class="fade-in grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Usuarios -->
-    <div class="glass-card rounded-xl shadow-lg p-6 card-hover">
-        <div class="flex items-center justify-between">
-            <div>
-                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
-                    </svg>
+<!-- Contenido dinámico según el rol -->
+@if($userRole === 'admin' || $userRole === 'owner')
+    <!-- Estadísticas principales -->
+    <div class="fade-in grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Usuarios -->
+        <div class="glass-card rounded-xl shadow-lg p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                        </svg>
+                    </div>
+                    <p class="text-2xl font-bold text-slate-800">{{ $totalUsers }}</p>
+                    <p class="text-sm text-slate-600">Usuarios Registrados</p>
                 </div>
-                <p class="text-2xl font-bold text-slate-800">{{ $totalUsers }}</p>
-                <p class="text-sm text-slate-600">Usuarios Registrados</p>
+                <div class="opacity-0 hover:opacity-100 transition-opacity duration-200">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM9 16a7 7 0 100-14 7 7 0 000 14z"></path>
+                        </svg>
+                    </div>
+                </div>
             </div>
-            <div class="opacity-0 hover:opacity-100 transition-opacity duration-200">
-                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM9 16a7 7 0 100-14 7 7 0 000 14z"></path>
+        </div>
+
+        <!-- Productos -->
+        <div class="glass-card rounded-xl shadow-lg p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v1.101a7.002 7.002 0 011.586 2.433A4.993 4.993 0 016 8a4.993 4.993 0 012.414.564A7.002 7.002 0 0110.414 6.1V5a2 2 0 00-2-2H4z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <p class="text-2xl font-bold text-slate-800">{{ $totalProducts }}</p>
+                    <p class="text-sm text-slate-600">Productos Disponibles</p>
+                </div>
+                <div class="opacity-0 hover:opacity-100 transition-opacity duration-200">
+                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Materiales -->
+        <div class="glass-card rounded-xl shadow-lg p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15.586 13H17a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                    </div>
+                    <p class="text-2xl font-bold text-slate-800">{{ $totalMaterials }}</p>
+                    <p class="text-sm text-slate-600">Materiales en Stock</p>
+                </div>
+                <div class="opacity-0 hover:opacity-100 transition-opacity duration-200">
+                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proformas (Futuro) -->
+        <div class="glass-card rounded-xl shadow-lg p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 002 2h6a2 2 0 002-2V3a2 2 0 012 2v6.5a1.5 1.5 0 01-1.5 1.5h-6A1.5 1.5 0 019 11.5V4H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-1V4a1 1 0 10-2 0v1H7V4a1 1 0 10-2 0v1z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <p class="text-2xl font-bold text-slate-800">0</p>
+                    <p class="text-sm text-slate-600">Proformas Generadas</p>
+                </div>
+                <div class="opacity-50">
+                    <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                     </svg>
                 </div>
             </div>
         </div>
     </div>
+@endif
 
-    <!-- Productos -->
-    <div class="glass-card rounded-xl shadow-lg p-6 card-hover">
-        <div class="flex items-center justify-between">
-            <div>
-                <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v1.101a7.002 7.002 0 011.586 2.433A4.993 4.993 0 016 8a4.993 4.993 0 012.414.564A7.002 7.002 0 0110.414 6.1V5a2 2 0 00-2-2H4z" clip-rule="evenodd"></path>
-                    </svg>
-                </div>
-                <p class="text-2xl font-bold text-slate-800">{{ $totalProducts }}</p>
-                <p class="text-sm text-slate-600">Productos Disponibles</p>
-            </div>
-            <div class="opacity-0 hover:opacity-100 transition-opacity duration-200">
-                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                    <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                    </svg>
-                </div>
-            </div>
-                        </div>
-                    </div>
+@if($userRole === 'seller')
+    <!-- Contenido específico para vendedores -->
+    <div class="glass-card rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-slate-800">Panel de Ventas</h2>
+        <p class="text-sm text-slate-600">Gestión de clientes y ventas.</p>
+    </div>
+@endif
 
-                    <!-- Materiales -->
-                    <div class="glass-card rounded-xl shadow-lg p-6 card-hover">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
-                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15.586 13H17a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                                    </svg>
-                                </div>
-                                <p class="text-2xl font-bold text-slate-800">{{ $totalMaterials }}</p>
-                                <p class="text-sm text-slate-600">Materiales en Stock</p>
-                            </div>
-                            <div class="opacity-0 hover:opacity-100 transition-opacity duration-200">
-                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Proformas (Futuro) -->
-                    <div class="glass-card rounded-xl shadow-lg p-6 card-hover">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <div class="w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg mb-4">
-                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 002 2h6a2 2 0 002-2V3a2 2 0 012 2v6.5a1.5 1.5 0 01-1.5 1.5h-6A1.5 1.5 0 019 11.5V4H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-1V4a1 1 0 10-2 0v1H7V4a1 1 0 10-2 0v1z" clip-rule="evenodd"></path>
-                                    </svg>
-                                </div>
-                                <p class="text-2xl font-bold text-slate-800">0</p>
-                                <p class="text-sm text-slate-600">Proformas Generadas</p>
-                            </div>
-                            <div class="opacity-50">
-                                <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+@if($userRole === 'client')
+    <!-- Contenido específico para clientes -->
+    <div class="glass-card rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-slate-800">Panel de Usuario</h2>
+        <p class="text-sm text-slate-600">Consulta tus pedidos y perfil.</p>
+    </div>
+@endif
 
                 <!-- Accesos rápidos de gestión -->
                 <div class="fade-in grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8" style="animation-delay: 0.2s;">

@@ -13,7 +13,7 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crear usuario administrador por defecto si no existe
+        // Crear usuario administrador
         User::firstOrCreate(
             ['email' => env('ADMIN_EMAIL', 'admin@quality.com')],
             [
@@ -25,6 +25,54 @@ class AdminUserSeeder extends Seeder
                 'province' => env('ADMIN_PROVINCE', 'Guayas'),
                 'city' => env('ADMIN_CITY', 'Guayaquil'),
                 'role' => User::ROLE_ADMIN,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // Crear usuario dueño
+        User::firstOrCreate(
+            ['email' => 'owner@quality.com'],
+            [
+                'name' => 'Dueño de Calidad',
+                'email' => 'owner@quality.com',
+                'password' => Hash::make('owner123'),
+                'phone' => '+593987654322',
+                'address' => 'Av. Secundaria 456',
+                'province' => 'Pichincha',
+                'city' => 'Quito',
+                'role' => User::ROLE_OWNER,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // Crear usuario vendedor
+        User::firstOrCreate(
+            ['email' => 'seller@quality.com'],
+            [
+                'name' => 'Vendedor de Calidad',
+                'email' => 'seller@quality.com',
+                'password' => Hash::make('seller123'),
+                'phone' => '+593987654323',
+                'address' => 'Av. Terciaria 789',
+                'province' => 'Azuay',
+                'city' => 'Cuenca',
+                'role' => User::ROLE_SELLER,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // Crear usuario cliente
+        User::firstOrCreate(
+            ['email' => 'client@quality.com'],
+            [
+                'name' => 'Cliente de Calidad',
+                'email' => 'client@quality.com',
+                'password' => Hash::make('client123'),
+                'phone' => '+593987654324',
+                'address' => 'Av. Cuarta 101',
+                'province' => 'Manabí',
+                'city' => 'Manta',
+                'role' => User::ROLE_CLIENT,
                 'email_verified_at' => now(),
             ]
         );
