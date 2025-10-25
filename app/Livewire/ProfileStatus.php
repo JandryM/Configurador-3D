@@ -28,6 +28,6 @@ class ProfileStatus extends Component
 
     public function render()
     {
-        return view('livewire.profile-status');
+        return view('livewire.auth.profile-status');
     }
 }

@@ -61,7 +61,6 @@ class Gallery extends Component
 
     public function render()
     {
-        return view('livewire.gallery')
-            ->layout('components.layouts.guest');
+        return view('livewire.products.gallery')->layout('layouts.guest');
     }
 }

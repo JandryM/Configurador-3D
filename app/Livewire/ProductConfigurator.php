@@ -36,7 +36,32 @@ class ProductConfigurator extends Component
         if (!auth()->check()) {
             abort(403, 'No autorizado. Debes iniciar sesión para guardar la proforma.');
         }
-        $this->saveConfiguration();
+        $this->saveProforma();
+    }
+
+    public function orderProforma()
+    {
+        if (!auth()->check()) {
+            abort(403, 'No autorizado. Debes iniciar sesión para ordenar la proforma.');
+        }
+        // Guardar proforma (si no existe ya una igual para este usuario/producto/configuración)
+        $proformaId = $this->saveProforma(true); // true = devolver id
+        // Generar número/código único de orden (ej: ORD-0001)
+        $lastOrderId = DB::table('orders')->max('id');
+        $nextOrderNumber = 'ORD-' . str_pad(($lastOrderId + 1), 4, '0', STR_PAD_LEFT);
+        // Crear la orden asociada
+        DB::table('orders')->insert([
+            'proforma_id' => $proformaId,
+            'number' => $nextOrderNumber,
+            'status' => 'pending',
+            'product_created_at' => now(),
+            'estimated_finish_at' => null,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        // Marcar la proforma como ordenada
+        DB::table('proformas')->where('id', $proformaId)->update(['is_ordered' => true]);
+        session()->flash('message', '¡Orden creada exitosamente!');
     }
     public Product $product;
     public $calculatedPrice = 0;
@@ -306,7 +331,7 @@ class ProductConfigurator extends Component
         }
     }
 
-    public function saveConfiguration()
+    public function saveProforma($returnId = false)
     {
         try {
             // Guardar configuración del usuario
@@ -318,12 +343,12 @@ class ProductConfigurator extends Component
                 'timestamp' => now()
             ];
 
-            // Si el usuario está autenticado, guardarlo en la base de datos
+            $proformaId = null;
             if (auth()->check()) {
-                // Generar número/código único de proforma (ej: PRF-0001)
+                // Siempre crear una nueva proforma, sin buscar duplicados
                 $lastId = DB::table('proformas')->max('id');
                 $nextNumber = 'PRF-' . str_pad(($lastId + 1), 4, '0', STR_PAD_LEFT);
-                DB::table('proformas')->insert([
+                $proformaId = DB::table('proformas')->insertGetId([
                     'number' => $nextNumber,
                     'user_id' => auth()->id(),
                     'product_id' => $this->product->id,
@@ -337,10 +362,13 @@ class ProductConfigurator extends Component
             // Guardar en sesión
             session(['product_configuration' => $configuration]);
 
+            if ($returnId) {
+                return $proformaId;
+            }
             session()->flash('message', '¡Configuración guardada exitosamente!');
-            
         } catch (\Exception $e) {
             session()->flash('error', 'Error al guardar la configuración: ' . $e->getMessage());
+            if ($returnId) return null;
         }
     }
 

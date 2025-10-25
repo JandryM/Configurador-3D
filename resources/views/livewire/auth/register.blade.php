@@ -1,14 +1,13 @@
 <?php
-
+//Esto tambien es un modal jeje
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new #[Layout('components.layouts.auth.quality')] class extends Component {
+new class extends Component {
     public string $name = '';
     public string $email = '';
     public string $password = '';
@@ -82,7 +81,7 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
     }
 }; ?>
 
-<div>
+<div class="bg-black/70 backdrop-blur-md rounded-2xl shadow-2xl p-0 md:p-8 w-full max-w-2xl mx-auto">
     <!-- Encabezado del formulario -->
     <div class="text-center mb-3">
         <h1 class="text-base font-bold text-white mb-1">Crear una cuenta</h1>
@@ -104,7 +103,7 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
                 
                 <!-- Name -->
                 <div class="space-y-1">
-                    <label for="name" class="block text-xs font-semibold text-white">
+                    <label for="register_name" class="block text-xs font-semibold text-white">
                         Nombre Completo
                     </label>
                     <div class="relative">
@@ -116,12 +115,12 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
                         <input
                             wire:model="name"
                             type="text"
-                            id="name"
+                            id="register_name"
                             required
                             autofocus
                             autocomplete="name"
                             placeholder="Tu nombre completo"
-                            class="w-full pl-10 pr-4 py-1.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 focus:outline-none transition-all duration-300"
+                            class="w-full pl-10 pr-4 py-1.5 bg-black/30 border border-white/20 rounded-lg text-white placeholder-slate-300 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300"
                         />
                     </div>
                     @error('name')
@@ -131,7 +130,7 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
 
                 <!-- Email Address -->
                 <div class="space-y-1">
-                    <label for="email" class="block text-xs font-semibold text-white">
+                    <label for="register_email" class="block text-xs font-semibold text-white">
                         Correo Electrónico
                     </label>
                     <div class="relative">
@@ -144,11 +143,11 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
                         <input
                             wire:model="email"
                             type="email"
-                            id="email"
+                            id="register_email"
                             required
                             autocomplete="email"
                             placeholder="tu@email.com"
-                            class="w-full pl-10 pr-4 py-1.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 focus:outline-none transition-all duration-300"
+                            class="w-full pl-10 pr-4 py-1.5 bg-black/30 border border-white/20 rounded-lg text-white placeholder-slate-300 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300"
                         />
                     </div>
                     @error('email')
@@ -174,7 +173,7 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
                             required
                             autocomplete="tel"
                             placeholder="Tu número de teléfono"
-                            class="w-full pl-10 pr-4 py-1.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 focus:outline-none transition-all duration-300"
+                            class="w-full pl-10 pr-4 py-1.5 bg-black/30 border border-white/20 rounded-lg text-white placeholder-slate-300 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300"
                         />
                     </div>
                     @error('phone')
@@ -200,7 +199,7 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
                             required
                             autocomplete="street-address"
                             placeholder="Tu dirección"
-                            class="w-full pl-10 pr-4 py-1.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 focus:outline-none transition-all duration-300"
+                            class="w-full pl-10 pr-4 py-1.5 bg-black/30 border border-white/20 rounded-lg text-white placeholder-slate-300 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300"
                         />
                     </div>
                     @error('address')
@@ -227,7 +226,7 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
                         <select
                             id="province"
                             wire:model.live="province"
-                            class="w-full pl-10 pr-8 py-1.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 focus:outline-none transition-all duration-300 appearance-none"
+                            class="w-full pl-10 pr-8 py-1.5 bg-black/30 border border-white/20 rounded-lg text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300 appearance-none"
                             required
                         >
                             <option value="" class="text-slate-400 bg-slate-800">Selecciona una provincia</option>
@@ -258,7 +257,7 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
                         <select
                             id="city"
                             wire:model="city"
-                            class="w-full pl-10 pr-8 py-1.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 focus:outline-none transition-all duration-300 appearance-none {{ empty($cities) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                            class="w-full pl-10 pr-8 py-1.5 bg-black/30 border border-white/20 rounded-lg text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300 appearance-none {{ empty($cities) ? 'opacity-50 cursor-not-allowed' : '' }}"
                             required
                             {{ empty($cities) ? 'disabled' : '' }}
                         >
@@ -280,23 +279,23 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
 
                 <!-- Password -->
                 <div class="space-y-1">
-                    <label for="password" class="block text-xs font-semibold text-white">
+                    <label for="register_password" class="block text-xs font-semibold text-white">
                         Contraseña
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="w-4 h-4 text-slate-300" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 1 1 6 0z" clip-rule="evenodd"></path>
                             </svg>
                         </div>
                         <input
                             wire:model="password"
                             type="{{ $showPassword ? 'text' : 'password' }}"
-                            id="password"
+                            id="register_password"
                             required
                             autocomplete="new-password"
                             placeholder="••••••••"
-                            class="w-full pl-10 pr-10 py-1.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 focus:outline-none transition-all duration-300"
+                            class="w-full pl-10 pr-10 py-1.5 bg-black/30 border border-white/20 rounded-lg text-white placeholder-slate-300 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300"
                         />
                         <button type="button" 
                                 wire:click="togglePassword"
@@ -308,7 +307,7 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
                             @else
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                 </svg>
                             @endif
                         </button>
@@ -320,23 +319,23 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
 
                 <!-- Confirm Password -->
                 <div class="space-y-1">
-                    <label for="password_confirmation" class="block text-xs font-semibold text-white">
+                    <label for="register_password_confirmation" class="block text-xs font-semibold text-white">
                         Confirmar Contraseña
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="w-4 h-4 text-slate-300" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 616 0z" clip-rule="evenodd"></path>
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 1 1 6 0z" clip-rule="evenodd"></path>
                             </svg>
                         </div>
                         <input
                             wire:model="password_confirmation"
                             type="{{ $showPasswordConfirmation ? 'text' : 'password' }}"
-                            id="password_confirmation"
+                            id="register_password_confirmation"
                             required
                             autocomplete="new-password"
                             placeholder="••••••••"
-                            class="w-full pl-10 pr-10 py-1.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 focus:outline-none transition-all duration-300"
+                            class="w-full pl-10 pr-10 py-1.5 bg-black/30 border border-white/20 rounded-lg text-white placeholder-slate-300 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300"
                         />
                         <button type="button" 
                                 wire:click="togglePasswordConfirmation"
@@ -348,7 +347,7 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
                             @else
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                 </svg>
                             @endif
                         </button>
@@ -363,7 +362,7 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
         <!-- Botón de registro -->
         <div class="flex justify-center pt-1">
             <button type="submit" 
-                class="w-full max-w-md py-1.5 px-4 bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-700 hover:to-gray-700 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                class="w-full max-w-md py-1.5 px-4 bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
                 Crear cuenta
             </button>
         </div>
@@ -375,14 +374,14 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
             <div class="w-full border-t border-white/20"></div>
         </div>
         <div class="relative flex justify-center text-xs">
-            <span class="px-2 text-slate-300 bg-transparent">O continúa con</span>
+            <span class="px-2 text-slate-300 bg-black/70 rounded">O continúa con</span>
         </div>
     </div>
 
     <!-- Botón de Google -->
     <div class="flex justify-center">
         <button type="button" onclick="window.location='{{ route('auth.google') }}'"
-            class="w-full max-w-md flex items-center justify-center py-1.5 px-4 border border-slate-300 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
+            class="w-full max-w-md flex items-center justify-center py-1.5 px-4 border border-slate-200 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
             <svg class="h-4 w-4 mr-2 text-slate-600" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -397,19 +396,10 @@ new #[Layout('components.layouts.auth.quality')] class extends Component {
     <div class="text-center mt-2">
         <p class="text-slate-300 text-xs">
             ¿Ya tienes una cuenta? 
-            <a href="{{ route('login') }}" wire:navigate class="text-slate-300 hover:text-white font-semibold transition-colors duration-300">
+            <a href="javascript:void(0)" @click.prevent="$store.loginModal.open = true; $store.registerModal.open = false" class="text-slate-300 hover:text-white font-semibold transition-colors duration-300">
                 Inicia sesión aquí
             </a>
         </p>
     </div>
 
-    <!-- Volver al inicio -->
-    <div class="text-center mt-1">
-        <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center text-slate-300 hover:text-white transition-colors duration-300 text-xs">
-            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
-            </svg>
-            Volver al inicio
-        </a>
-    </div>
 </div>

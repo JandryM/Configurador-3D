@@ -110,6 +110,6 @@ class ProfileModal extends Component
     
     public function render()
     {
-        return view('livewire.profile-modal');
+        return view('livewire.auth.profile-complete');
     }
 }

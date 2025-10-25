@@ -1,5 +1,5 @@
 <?php
-
+//Esto es un modal
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -7,17 +7,16 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
 
-new #[Layout('components.layouts.auth')] class extends Component {
+new class extends Component {
     #[Validate('required|string|email')]
     public string $email = '';
 
     #[Validate('required|string')]
     public string $password = '';
-
+    
     public bool $remember = false;
     public bool $showPassword = false;
 
@@ -75,6 +74,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             ]);
         }
 
+
         // Actualizar último login
         Auth::user()->updateLastLogin();
 
@@ -123,7 +123,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
     }
 }; ?>
 
-<div>
+<div class="bg-black/70 backdrop-blur-md rounded-2xl shadow-2xl p-0 md:p-8 w-full max-w-md mx-auto">
     <!-- Encabezado del formulario -->
     <div class="text-center mb-4">
         <h1 class="text-lg font-bold text-white mb-1">Bienvenido de vuelta</h1>
@@ -136,7 +136,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <form method="POST" wire:submit="login" class="space-y-3">
     <!-- Email Address -->
     <div class="space-y-1">
-        <label for="email" class="block text-xs font-semibold text-white">
+        <label for="login_email" class="block text-xs font-semibold text-white">
             Correo Electrónico
         </label>
         <div class="relative">
@@ -149,12 +149,12 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <input
                 wire:model="email"
                 type="email"
-                id="email"
+                id="login_email"
                 required
                 autofocus
                 autocomplete="email"
                 placeholder="tu@email.com"
-                class="w-full pl-10 pr-4 py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 focus:outline-none transition-all duration-300"
+                class="w-full pl-10 pr-4 py-2.5 bg-black/30 border border-white/20 rounded-xl text-white placeholder-slate-300 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300"
             />
         </div>
         @error('email') 
@@ -180,6 +180,17 @@ new #[Layout('components.layouts.auth')] class extends Component {
                             </div>
                         </div>
                     </div>
+                @elseif(str_contains($message, 'verificar tu correo electrónico'))
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 space-y-2 text-center">
+                        <div class="flex items-center justify-center mb-2">
+                            <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                            </svg>
+                        </div>
+                        <p class="text-yellow-800 text-sm font-semibold">Debes verificar tu correo electrónico antes de acceder.</p>
+                        <p class="text-yellow-700 text-xs">Te hemos enviado un código de verificación a tu correo. Ingresa ese código en el siguiente paso para activar tu cuenta.</p>
+                        <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-verification-modal'))" class="mt-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg text-xs font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all">Verificar mi correo</button>
+                    </div>
                 @else
                     <p class="text-red-300 text-sm">{{ $message }}</p>
                 @endif
@@ -189,7 +200,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     <!-- Password -->
     <div class="space-y-1">
-        <label for="password" class="block text-xs font-semibold text-white">
+        <label for="login_password" class="block text-xs font-semibold text-white">
             Contraseña
         </label>
         <div class="relative">
@@ -201,11 +212,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <input
                 wire:model="password"
                 type="{{ $showPassword ? 'text' : 'password' }}"
-                id="password"
+                id="login_password"
                 required
                 autocomplete="current-password"
                 placeholder="••••••••"
-                class="w-full pl-10 pr-12 py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-400/20 focus:outline-none transition-all duration-300"
+                class="w-full pl-10 pr-12 py-2.5 bg-black/30 border border-white/20 rounded-xl text-white placeholder-slate-300 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300"
             />
             <button type="button" 
                     wire:click="togglePassword"
@@ -217,7 +228,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 @else
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                     </svg>
                 @endif
             </button>
@@ -235,7 +246,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 name="remember"
                 type="checkbox"
                 wire:model="remember"
-                class="h-3 w-3 rounded border-slate-300 bg-white/20 text-slate-400 focus:ring-slate-400 focus:ring-2 transition-colors"
+                class="h-3 w-3 rounded border-white/20 bg-black/30 text-slate-400 focus:ring-cyan-400 focus:ring-2 transition-colors"
             />
             <label for="remember" class="ml-2 block text-xs text-slate-300">
                 Recordarme
@@ -253,30 +264,31 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <div class="space-y-2">
         <!-- Botón de Login -->
                     <button type="submit" 
-                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-700 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                    class="group relative w-full flex justify-center py-2 px-4 border border-cyan-600/40 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
                     <span class="absolute left-0 inset-y-0 flex items-center pl-3">
                         <svg class="h-4 w-4 text-slate-300 group-hover:text-slate-200" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 616 0z" clip-rule="evenodd" />
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 1 1 6 0z" clip-rule="evenodd" />
                         </svg>
                     </span>
                     Iniciar Sesión
                 </button>
+    </div>
 </form>
 
 <!-- Separador -->
-<div class="relative my-4">
-    <div class="absolute inset-0 flex items-center">
-        <div class="w-full border-t border-white/20"></div>
+    <div class="relative my-4">
+        <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-white/20"></div>
+        </div>
+        <div class="relative flex justify-center text-xs">
+            <span class="px-2 text-slate-300 bg-black/70 rounded">O continúa con</span>
+        </div>
     </div>
-    <div class="relative flex justify-center text-xs">
-        <span class="px-2 text-slate-300 bg-transparent">O continúa con</span>
-    </div>
-</div>
 
 <!-- Botón de Google rediseñado -->
 <div class="space-y-4">
                     <button type="button" onclick="window.location='{{ route('auth.google') }}'"
-                    class="group relative w-full flex justify-center py-2 px-4 border border-slate-300 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
+                    class="group relative w-full flex justify-center py-2 px-4 border border-slate-200 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
                     <span class="absolute left-0 inset-y-0 flex items-center pl-3">
                         <svg class="h-5 w-5 text-slate-600" viewBox="0 0 24 24">
                             <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -294,20 +306,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <div class="text-center mt-3">
         <p class="text-slate-300 text-xs">
             ¿No tienes una cuenta? 
-            <a href="{{ route('register') }}" wire:navigate class="text-slate-300 hover:text-white font-semibold transition-colors duration-300">
+            <a href="javascript:void(0)" @click.prevent="$store.loginModal.open = false; $store.registerModal.open = true" class="text-slate-300 hover:text-white font-semibold transition-colors duration-300">
                 Regístrate aquí
             </a>
         </p>
     </div>
 @endif
 
-    <!-- Volver al inicio -->
-    <div class="text-center mt-2">
-        <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center text-slate-300 hover:text-white transition-colors duration-300 text-xs">
-            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
-            </svg>
-            Volver al inicio
-        </a>
-    </div>
 </div>

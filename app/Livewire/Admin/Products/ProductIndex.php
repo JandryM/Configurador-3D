@@ -14,7 +14,7 @@ class ProductIndex extends Component
     public $category_id = '';
     public $productType = '';
     public $galleryVisible = '';
-    public $perPage = 10;
+    public $perPage = 4;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -79,12 +79,22 @@ class ProductIndex extends Component
             ->latest()
             ->paginate($this->perPage);
 
+        // Estadísticas para las tarjetas
+        $totalProducts = Product::count();
+        $galleryProducts = Product::where('product_type', 'gallery')->count();
+        $customizableProducts = Product::where('product_type', 'customizable')->count();
+        $visibleProducts = Product::where('is_gallery_visible', true)->count();
+
         // Obtener todas las categorías disponibles
         $categories = \App\Models\Category::orderBy('name')->get();
 
-        return view('livewire.admin.products.product-index', [
+        return view('livewire.admin.products.index', [
             'products' => $products,
             'categories' => $categories,
-        ]);
+            'totalProducts' => $totalProducts,
+            'galleryProducts' => $galleryProducts,
+            'customizableProducts' => $customizableProducts,
+            'visibleProducts' => $visibleProducts,
+        ])->layout('partials.sidebar');
     }
 }

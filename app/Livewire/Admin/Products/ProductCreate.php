@@ -103,7 +103,7 @@ class ProductCreate extends Component
         $productData = [
             'name' => $this->name,
             'description' => $this->description,
-            'category' => $this->category,
+            'category_id' => $this->category_id,
             'product_type' => $this->product_type,
             'image' => $imagePath,
             'user_id' => auth()->id(),
@@ -136,6 +136,6 @@ class ProductCreate extends Component
 
     public function render()
     {
-        return view('livewire.admin.products.product-create');
+        return view('livewire.admin.products.create')->layout('partials.sidebar');
     }
 }

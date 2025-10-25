@@ -59,23 +59,18 @@
         </style>
         @livewireStyles
     </head>
-    <body class="min-h-screen bg-white antialiased dark:bg-gray-900">
+    <body class="min-h-screen bg-white antialiased dark:bg-gray-900" x-data x-init="window.Alpine && Alpine.store('loginModal') === undefined ? Alpine.store('loginModal', { open: false }) : null">
         <!-- Navegación -->
-        <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-md transition-all duration-300">
-            <div class="container mx-auto px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <!-- Logo -->
+        <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-md transition-all duration-300">
+            <div class="container mx-auto px-6 py-4 relative">
+                <div class="flex items-center justify-between w-full">
+                    <!-- Logo izquierdo -->
                     <div class="flex items-center space-x-3">
-                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl p-2">
-                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
-                            </svg>
-                        </div>
+                        <img src="{{ asset('images/logo.png') }}" alt="Quality Logo" class="w-14 h-14 rounded-xl drop-shadow-[0_5px_10px_rgba(0,255,255,0.9)] object-cover">
                         <span class="text-2xl font-bold text-white">Quality</span>
                     </div>
-                    
                     <!-- Navegación Desktop -->
-                    <div class="hidden md:flex items-center space-x-8">
+                    <div class="hidden md:flex items-center space-x-8 flex-1 justify-center">
                         <a href="#inicio" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Inicio</a>
                         <a href="#nosotros" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Nosotros</a>
                         <a href="#servicios" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Servicios</a>
@@ -91,7 +86,7 @@
                                 </a>
                                 <div class="relative group">
                                     <button class="flex items-center space-x-2 text-white/90 hover:text-white transition-colors duration-300">
-                                        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
+                                        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center relative">
                                             <span class="text-sm font-semibold">{{ substr(auth()->user()->name, 0, 1) }}</span>
                                         </div>
                                         <span class="font-medium">{{ auth()->user()->name }}</span>
@@ -100,13 +95,14 @@
                                         </svg>
                                     </button>
                                     <!-- Dropdown menu -->
-                                    <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                                    <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                                         <div class="py-2">
-                                            <a href="{{ route('settings.profile') }}" class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300">
+                                            <a href="javascript:void(0)" onclick="Livewire.dispatch('openProfileModal')" id="openProfileModalDesktop" class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 flex items-center gap-2">
                                                 <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
                                                 </svg>
-                                                Mi Perfil
+                                                <span>Mi Perfil</span>
+                                                @livewire('profile-status')
                                             </a>
                                             <a href="{{ route('settings.appearance') }}" class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300">
                                                 <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -115,7 +111,7 @@
                                                 Configuración
                                             </a>
                                             <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
-                                            <form method="POST" action="{{ route('logout') }}" class="block">
+                                            <form method="POST" action="{{ route('logout') }}" class="block" onsubmit="if(window.Alpine && Alpine.store('loginModal')) Alpine.store('loginModal').open = false;">
                                                 @csrf
                                                 <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-300">
                                                     <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -131,14 +127,17 @@
                         @else
                             <!-- Usuario no logueado -->
                             <div class="flex items-center space-x-4">
-                                <a href="{{ route('login') }}" class="text-white/90 hover:text-white font-medium transition-colors duration-300">
+                                <a href="javascript:void(0)" @click.prevent="$store.loginModal.open = true" class="text-white/90 hover:text-white font-medium transition-colors duration-300">
                                     Iniciar Sesión
                                 </a>
-                                <a href="{{ route('register') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                <a href="javascript:void(0)" @click.prevent="$store.registerModal.open = true" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
                                     Registrarse
                                 </a>
                             </div>
                         @endauth
+                        <!-- Logo derecho eliminado de aquí -->
+                <!-- Logo derecho fuera del nav, pero dentro del container, con posición absoluta -->
+                <img src="{{ asset('images/logo2.jpg') }}" alt="Logo Secundario" class="w-14 h-14 rounded-xl drop-shadow-[0_5px_10px_rgba(0,255,255,0.9)] object-cover hidden md:block absolute right-6 top-1/2 -translate-y-1/2">
                     </div>
                     
                     <!-- Botón menú móvil -->
@@ -173,13 +172,13 @@
                                 <a href="{{ route('dashboard') }}" class="block bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-center mb-3">
                                     Dashboard
                                 </a>
-                                <a href="{{ route('settings.profile') }}" class="block text-white/90 hover:text-white transition-colors duration-300 font-medium py-2">
+                                <a href="javascript:void(0)" id="openProfileModalMobile" class="block text-white/90 hover:text-white transition-colors duration-300 font-medium py-2">
                                     Mi Perfil
                                 </a>
                                 <a href="{{ route('settings.appearance') }}" class="block text-white/90 hover:text-white transition-colors duration-300 font-medium py-2">
                                     Configuración
                                 </a>
-                                <form method="POST" action="{{ route('logout') }}" class="mt-3">
+                                <form method="POST" action="{{ route('logout') }}" class="mt-3" onsubmit="if(window.Alpine && Alpine.store('loginModal')) Alpine.store('loginModal').open = false;">
                                     @csrf
                                     <button type="submit" class="w-full text-left text-red-400 hover:text-red-300 transition-colors duration-300 font-medium py-2">
                                         Cerrar Sesión
@@ -203,11 +202,33 @@
         </nav>
 
         <!-- Contenido Principal -->
-        <main>
-            {{ $slot }}
+    <main>
+            @isset($slot)
+                {{ $slot }} <!-- Para componentes Livewire que usan layouts -->
+            @endisset
+
+           @hasSection('content')
+                @yield('content') <!-- Para vistas Blade que extienden este layout -->
+            @endif
         </main>
 
         @fluxScripts
+        @livewire('profile-modal')
         @livewireScripts
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function emitProfileModal() {
+                if(window.Livewire && typeof window.Livewire.emit === 'function') {
+                    window.Livewire.emit('openProfileModal');
+                } else if(window.livewire && typeof window.livewire.emit === 'function') {
+                    window.livewire.emit('openProfileModal');
+                }
+            }
+            var desktopBtn = document.getElementById('openProfileModalDesktop');
+            var mobileBtn = document.getElementById('openProfileModalMobile');
+            if(desktopBtn) desktopBtn.addEventListener('click', function(e){ e.preventDefault(); emitProfileModal(); });
+            if(mobileBtn) mobileBtn.addEventListener('click', function(e){ e.preventDefault(); emitProfileModal(); });
+        });
+        </script>
     </body>
 </html>
