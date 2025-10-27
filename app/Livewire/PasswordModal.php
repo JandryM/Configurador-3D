@@ -101,6 +101,6 @@ class PasswordModal extends Component
     
     public function render()
     {
-        return view('livewire.modals.password-modal');
+        return view('livewire.auth.password-modal');
     }
 }

@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class VerifyCodeNotification extends Notification implements ShouldQueue
+class ResetPasswordCodeNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -26,10 +26,11 @@ class VerifyCodeNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Código de verificación de correo')
-            ->line('Tu código de verificación es:')
+            ->subject('Código para restablecer tu contraseña')
+            ->line('Has solicitado recuperar tu contraseña.')
+            ->line('Tu código de recuperación es:')
             ->line('<strong style="font-size:2rem;">' . $this->code . '</strong>')
-            ->line('Ingresa este código en la página para verificar tu correo electrónico.')
+            ->line('Ingresa este código en la página para continuar con el cambio de contraseña.')
             ->line('Si no solicitaste este código, puedes ignorar este mensaje.');
     }
 }

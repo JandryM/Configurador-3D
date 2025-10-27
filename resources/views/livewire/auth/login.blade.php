@@ -1,3 +1,4 @@
+<div>
 <?php
 //Esto es un modal
 use Illuminate\Auth\Events\Lockout;
@@ -252,12 +253,9 @@ new class extends Component {
                 Recordarme
             </label>
         </div>
-
-        @if (Route::has('password.request'))
-            <a href="{{ route('password.request') }}" wire:navigate class="text-xs text-slate-300 hover:text-white transition-colors">
-                ¿Olvidaste tu contraseña?
-            </a>
-        @endif
+        <a href="javascript:void(0)" onclick="Livewire.dispatch('openForgotPasswordModal')" class="text-xs text-slate-300 hover:text-white transition-colors">
+            ¿Olvidaste tu contraseña?
+        </a>
     </div>
 
     <!-- Sign In Button -->
@@ -313,4 +311,7 @@ new class extends Component {
     </div>
 @endif
 
+</div>
+
+@livewire('forgot-password-modal')
 </div>

@@ -104,12 +104,16 @@
                                                 <span>Mi Perfil</span>
                                                 @livewire('profile-status')
                                             </a>
-                                            <a href="{{ route('settings.appearance') }}" class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300">
-                                                <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
-                                                </svg>
-                                                Configuración
-                                            </a>
+                                            @auth
+                                                @if(empty(auth()->user()->oauth_provider))
+                                                    <a href="javascript:void(0)" onclick="Livewire.dispatch('openPasswordModal')" id="openPasswordModalDesktop" class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 flex items-center gap-2">
+                                                        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6zm2 2h4v2H8V6zm0 4h4v2H8v-2z" clip-rule="evenodd"></path>
+                                                        </svg>
+                                                        <span>Cambiar Contraseña</span>
+                                                    </a>
+                                                @endif
+                                            @endauth
                                             <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
                                             <form method="POST" action="{{ route('logout') }}" class="block" onsubmit="if(window.Alpine && Alpine.store('loginModal')) Alpine.store('loginModal').open = false;">
                                                 @csrf
@@ -175,9 +179,13 @@
                                 <a href="javascript:void(0)" id="openProfileModalMobile" class="block text-white/90 hover:text-white transition-colors duration-300 font-medium py-2">
                                     Mi Perfil
                                 </a>
-                                <a href="{{ route('settings.appearance') }}" class="block text-white/90 hover:text-white transition-colors duration-300 font-medium py-2">
-                                    Configuración
-                                </a>
+                                @auth
+                                    @if(empty(auth()->user()->oauth_provider))
+                                        <a href="javascript:void(0)" id="openPasswordModalMobile" class="block text-white/90 hover:text-white transition-colors duration-300 font-medium py-2">
+                                            Cambiar Contraseña
+                                        </a>
+                                    @endif
+                                @endauth
                                 <form method="POST" action="{{ route('logout') }}" class="mt-3" onsubmit="if(window.Alpine && Alpine.store('loginModal')) Alpine.store('loginModal').open = false;">
                                     @csrf
                                     <button type="submit" class="w-full text-left text-red-400 hover:text-red-300 transition-colors duration-300 font-medium py-2">
@@ -214,6 +222,7 @@
 
         @fluxScripts
         @livewire('profile-modal')
+        @livewire('password-modal')
         @livewireScripts
         <script>
         document.addEventListener('DOMContentLoaded', function() {
