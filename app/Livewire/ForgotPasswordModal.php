@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Hash;
 
 class ForgotPasswordModal extends Component
 {
-    public $isOpen = false;
     public $email = '';
     public $code = '';
     public $new_password = '';
@@ -36,23 +35,8 @@ class ForgotPasswordModal extends Component
         $this->showPasswordConfirmation = !$this->showPasswordConfirmation;
     }
 
-    protected $listeners = [
-        'openForgotPasswordModal' => 'openModal',
-        'closeForgotPasswordModal' => 'closeModal'
-    ];
-
-    public function openModal()
-    {
-        $this->isOpen = true;
-        $this->reset('email', 'code', 'new_password', 'new_password_confirmation', 'showSuccessMessage', 'showErrorMessage', 'errorMessage', 'showPassword', 'showPasswordConfirmation');
-        $this->showPassword = false;
-        $this->showPasswordConfirmation = false;
-        $this->step = 1;
-    }
-
     public function closeModal()
     {
-        $this->isOpen = false;
         $this->reset('email', 'code', 'new_password', 'new_password_confirmation', 'showSuccessMessage', 'showErrorMessage', 'errorMessage');
         $this->step = 1;
     }
@@ -87,6 +71,8 @@ class ForgotPasswordModal extends Component
         if ($sessionCode && $sessionCode == $this->code) {
             $this->step = 3;
             $this->showSuccessMessage = false;
+            $this->showErrorMessage = false;
+            $this->errorMessage = '';
         } else {
             $this->showErrorMessage = true;
             $this->errorMessage = 'El código ingresado es incorrecto.';
@@ -107,10 +93,18 @@ class ForgotPasswordModal extends Component
         $sessionCode = session('reset_password_code_' . $this->email);
         $user = User::where('email', $this->email)->first();
         if ($user && $sessionCode && $sessionCode == $this->code) {
+            // Validar que la nueva contraseña no sea igual a la anterior
+            if (Hash::check($this->new_password, $user->password)) {
+                $this->showErrorMessage = true;
+                $this->errorMessage = 'La nueva contraseña no puede ser igual a la anterior.';
+                return;
+            }
             $user->password = Hash::make($this->new_password);
             $user->save();
             session()->forget('reset_password_code_' . $this->email);
             $this->showSuccessMessage = true;
+            $this->showErrorMessage = false;
+            $this->errorMessage = '';
             $this->step = 4; // Paso especial para mostrar solo el mensaje final
             $this->reset('code', 'new_password', 'new_password_confirmation', 'showPassword', 'showPasswordConfirmation');
             $this->dispatch('close-modal-after-delay');

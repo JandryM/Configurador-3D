@@ -1,1 +1,0 @@
-<span class="ml-auto {{ $profileIncomplete ? 'w-2 h-2 bg-red-500 rounded-full animate-pulse' : '' }}"></span>

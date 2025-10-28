@@ -37,6 +37,20 @@
             </div>
         </div>
         @endguest
+
+        @guest
+            <div x-data x-init="window.Alpine && Alpine.store('forgotPasswordModal') === undefined ? Alpine.store('forgotPasswordModal', { open: false }) : null">
+                <div x-show="$store.forgotPasswordModal.open" x-transition x-cloak class="fixed inset-0 z-50">
+                    <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
+                    <div class="flex items-center justify-center min-h-screen">
+                        <div class="w-full max-w-md relative overflow-visible">
+                            <button @click="$store.forgotPasswordModal.open = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-3xl font-bold z-10">&times;</button>
+                            <livewire:forgot-password-modal />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endguest
     <!-- Hero Slider -->
     <section id="inicio" class="relative">
         <div class="glide">

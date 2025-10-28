@@ -1,31 +1,31 @@
-<div class="container mx-auto p-6 bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 rounded-2xl shadow-xl">
-    <h1 class="text-4xl font-bold text-center text-slate-800 mb-8">Crear Nuevo Usuario</h1>
+<div class="container mx-auto p-6 bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 rounded-2xl shadow-xl text-black">
+    <h1 class="text-4xl font-bold text-center mb-8 text-black">Crear Nuevo Usuario</h1>
 
     @if (session()->has('error'))
-        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+        <div class="mb-4 p-4 bg-red-100 rounded-lg text-black">
             {{ session('error') }}
         </div>
     @endif
     @if (session()->has('success'))
-        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+        <div class="mb-4 p-4 bg-green-100 rounded-lg text-black">
             {{ session('success') }}
         </div>
     @endif
     @if ($errors->any())
-        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+        <div class="mb-4 p-4 bg-red-100 rounded-lg text-black">
             <strong>Por favor corrige los siguientes errores:</strong>
             <ul class="list-disc pl-5 mt-2">
                 @foreach ($errors->all() as $error)
-                    <li>{{ __($error) }}</li>
+                    <li class="text-black">{{ __($error) }}</li>
                 @endforeach
             </ul>
         </div>
     @endif
-    <form wire:submit.prevent="save" class="space-y-6">
+    <form wire:submit.prevent="save" class="space-y-6 text-black">
         <!-- Nombre -->
         <div>
-            <label for="name" class="block text-lg font-medium text-slate-700">Nombre</label>
-            <input type="text" id="name" class="w-full border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" wire:model.defer="name" required>
+            <label for="name" class="block text-lg font-medium text-black">Nombre</label>
+            <input type="text" id="name" class="w-full border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-black" wire:model.defer="name" required>
             @error('name')
                 <span class="text-red-600 text-sm">{{ __($message) }}</span>
             @enderror
@@ -33,8 +33,8 @@
 
         <!-- Email -->
         <div>
-            <label for="email" class="block text-lg font-medium text-slate-700">Correo Electrónico</label>
-            <input type="email" id="email" class="w-full border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" wire:model.defer="email" required>
+            <label for="email" class="block text-lg font-medium text-black">Correo Electrónico</label>
+            <input type="email" id="email" class="w-full border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-black" wire:model.defer="email" required>
             @error('email')
                 <span class="text-red-600 text-sm">{{ __($message) }}</span>
             @enderror
@@ -42,8 +42,8 @@
 
         <!-- Contraseña -->
         <div>
-            <label for="password" class="block text-lg font-medium text-slate-700">Contraseña</label>
-            <input type="password" id="password" class="w-full border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" wire:model.defer="password" required>
+            <label for="password" class="block text-lg font-medium text-black">Contraseña</label>
+            <input type="password" id="password" class="w-full border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-black" wire:model.defer="password" required>
             @error('password')
                 <span class="text-red-600 text-sm">{{ __($message) }}</span>
             @enderror
@@ -51,8 +51,8 @@
 
         <!-- Rol -->
         <div>
-            <label for="role" class="block text-lg font-medium text-slate-700">Rol</label>
-            <select id="role" class="w-full border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" wire:model.defer="role" required>
+            <label for="role" class="block text-lg font-medium text-black">Rol</label>
+            <select id="role" class="w-full border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-black" wire:model.defer="role" required>
                 @if(auth()->user()->isAdmin())
                     <option value="owner">Dueño</option>
                     <option value="seller">Vendedor</option>

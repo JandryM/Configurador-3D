@@ -308,7 +308,7 @@
                             messageElement.remove();
                         }, 500);
                     }
-                }, 2000); // 2 segundos
+                }, 1500); // 1.5 segundos
             });
         });
     </script>

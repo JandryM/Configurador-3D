@@ -253,7 +253,7 @@ new class extends Component {
                 Recordarme
             </label>
         </div>
-        <a href="javascript:void(0)" onclick="Livewire.dispatch('openForgotPasswordModal')" class="text-xs text-slate-300 hover:text-white transition-colors">
+        <a href="javascript:void(0)" @click.prevent="$store.loginModal.open = false; $store.forgotPasswordModal.open = true" class="text-xs text-slate-300 hover:text-white transition-colors">
             ¿Olvidaste tu contraseña?
         </a>
     </div>
@@ -313,5 +313,5 @@ new class extends Component {
 
 </div>
 
-@livewire('forgot-password-modal')
+
 </div>

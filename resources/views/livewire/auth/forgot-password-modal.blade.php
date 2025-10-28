@@ -1,5 +1,5 @@
 <div>
-    @if($isOpen)
+    
         <div class="fixed inset-0 z-50 overflow-y-auto" style="z-index: 1000;">
             <div class="flex items-center justify-center h-screen px-4 text-center">
                 <div class="fixed inset-0 transition-opacity bg-black/30 backdrop-blur-[1px]" wire:click="closeModal"></div>
@@ -27,7 +27,7 @@
                                 @endif
                             </div>
                         </div>
-                        <button wire:click="closeModal" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors duration-200">
+                        <button wire:click="closeModal" @click="$store.forgotPasswordModal.open = false" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors duration-200">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                             </svg>
@@ -152,7 +152,7 @@
             </div>
         </div>
 
-    @endif
+
 </div>
 
 <!-- Script para cerrar el modal automáticamente después de restablecer la contraseña -->
@@ -160,8 +160,10 @@
 document.addEventListener('livewire:initialized', () => {
     Livewire.on('close-modal-after-delay', () => {
         setTimeout(() => {
-            Livewire.dispatch('closeForgotPasswordModal');
-        }, 2000); // 2 segundos
+            if(window.Alpine && Alpine.store('forgotPasswordModal')) {
+                Alpine.store('forgotPasswordModal').open = false;
+            }
+        }, 1500); // 1.5 segundos
     });
 });
 </script>

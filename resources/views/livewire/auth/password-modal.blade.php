@@ -132,3 +132,14 @@
         </div>
     @endif
 </div>
+
+<!-- Script para cerrar el modal automáticamente después de restablecer la contraseña -->
+<script>
+document.addEventListener('livewire:initialized', () => {
+    Livewire.on('close-modal-after-delay-password', () => {
+        setTimeout(() => {
+            Livewire.dispatch('closePasswordModal');
+        }, 1500); // 1.5 segundos
+    });
+});
+ </script>

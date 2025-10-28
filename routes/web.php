@@ -45,7 +45,7 @@ Route::middleware(['auth', 'verified', 'account.active'])->group(function () {
 Route::middleware(['auth', 'verified', 'account.active', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard de administrador
     Route::get('/dashboard', function () {
-        return view('pages.admin.dashboard');
+        return view('pages.users.dashboard');
     })->name('dashboard');
 
     // Gestión de materiales
