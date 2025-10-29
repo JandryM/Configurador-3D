@@ -14,6 +14,8 @@
                         <p class="text-slate-600">Administra el inventario y precios de materiales</p>
                     </div>
                 </div>
+                @php $userRole = auth()->user()->role; @endphp
+                @if($userRole === 'admin' || $userRole === 'owner')
                 <div class="flex space-x-3">
                     <button wire:click="createMaterial" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -22,6 +24,7 @@
                         <span>Nuevo Material</span>
                     </button>
                 </div>
+                @endif
             </div>
         </div>
     </div>
@@ -134,7 +137,9 @@
                             <th class="text-left py-3 px-4 font-medium text-slate-700">Precio</th>
                             <th class="text-left py-3 px-4 font-medium text-slate-700">Tipo</th>
                             <th class="text-left py-3 px-4 font-medium text-slate-700">Medida</th>
-                            <th class="text-center py-3 px-4 font-medium text-slate-700">Acciones</th>
+                            @if($userRole === 'admin' || $userRole === 'owner')
+                                <th class="text-center py-3 px-4 font-medium text-slate-700">Acciones</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -191,25 +196,27 @@
                                         <span class="text-slate-700">{{ $material->unit_measure }}</span>
                                     @endif
                                 </td>
-                                <td class="py-4 px-4">
-                                    <div class="flex justify-center space-x-2">
-                                        <button class="text-blue-600 hover:text-blue-800 transition-colors">
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
-                                            </svg>
-                                        </button>
-                                        <button class="text-green-600 hover:text-green-800 transition-colors">
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
-                                            </svg>
-                                        </button>
-                                        <button class="text-red-600 hover:text-red-800 transition-colors">
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
+                                @if($userRole === 'admin' || $userRole === 'owner')
+                                    <td class="py-4 px-4">
+                                        <div class="flex justify-center space-x-2">
+                                            <button class="text-blue-600 hover:text-blue-800 transition-colors">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="text-green-600 hover:text-green-800 transition-colors">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-800 transition-colors">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                @endif
                             </tr>
                         @empty
                             <tr>

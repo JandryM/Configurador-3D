@@ -13,6 +13,13 @@ use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
+    /**
+     * Check if user has admin access (admin, owner, seller)
+     */
+    public function hasAdminAccess(): bool
+    {
+        return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_OWNER, self::ROLE_SELLER]);
+    }
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 

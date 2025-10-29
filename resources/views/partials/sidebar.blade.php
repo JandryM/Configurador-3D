@@ -163,7 +163,7 @@
                 <span class="sidebar-text">Dashboard</span>
             </a>
 
-            @if($userRole === 'admin' || $userRole === 'owner')
+            @if($userRole === 'admin' || $userRole === 'owner' || $userRole === 'seller')
                 <!-- Usuarios -->
                 <a href="{{ route('admin.users.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">

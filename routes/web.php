@@ -25,10 +25,9 @@ Route::get('/proforma', function () {
 // Rutas autenticadas y verificadas
 // -------------------
 Route::middleware(['auth', 'verified', 'account.active'])->group(function () {
-    // Dashboard
+    // Dashboard para todos los roles
     Route::get('/dashboard', function () {
-        $user = Auth::user();
-        return redirect('/');
+        return view('pages.users.dashboard');
     })->name('dashboard');
 
     // Configuración
@@ -36,13 +35,12 @@ Route::middleware(['auth', 'verified', 'account.active'])->group(function () {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
-
 });
 
 // -------------------
 // Rutas de administrador
 // -------------------
-Route::middleware(['auth', 'verified', 'account.active', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', 'account.active', 'admin.seller'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard de administrador
     Route::get('/dashboard', function () {
         return view('pages.users.dashboard');
@@ -63,10 +61,12 @@ Route::middleware(['auth', 'verified', 'account.active', 'admin'])->prefix('admi
 
     // Gestión de productos
     Route::get('/products', \App\Livewire\Admin\Products\ProductIndex::class)->name('products.index');
-    Route::get('/products/create', \App\Livewire\Admin\Products\ProductCreate::class)->name('products.create');
-    Route::post('/products', \App\Livewire\Admin\Products\ProductCreate::class)->name('products.store');
-    Route::get('/products/{product}/edit', \App\Livewire\Admin\Products\ProductEdit::class)->name('products.edit');
-    Route::get('/products/{product}/3d-model', \App\Livewire\Admin\Products\Product3DManager::class)->name('products.3d-model');
+    Route::middleware(['admin.owner'])->group(function () {
+        Route::get('/products/create', \App\Livewire\Admin\Products\ProductCreate::class)->name('products.create');
+        Route::post('/products', \App\Livewire\Admin\Products\ProductCreate::class)->name('products.store');
+        Route::get('/products/{product}/edit', \App\Livewire\Admin\Products\ProductEdit::class)->name('products.edit');
+        Route::get('/products/{product}/3d-model', \App\Livewire\Admin\Products\Product3DManager::class)->name('products.3d-model');
+    });
     
     // Gestión de usuarios
     Route::get('/users', \App\Livewire\Admin\Users\UsersIndex::class)->name('users.index');

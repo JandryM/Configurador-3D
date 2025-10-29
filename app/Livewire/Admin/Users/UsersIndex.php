@@ -25,7 +25,16 @@ class UsersIndex extends Component
 
     public function render()
     {
+        $authUser = auth()->user();
         $query = User::query();
+        // Filtrar por rol del usuario autenticado
+        if ($authUser->isAdmin()) {
+            $query->whereIn('role', ['owner', 'seller', 'client']);
+        } elseif ($authUser->isOwner()) {
+            $query->whereIn('role', ['seller', 'client']);
+        } elseif ($authUser->isSeller()) {
+            $query->where('role', 'client');
+        }
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('name', 'ilike', '%'.$this->search.'%')

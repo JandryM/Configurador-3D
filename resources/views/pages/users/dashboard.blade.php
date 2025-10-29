@@ -9,8 +9,20 @@
     $totalUsers = \App\Models\User::count();
     $totalProducts = \App\Models\Product::count();
     $totalMaterials = \App\Models\Material::count();
-    $recentUsers = \App\Models\User::latest()->take(5)->get();
     $userRole = auth()->user()->role;
+    if ($userRole === 'admin') {
+        // Admin ve owners, sellers y clients
+        $recentUsers = \App\Models\User::whereIn('role', ['owner', 'seller', 'client'])->latest()->take(5)->get();
+    } elseif ($userRole === 'owner') {
+        // Owner ve sellers y clients
+        $recentUsers = \App\Models\User::whereIn('role', ['seller', 'client'])->latest()->take(5)->get();
+    } elseif ($userRole === 'seller') {
+        // Seller ve solo clients
+        $recentUsers = \App\Models\User::where('role', 'client')->latest()->take(5)->get();
+    } else {
+        // Client no ve usuarios recientes
+        $recentUsers = collect();
+    }
 @endphp
 <!-- Encabezado de bienvenida Admin -->
 <div class="fade-in mb-8">

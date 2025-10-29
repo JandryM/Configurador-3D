@@ -21,6 +21,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Registrar middleware para admin y seller
+        $router = $this->app['router'];
+        $router->aliasMiddleware('admin.seller', function ($request, $next) {
+            $user = $request->user();
+            if (! $user || ! in_array($user->role, ['admin', 'owner', 'seller'])) {
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'Forbidden'], 403);
+                }
+                return redirect()->route('dashboard')->with('error', 'No tienes permisos para acceder a esta sección.');
+            }
+            return $next($request);
+        });
         // Registrar listener de forma única para envío de notificación cuando se cambie contraseña
         Event::listen(PasswordReset::class, function (PasswordReset $event) {
             // Agregar un pequeño delay para evitar duplicaciones
@@ -38,6 +50,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Verificar que exista al menos un administrador en producción
         $this->ensureAdminExists();
+
+        // Registrar middleware EnsureUserIsAdminOrOwner como alias 'admin.owner'
+        $router = $this->app['router'];
+        $router->aliasMiddleware('admin.owner', \App\Http\Middleware\EnsureUserIsAdminOrOwner::class);
     }
 
     /**
