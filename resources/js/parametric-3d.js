@@ -59,7 +59,6 @@ class ParametricProduct3D {
 
     init() {
         const THREE = this.THREE;
-        
         // Configurar escena básica
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xf5f5f5);
@@ -80,27 +79,27 @@ class ParametricProduct3D {
         });
         this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        
+
         // Configuración avanzada de sombras
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        
+
         // Configuración de renderizado optimizada para colores
         this.renderer.gammaOutput = true;
         this.renderer.gammaFactor = 2.2;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1.0;
-        
+
         // Fondo gris neutro para mejor contraste de colores
         this.renderer.setClearColor(0xf5f5f5);
-        
+
         // Asegurar que el canvas sea visible
         this.renderer.domElement.style.position = 'absolute';
         this.renderer.domElement.style.top = '0';
         this.renderer.domElement.style.left = '0';
         this.renderer.domElement.style.zIndex = '10';
         this.renderer.domElement.style.pointerEvents = 'auto';
-        
+
         this.container.appendChild(this.renderer.domElement);
 
         // Controles
@@ -109,9 +108,9 @@ class ParametricProduct3D {
 
         // Configurar interacción para ventanas deslizables
         this.setupInteraction();
-        
-        // Configurar controles de teclado
-        this.setupKeyboardControls();
+
+        // Configurar controles de teclado SOLO cuando el canvas tiene el foco
+        this.setupKeyboardFocusControls();
 
         // Iluminación
         this.setupLighting();
@@ -121,12 +120,30 @@ class ParametricProduct3D {
     }
 
     
-    // Agregar controles de teclado
-    setupKeyboardControls() {
-        document.addEventListener('keydown', (event) => {
+    // Agregar controles de teclado SOLO cuando el canvas tiene el foco
+    setupKeyboardFocusControls() {
+        // Guardar referencia para remover el listener
+        this._boundKeyHandler = (event) => {
             if (this.productMesh && this.productMesh.userData && this.productMesh.userData.handleKeyPress) {
                 this.productMesh.userData.handleKeyPress(event);
             }
+        };
+
+        // Hacer el canvas focusable
+        this.renderer.domElement.setAttribute('tabindex', '0');
+        this.renderer.domElement.style.outline = 'none';
+
+        // Al hacer focus, agregar el listener
+        this.renderer.domElement.addEventListener('focus', () => {
+            document.addEventListener('keydown', this._boundKeyHandler);
+        });
+        // Al perder el foco, quitar el listener
+        this.renderer.domElement.addEventListener('blur', () => {
+            document.removeEventListener('keydown', this._boundKeyHandler);
+        });
+        // Opcional: dar foco al hacer click en el canvas
+        this.renderer.domElement.addEventListener('mousedown', () => {
+            this.renderer.domElement.focus();
         });
     }
 

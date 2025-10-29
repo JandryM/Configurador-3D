@@ -71,12 +71,12 @@
                     </div>
                     <!-- Navegación Desktop -->
                     <div class="hidden md:flex items-center space-x-8 flex-1 justify-center">
-                        <a href="#inicio" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Inicio</a>
-                        <a href="#nosotros" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Nosotros</a>
-                        <a href="#servicios" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Servicios</a>
-                        <a href="#galeria" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Galería</a>
-                        <a href="{{ route('proforma') }}" target="_blank" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium bg-gradient-to-r from-green-500 to-blue-500 px-4 py-2 rounded-lg font-semibold ml-2">Proforma</a>
-                        <a href="#ubicacion" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Ubicación</a>
+                        <a href="{{ url('/')}}#inicio" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Inicio</a>
+                        <a href="{{ url('/')}}#nosotros" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Nosotros</a>
+                        <a href="{{ url('/')}}#servicios" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Servicios</a>
+                        <a href="{{ url('/')}}#galeria" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Galería</a>
+                        <a href="#" target="_blank" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium bg-gradient-to-r from-green-500 to-blue-500 px-4 py-2 rounded-lg font-semibold ml-2">Proforma</a>
+                        <a href="{{ url('/')}}#ubicacion" class="nav-link text-white/90 hover:text-white transition-colors duration-300 font-medium">Ubicación</a>
                         
                         @auth
                             <!-- Usuario logueado -->
@@ -224,8 +224,68 @@
         @livewire('profile-modal')
         @livewire('password-modal')
         @livewireScripts
+        <!-- Modals globales para usuarios guest -->
+        @auth
+            <livewire:verification-modal />
+        @endauth
+        @guest
+        <div x-data x-init="window.Alpine && Alpine.store('loginModal') === undefined ? Alpine.store('loginModal', { open: false }) : null">
+            <div x-show="$store.loginModal.open" x-transition x-cloak class="fixed inset-0 z-50">
+                <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="w-full max-w-md relative overflow-visible">
+                        <button @click="$store.loginModal.open = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-3xl font-bold z-10">&times;</button>
+                        <livewire:auth.login />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div x-data x-init="window.Alpine && Alpine.store('registerModal') === undefined ? Alpine.store('registerModal', { open: false }) : null">
+            <div x-show="$store.registerModal.open" x-transition x-cloak class="fixed inset-0 z-50">
+                <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="w-full max-w-2xl relative overflow-visible">
+                        <button @click="$store.registerModal.open = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-3xl font-bold z-10">&times;</button>
+                        <livewire:auth.register />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div x-data x-init="window.Alpine && Alpine.store('forgotPasswordModal') === undefined ? Alpine.store('forgotPasswordModal', { open: false }) : null">
+            <div x-show="$store.forgotPasswordModal.open" x-transition x-cloak class="fixed inset-0 z-50">
+                <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
+                <div class="flex items-center justify-center min-h-screen">
+                    <div class="w-full max-w-md relative overflow-visible">
+                        <button @click="$store.forgotPasswordModal.open = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-3xl font-bold z-10">&times;</button>
+                        <livewire:forgot-password-modal />
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endguest
         <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scroll/redirect for anchor links
+            document.querySelectorAll('a.nav-link[href^="'+window.location.origin+'/#"], a.nav-link[href^="'+window.location.origin+'#"], a.nav-link[href^="#"]').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    var href = link.getAttribute('href');
+                    var hash = href.includes('#') ? href.substring(href.indexOf('#')) : '';
+                    if (!hash || hash === '#') return;
+                    // Si ya estamos en la home
+                    if (window.location.pathname === '/' || window.location.pathname === '/index.php') {
+                        var target = document.querySelector(hash);
+                        if (target) {
+                            e.preventDefault();
+                            target.scrollIntoView({ behavior: 'smooth' });
+                            history.replaceState(null, '', hash);
+                        }
+                    } else {
+                        // Si no, redirigir a la home con el hash
+                        window.location.href = '/'+hash;
+                    }
+                });
+            });
+            // Livewire modals
             function emitProfileModal() {
                 if(window.Livewire && typeof window.Livewire.emit === 'function') {
                     window.Livewire.emit('openProfileModal');

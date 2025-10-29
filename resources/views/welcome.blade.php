@@ -1,56 +1,7 @@
 @extends('layouts.guest')
 @section('title', __('Quality - Soluciones en Aluminio, Vidrio y Melamina'))
 @section('content')
-    <!-- Modal de verificación de correo (global, escucha evento Livewire) -->
-    @auth
-        <livewire:verification-modal />
-    @endauth
     <style>[x-cloak] { display: none !important; }</style>
-
-    <!-- Modal de Login (solo el modal, sin botón) -->
-    @guest
-    <div x-data x-init="window.Alpine && Alpine.store('loginModal') === undefined ? Alpine.store('loginModal', { open: false }) : null">
-    <div x-show="$store.loginModal.open" x-transition x-cloak class="fixed inset-0 z-50">
-        <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
-        <div class="flex items-center justify-center min-h-screen">
-            <div class="w-full max-w-md relative overflow-visible">
-                <button @click="$store.loginModal.open = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-3xl font-bold z-10">&times;</button>
-                <livewire:auth.login />
-            </div>
-        </div>
-    </div>
-    </div>
-    
-    @endguest
-
-        <!-- Modal de Registro (solo el modal, sin botón) -->
-        @guest
-        <div x-data x-init="window.Alpine && Alpine.store('registerModal') === undefined ? Alpine.store('registerModal', { open: false }) : null">
-            <div x-show="$store.registerModal.open" x-transition x-cloak class="fixed inset-0 z-50">
-                <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
-                <div class="flex items-center justify-center min-h-screen">
-                    <div class="w-full max-w-2xl relative overflow-visible">
-                        <button @click="$store.registerModal.open = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-3xl font-bold z-10">&times;</button>
-                        <livewire:auth.register />
-                    </div>
-                </div>
-            </div>
-        </div>
-        @endguest
-
-        @guest
-            <div x-data x-init="window.Alpine && Alpine.store('forgotPasswordModal') === undefined ? Alpine.store('forgotPasswordModal', { open: false }) : null">
-                <div x-show="$store.forgotPasswordModal.open" x-transition x-cloak class="fixed inset-0 z-50">
-                    <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
-                    <div class="flex items-center justify-center min-h-screen">
-                        <div class="w-full max-w-md relative overflow-visible">
-                            <button @click="$store.forgotPasswordModal.open = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-3xl font-bold z-10">&times;</button>
-                            <livewire:forgot-password-modal />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endguest
     <!-- Hero Slider -->
     <section id="inicio" class="relative">
         <div class="glide">

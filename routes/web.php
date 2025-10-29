@@ -52,6 +52,9 @@ Route::middleware(['auth', 'verified', 'account.active', 'admin.seller'])->prefi
     //})->name('materials.index');
 
     Route::get('/materials', \App\Livewire\Admin\Materials\MaterialsIndex::class)->name('materials.index');
+    Route::get('/materials/create', \App\Livewire\Admin\Materials\MaterialsCreate::class)->name('materials.create');
+    Route::post('/materials', \App\Livewire\Admin\Materials\MaterialsCreate::class)->name('materials.store');
+    Route::get('/materials/{material}/edit', \App\Livewire\Admin\Materials\MaterialsEdit::class)->name('materials.edit');
     
     
     // Gestión de proformas

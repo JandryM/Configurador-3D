@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class ProductConfigurator extends Component
 {
+    // Flag para saber si los parámetros son válidos
+    public $parametersValid = true;
     public $showProformaModal = false;
     public function downloadProformaPdf()
     {
@@ -180,8 +182,35 @@ class ProductConfigurator extends Component
         }
     }
 
+    public function updatedParameters($value, $key)
+    {
+        $this->updateParameter($key, $value);
+    }
+
     public function updateParameter($parameter, $value)
     {
+
+        // Si el valor es string vacío, convertir a null
+        if ($value === '') {
+            $value = null;
+        }
+
+        // Si es un parámetro numérico, forzar null si no es numérico
+        if (in_array($parameter, ['width', 'height', 'depth', 'frameWidth'])) {
+            if (!is_numeric($value) || $value === null) {
+                $this->parameters[$parameter] = null;
+                $this->calculatePrice();
+                $parametersFor3D = $this->parameters;
+                if ($this->getProductType() === 'window') {
+                    $parametersFor3D = array_merge($this->parameters, ['depth' => 1.0]);
+                }
+                $parametersFor3D['texturePath'] = $this->getColorTexturePath($this->parameters['color']);
+                $parametersFor3D['glassTexturePath'] = $this->getGlassTexturePath($this->parameters['glassColor']);
+                $this->dispatch('updateModel3D', parameters: $parametersFor3D);
+                return;
+            }
+        }
+
         // Validar límites
         $productType = $this->getProductType();
         if (isset($this->limits[$productType][$parameter])) {
@@ -190,29 +219,34 @@ class ProductConfigurator extends Component
         }
 
         $this->parameters[$parameter] = $value;
-        
         $this->calculatePrice();
-        
         // Dispatch evento para actualizar modelo 3D
         $parametersFor3D = $this->parameters;
         if ($this->getProductType() === 'window') {
             $parametersFor3D = array_merge($this->parameters, ['depth' => 1.0]);
         }
-        
-    // Incluir la ruta de textura correspondiente al color seleccionado para el frame
-    $parametersFor3D['texturePath'] = $this->getColorTexturePath($this->parameters['color']);
-    // Incluir la ruta de textura correspondiente al color seleccionado para el vidrio
-    $parametersFor3D['glassTexturePath'] = $this->getGlassTexturePath($this->parameters['glassColor']);
+        $parametersFor3D['texturePath'] = $this->getColorTexturePath($this->parameters['color']);
+        $parametersFor3D['glassTexturePath'] = $this->getGlassTexturePath($this->parameters['glassColor']);
         $this->dispatch('updateModel3D', parameters: $parametersFor3D);
     }
 
     public function calculatePrice()
     {
+        // Validar ancho y alto antes de calcular
+        $width = $this->parameters['width'] ?? null;
+        $height = $this->parameters['height'] ?? null;
+        $this->parametersValid = is_numeric($width) && is_numeric($height) && $width > 0 && $height > 0;
+
+        if (!$this->parametersValid) {
+            $this->calculatedPrice = 0;
+            $this->materialCosts = [];
+            return;
+        }
         try {
             $this->materialCosts = [];
             $totalCost = 0;
 
-            $area = $this->parameters['width'] * $this->parameters['height'];
+            $area = $width * $height;
             $depth = $this->getProductType() === 'window' ? 1.0 : ($this->parameters['depth'] ?? 1.0);
             $volume = $area * $depth;
 
@@ -437,7 +471,7 @@ class ProductConfigurator extends Component
         $directCost = $this->getDirectCostPercentage();
         $indirectCost = $this->getIndirectCostPercentage();
         $user = auth()->user();
-        return view('livewire.product-configurator', [
+        return view('livewire.products.product-configurator', [
             'productType' => $this->getProductType(),
             'parameterLimits' => $this->limits[$this->getProductType()] ?? [],
             'availableColors' => $this->getAvailableColors(),
@@ -445,8 +479,9 @@ class ProductConfigurator extends Component
             'colorTexturePath' => $this->getColorTexturePath($this->parameters['color']),
             'directCost' => $directCost,
             'indirectCost' => $indirectCost,
-            'user' => $user
-        ])->layout('components.layouts.configurator', [
+            'user' => $user,
+            'parametersValid' => $this->parametersValid
+        ])->layout('layouts.guest', [
             'title' => 'Configurador 3D - ' . $this->product->name,
             'description' => 'Personaliza ' . $this->product->name . ' en tiempo real con nuestro configurador 3D interactivo.'
         ]);

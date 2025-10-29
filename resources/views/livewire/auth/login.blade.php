@@ -12,6 +12,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
 
 new class extends Component {
+    public string $intended = '';
     #[Validate('required|string|email')]
     public string $email = '';
 
@@ -27,13 +28,20 @@ new class extends Component {
     public function login(): void
     {
         $this->validate();
-
         $this->ensureIsNotRateLimited();
+
+        // Guardar la intended URL si no está ya en sesión
+        if (!session()->has('url.intended')) {
+            $intended = $this->intended ?: url()->previous();
+            // Evitar que la intended sea la ruta de login o register
+            if (!str_contains($intended, 'login') && !str_contains($intended, 'register')) {
+                session(['url.intended' => $intended]);
+            }
+        }
 
         // Primero verificar si las credenciales son correctas
         if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], false)) {
             RateLimiter::hit($this->throttleKey());
-
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
@@ -43,25 +51,17 @@ new class extends Component {
 
         // Verificar estado de la cuenta después del login exitoso PERO ANTES de establecer la sesión
         if ($user->isSuspended()) {
-            // Cerrar la sesión inmediatamente
             Auth::logout();
-            
-            // Preparar mensaje detallado de suspensión
             $message = 'Tu cuenta ha sido suspendida y no puedes iniciar sesión.';
-            
             if ($user->suspended_until) {
                 $message = 'Tu cuenta está suspendida hasta el ' . $user->suspended_until->format('d/m/Y H:i') . '.';
             } else {
                 $message = 'Tu cuenta ha sido suspendida indefinidamente.';
             }
-
             if ($user->suspension_reason) {
                 $message .= ' Motivo: ' . $user->suspension_reason;
             }
-
             $message .= ' Contacta al administrador para más información.';
-
-            // Lanzar error de validación con el mensaje completo
             throw ValidationException::withMessages([
                 'email' => $message,
             ]);
@@ -75,14 +75,11 @@ new class extends Component {
             ]);
         }
 
-
-        // Actualizar último login
         Auth::user()->updateLastLogin();
-
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-        // Redirigir a la página de inicio después del login
+        // Redirigir a la intended URL o home
         $this->redirectIntended(default: '/', navigate: true);
     }
 
@@ -135,6 +132,7 @@ new class extends Component {
     <x-auth-session-status class="mb-2" :status="session('status')" />
 
     <form method="POST" wire:submit="login" class="space-y-3">
+        <input type="hidden" wire:model.defer="intended" value="{{ url()->full() }}" />
     <!-- Email Address -->
     <div class="space-y-1">
         <label for="login_email" class="block text-xs font-semibold text-white">
