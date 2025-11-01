@@ -15,11 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->foreignId('material_id')->constrained('materials')->onDelete('cascade');
-            $table->decimal('quantity', 10, 3)->default(1)->comment('Cantidad de material necesaria');
-            $table->decimal('used_quantity', 10, 3)->comment('Cantidad real usada del material');
-            $table->decimal('waste_percentage', 5, 2)->default(0)->comment('Porcentaje de desperdicio');
             $table->text('calculation_formula')->nullable()->comment('Fórmula para calcular la cantidad usada');
-            $table->decimal('calculated_cost', 10, 2)->nullable()->comment('Costo calculado para este producto');
             $table->text('notes')->nullable()->comment('Notas adicionales sobre el cálculo');
             $table->timestamps();
             

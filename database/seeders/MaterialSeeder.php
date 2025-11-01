@@ -103,15 +103,14 @@ class MaterialSeeder extends Seeder
                 'category_id' => 1,
                 'description' => 'Vidrio transparente de 4mm de espesor',
                 'unit_measure' => 'metros_cuadrados',
-                'unit_price' => 55.00 / (2.14 * 3.30), // $55 por pieza de 2.14m x 3.30m
-                'piece_size' => 2.14 * 3.30, // 7.062 m²
-                'piece_price' => 55.00,
-                'is_by_piece' => true,
+                'unit_price' => 55.00 / (2.14 * 3.30), // Precio por m² calculado
+                'piece_size' => 2.14 * 3.30, // 7.062 m² (área de la pieza)
+                'piece_price' => 55.00, // Precio total de la pieza
+                'is_by_piece' => false, // NO es por piezas lineales
                 'supports_colors' => true,
-                'has_dimensions' => true,
+                'has_dimensions' => true, // SÍ es por dimensiones (m²)
                 'width' => 2.14,
-                'height' => 3.30,
-                'calculated_area' => 2.14 * 3.30
+                'height' => 3.30
             ],
             [
                 'name' => 'Felpa para Ventana',

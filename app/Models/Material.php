@@ -9,7 +9,7 @@ class Material extends Model
 {
     protected $fillable = [
         'name',
-        'category',
+        'category_id',
         'description',
         'unit_measure',
         'unit_price',
@@ -30,7 +30,8 @@ class Material extends Model
         'has_dimensions' => 'boolean',
         'width' => 'decimal:3',
         'height' => 'decimal:3',
-        'calculated_area' => 'decimal:6'
+        'calculated_area' => 'decimal:6',
+        'category_id' => 'integer',
     ];
 
     /**
@@ -40,11 +41,7 @@ class Material extends Model
     {
         return $this->belongsToMany(Product::class, 'product_material')
                     ->withPivot([
-                        'quantity', 
-                        'used_quantity', 
-                        'waste_percentage', 
-                        'calculation_formula', 
-                        'calculated_cost', 
+                        'calculation_formula',
                         'notes'
                     ])
                     ->withTimestamps();
@@ -60,13 +57,13 @@ class Material extends Model
                     ->withTimestamps();
     }
 
+
     /**
-     * Many-to-many relationship with categories
+     * Relación de pertenencia a una categoría
      */
-    public function categories(): BelongsToMany
+    public function category()
     {
-        return $this->belongsToMany(Category::class, 'category_material')
-                    ->withTimestamps();
+        return $this->belongsTo(Category::class);
     }
 
     /**

@@ -78,10 +78,10 @@ class ProductConfigurator extends Component
     // Límites por tipo de producto
     public $limits = [
         'window' => [
-            'width' => ['min' => 0.5, 'max' => 4.0, 'step' => 0.1],
-            'height' => ['min' => 0.3, 'max' => 3.5, 'step' => 0.1],
-            'depth' => ['min' => 0.05, 'max' => 0.15, 'step' => 0.01],
-            'frameWidth' => ['min' => 0.02, 'max' => 0.1, 'step' => 0.01]
+            'width' => ['min' => 0.5, 'max' => 4.0, 'step' => 0.01],  // dos decimales (cm)
+            'height' => ['min' => 0.3, 'max' => 3.5, 'step' => 0.01],  // dos decimales (cm)
+            'depth' => ['min' => 0.05, 'max' => 0.15, 'step' => 0.001], // tres decimales (mm)
+            'frameWidth' => ['min' => 0.02, 'max' => 0.1, 'step' => 0.001] // tres decimales (mm)
         ],
         'door' => [
             'width' => ['min' => 0.6, 'max' => 1.2, 'step' => 0.1],
@@ -246,9 +246,9 @@ class ProductConfigurator extends Component
             $this->materialCosts = [];
             $totalCost = 0;
 
-            $area = $width * $height;
+            $area = round($width * $height, 3); // mantener 3 decimales para m2
             $depth = $this->getProductType() === 'window' ? 1.0 : ($this->parameters['depth'] ?? 1.0);
-            $volume = $area * $depth;
+            $volume = round($area * $depth, 3); // mantener 3 decimales para m3
 
             foreach ($this->product->materials as $material) {
                 $quantity = $this->calculateMaterialQuantity($material, $area, $volume);
@@ -263,7 +263,7 @@ class ProductConfigurator extends Component
                 }
                 $this->materialCosts[] = [
                     'name' => $material->name,
-                    'quantity' => $quantity,
+                    'quantity' => round($quantity, 4), // redondear a 4 decimales para calculo de cada material
                     'unit' => $material->unit_measure,
                     'unit_price' => $material->unit_price,
                     'total_cost' => $cost,
@@ -277,7 +277,9 @@ class ProductConfigurator extends Component
 
             $directAmount = $totalCost * ($directCost / 100);
             $indirectAmount = $totalCost * ($indirectCost / 100);
-            $this->calculatedPrice = $totalCost + $directAmount + $indirectAmount;
+
+            $precisePrice = $totalCost + $directAmount + $indirectAmount;
+            $this->calculatedPrice = round($precisePrice, 2); // dos decimales al precio final
         } catch (\Exception $e) {
             $this->calculatedPrice = $this->product->price ?? 0;
         }
@@ -299,69 +301,51 @@ class ProductConfigurator extends Component
         return $indirectCost !== null ? $indirectCost : 0;
     }
 
-
     private function calculateMaterialQuantity($material, $area, $volume)
     {
-        $materialName = strtolower($material->name);
-        $width = $this->parameters['width'];
-        $height = $this->parameters['height'];
+        // Usar la fórmula de la tabla pivote si existe
+        $pivot = $material->pivot ?? null;
+        $formula = $pivot->calculation_formula ?? null;
         
-        // Cálculos específicos para ventana corredera de 2 hojas
-        switch (true) {
-            // Perfiles del marco principal
-            case str_contains($materialName, 'riel superior') || str_contains($materialName, 'riel inferior'):
-                // 2 rieles (superior e inferior) del ancho de la ventana
-                return $width * 2;
-                
-            case str_contains($materialName, 'jamba lateral'):
-                // 2 jambas laterales de la altura de la ventana
-                return $height * 2;
-                
-            // Perfiles de las hojas (2 hojas)
-            case str_contains($materialName, 'horizontal de hoja'):
-                // 4 horizontales (2 superior + 2 inferior) para 2 hojas
-                // Cada hoja tiene ancho = width/2
-                return ($width / 2) * 4;
-                
-            case str_contains($materialName, 'vertical cerrado'):
-                // 4 verticales (2 por cada hoja) de la altura completa
-                return $height * 4;
-                
-            // Herrajes
-            case str_contains($materialName, 'ruedas dobles'):
-                // 4 ruedas (2 por hoja, 2 hojas)
-                return 4;
-                
-            case str_contains($materialName, 'seguro punto rojo'):
-                // 1 seguro por ventana completa
-                return 1;
-                
-            case str_contains($materialName, 'tornillos'):
-                // 4 tornillos por hoja (8 para 2 hojas) + tornillos adicionales para marco
-                $hojasTornillos = 8; // 4 por hoja × 2 hojas
-                $marcoTornillos = ceil(($width + $height) * 2 / 0.5); // 1 tornillo cada 50cm aprox
-                return $hojasTornillos + $marcoTornillos;
-                
-            // Vidrio
-            case str_contains($materialName, 'vidrio'):
-                // Área de vidrio = 2 hojas con área útil (descontando marco)
-                $frameWidth = $this->parameters['frameWidth'] ?? 0.05;
-                $vidrioPorHoja = ($width/2 - $frameWidth*2) * ($height - $frameWidth*2);
-                return $vidrioPorHoja * 2; // 2 hojas
-                
-            // Sellado
-            case str_contains($materialName, 'felpa'):
-                // Felpa va solo en la parte superior de las hojas
-                return $width; // Solo superior, para ambas hojas
-                
-            case str_contains($materialName, 'caucho'):
-                // Caucho va en todo el perímetro de cada hoja
-                $perimetroPorHoja = 2 * (($width/2) + $height);
-                return $perimetroPorHoja * 2; // 2 hojas
-                
-            default:
-                // Fallback para otros materiales
-                return $material->has_dimensions ? $area : $volume;
+        if ($formula) {
+            return $this->evaluateFormulaSafely($formula, $this->parameters);
+        }
+        
+        // Si no hay fórmula, usar área o volumen según corresponda
+        return $material->has_dimensions ? $area : $volume;
+    }
+
+    private function evaluateFormulaSafely($formula, $parameters)
+    {
+        // Extraer parámetros con la precisión original
+        $width = $parameters['width'] ?? 0;
+        $height = $parameters['height'] ?? 0;
+        $depth = $parameters['depth'] ?? 0;
+        $frameWidth = $parameters['frameWidth'] ?? 0.05;
+        
+        // Variables calculadas - mantener alta precisión
+        $area = round($width * $height, 3); // mantener 3 decimales para m2
+        $volume = round($area * $depth, 4); // mantener 4 decimales para m3
+        $perimeter = round(2 * ($width + $height), 2); // mantener 2 decimales para metros lineales
+
+        // Reemplazar variables
+        $safeFormula = str_replace(
+            [
+                '{width}', '{height}', '{depth}', '{frameWidth}',
+                '{area}', '{volume}', '{perimeter}'
+            ],
+            [
+                $width, $height, $depth, $frameWidth,
+                $area, $volume, $perimeter
+            ],
+            $formula
+        );
+        
+        try {
+            $result = eval("return $safeFormula;");
+            return is_numeric($result) ? (float)$result : 0;
+        } catch (\Throwable $e) {
+            return 0;
         }
     }
 

@@ -114,20 +114,21 @@
                         @if(isset($parameterLimits[$param]))
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-black mb-2">
-                                    {{ $label }}: {{ number_format($parameters[$param], 3) }}m
+                                    {{ $label }}: {{ number_format($parameters[$param], 2) }}m
                                 </label>
                                 <div class="flex items-center gap-2">
                                     <input type="range" 
                                            wire:model.lazy="parameters.{{ $param }}"
                                            min="{{ $parameterLimits[$param]['min'] }}"
                                            max="{{ $parameterLimits[$param]['max'] }}"
-                                           step="{{ $parameterLimits[$param]['step'] }}"
+                                           step="0.01"
                                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                                     <input type="number"
                                            wire:model.lazy="parameters.{{ $param }}"
                                            min="{{ $parameterLimits[$param]['min'] }}"
                                            max="{{ $parameterLimits[$param]['max'] }}"
-                                           step="{{ $parameterLimits[$param]['step'] }}"
+                                           step="0.01"
+                                           oninput="this.value = this.value.match(/^\d*\.?\d{0,2}/) ? this.value.match(/^\d*\.?\d{0,2}/)[0] : ''"
                                            class="w-24 ml-2 px-2 py-1 border border-gray-300 rounded text-sm focus:ring focus:ring-blue-200"
                                            placeholder="{{ $label }}">
                                     <span class="ml-1 text-xs text-black">m</span>

@@ -9,18 +9,15 @@ use Livewire\WithPagination;
 
 class MaterialsIndex extends Component
 {
-    public function mount()
-    {
-        logger('Livewire: MaterialsIndex montado correctamente');
-        // O puedes usar session()->flash('message', 'Componente montado');
-    }
     use WithPagination;
 
     public $search = '';
     public $filterByType = 'all'; // all, by_piece, by_unit
     public $showCreateModal = false;
+    public $showDeleteModal = false;
     public $showEditModal = false;
     public $editingMaterial = null;
+    public $materialToDelete = null;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -49,14 +46,51 @@ class MaterialsIndex extends Component
         $this->showEditModal = true;
     }
 
-    public function deleteMaterial(Material $material)
+    // Método para abrir el modal de eliminación
+    public function confirmDelete($materialId)
     {
-        if ($material->products()->exists()) {
-            session()->flash('error', 'No se puede eliminar el material porque está siendo usado en productos.');
+        $material = Material::find($materialId);
+        
+        if ($material) {
+            $this->materialToDelete = $material;
+            $this->showDeleteModal = true;
+        }
+    }
+
+    // Método para ejecutar la eliminación
+    public function deleteMaterial()
+    {
+        if (!$this->materialToDelete) {
             return;
         }
-        $material->delete();
-        session()->flash('message', 'Material eliminado exitosamente.');
+
+        try {
+            $material = $this->materialToDelete;
+            
+            // Verificar si el material está siendo usado en productos
+            if ($material->products()->exists()) {
+                session()->flash('error', 'No se puede eliminar el material "' . $material->name . '" porque está siendo usado en productos.');
+                $this->closeDeleteModal();
+                return;
+            }
+            
+            $materialName = $material->name;
+            $material->delete();
+            
+            session()->flash('message', 'Material "' . $materialName . '" eliminado exitosamente.');
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al eliminar el material: ' . $e->getMessage());
+        }
+        
+        $this->closeDeleteModal();
+    }
+
+    // Método para cerrar el modal de eliminación
+    public function closeDeleteModal()
+    {
+        $this->showDeleteModal = false;
+        $this->materialToDelete = null;
     }
 
     public function closeCreateModal()
@@ -87,6 +121,7 @@ class MaterialsIndex extends Component
     public function render()
     {
         $materials = Material::query()
+            ->with('category')
             ->when($this->search, function($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                       ->orWhere('description', 'like', '%' . $this->search . '%');
@@ -101,6 +136,6 @@ class MaterialsIndex extends Component
             ->orderBy('name')
             ->paginate(4);
 
-    return view('livewire.admin.materials.index', compact('materials'))->layout('partials.sidebar');
+        return view('livewire.admin.materials.index', compact('materials'))->layout('partials.sidebar');
     }
 }

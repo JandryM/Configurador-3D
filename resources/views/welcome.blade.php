@@ -619,7 +619,7 @@
             
             <div class="border-t border-slate-700/50 mt-12 pt-8">
                 <div class="flex flex-col md:flex-row justify-between items-center">
-                    <p class="text-slate-400 text-center md:text-left">&copy; 2024 Quality. Todos los derechos reservados.</p>
+                    <p class="text-slate-400 text-center md:text-left">&copy; 2026 Quality. Todos los derechos reservados.</p>
                     <div class="flex items-center space-x-4 mt-4 md:mt-0">
                         <span class="text-slate-500 text-sm">Hecho con</span>
                         <svg class="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 20 20">

@@ -12,10 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Reemplazar el middleware de autenticación por defecto
+        $middleware->replace(\Illuminate\Auth\Middleware\Authenticate::class, \App\Http\Middleware\Authenticate::class);
+        
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'account.active' => \App\Http\Middleware\EnsureAccountIsActive::class,
             'not.suspended' => \App\Http\Middleware\EnsureUserNotSuspended::class,
+            'admin.seller' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'admin.owner' => \App\Http\Middleware\EnsureUserIsAdminOrOwner::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

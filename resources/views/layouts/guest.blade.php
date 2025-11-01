@@ -59,7 +59,28 @@
         </style>
         @livewireStyles
     </head>
-    <body class="min-h-screen bg-white antialiased dark:bg-gray-900" x-data x-init="window.Alpine && Alpine.store('loginModal') === undefined ? Alpine.store('loginModal', { open: false }) : null">
+    <body class="min-h-screen bg-white antialiased dark:bg-gray-900" x-data x-init="
+        // Inicializar stores de Alpine.js
+        window.Alpine && Alpine.store('loginModal') === undefined ? Alpine.store('loginModal', { open: false }) : null;
+        window.Alpine && Alpine.store('registerModal') === undefined ? Alpine.store('registerModal', { open: false }) : null;
+        
+        // Verificar si se debe mostrar algún modal automáticamente
+        @if(session('show_login_modal'))
+            setTimeout(() => {
+                if (window.Alpine && Alpine.store('loginModal')) {
+                    Alpine.store('loginModal').open = true;
+                }
+            }, 100);
+        @endif
+        
+        @if(session('show_register_modal'))
+            setTimeout(() => {
+                if (window.Alpine && Alpine.store('registerModal')) {
+                    Alpine.store('registerModal').open = true;
+                }
+            }, 100);
+        @endif
+    ">
         <!-- Navegación -->
         <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-md transition-all duration-300">
             <div class="container mx-auto px-6 py-4 relative">
@@ -196,10 +217,10 @@
                         @else
                             <!-- Usuario no logueado - Móvil -->
                             <div class="border-t border-white/20 pt-3 mt-3 space-y-3">
-                                <a href="{{ route('login') }}" class="block text-white/90 hover:text-white font-medium transition-colors duration-300">
+                                <a href="javascript:void(0)" @click.prevent="$store.loginModal.open = true" class="block text-white/90 hover:text-white font-medium transition-colors duration-300">
                                     Iniciar Sesión
                                 </a>
-                                <a href="{{ route('register') }}" class="block bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-center">
+                                <a href="javascript:void(0)" @click.prevent="$store.registerModal.open = true" class="block bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 text-center">
                                     Registrarse
                                 </a>
                             </div>
@@ -228,8 +249,71 @@
         @auth
             <livewire:verification-modal />
         @endauth
+
+        <!-- Notificaciones de autenticación -->
+        @if(session('login_message') || session('show_login_modal') || session('show_register_modal'))
+        <div x-data="{ 
+                show: true,
+                init() {
+                    // Auto-ocultar después de 4 segundos
+                    setTimeout(() => {
+                        this.show = false;
+                    }, 4000);
+                }
+            }" 
+            x-show="show" 
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-x-full"
+            x-transition:enter-end="opacity-100 transform translate-x-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-x-0"
+            x-transition:leave-end="opacity-0 transform translate-x-full"
+            class="fixed top-20 right-4 z-40 max-w-sm">
+            <div class="bg-red-600 text-white p-4 rounded-lg shadow-lg border-l-4 border-red-400">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-sm font-medium">
+                            @if(session('login_message'))
+                                {{ session('login_message') }}
+                            @elseif(session('show_login_modal'))
+                                Debes iniciar sesión para acceder a esta página
+                            @elseif(session('show_register_modal'))
+                                Crea una cuenta para comenzar
+                            @endif
+                        </span>
+                    </div>
+                    <button @click="show = false" class="text-white/80 hover:text-white ml-2" title="Cerrar notificación">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        @endif
+
         @guest
-        <div x-data x-init="window.Alpine && Alpine.store('loginModal') === undefined ? Alpine.store('loginModal', { open: false }) : null">
+        <div x-data x-init="
+            // Inicializar stores si no existen
+            window.Alpine && Alpine.store('loginModal') === undefined ? Alpine.store('loginModal', { open: false }) : null;
+            window.Alpine && Alpine.store('registerModal') === undefined ? Alpine.store('registerModal', { open: false }) : null;
+            
+            // Auto-abrir modales si es necesario
+            @if(session('show_login_modal'))
+                if (window.Alpine && Alpine.store('loginModal')) {
+                    Alpine.store('loginModal').open = true;
+                }
+            @endif
+            
+            @if(session('show_register_modal'))
+                if (window.Alpine && Alpine.store('registerModal')) {
+                    Alpine.store('registerModal').open = true;
+                }
+            @endif
+        ">
             <div x-show="$store.loginModal.open" x-transition x-cloak class="fixed inset-0 z-50">
                 <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
                 <div class="flex items-center justify-center min-h-screen">

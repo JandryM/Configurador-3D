@@ -85,11 +85,7 @@ class Product extends Model
     {
         return $this->belongsToMany(Material::class, 'product_material')
                     ->withPivot([
-                        'quantity', 
-                        'used_quantity', 
-                        'waste_percentage', 
-                        'calculation_formula', 
-                        'calculated_cost', 
+                        'calculation_formula',
                         'notes'
                     ])
                     ->withTimestamps();
