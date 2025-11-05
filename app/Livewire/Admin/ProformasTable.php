@@ -78,7 +78,7 @@ class ProformasTable extends Component
         $indirectCost = $proforma['indirectCost'] ?? null;
         $user = $proforma['user'];
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('proforma', compact('product', 'parameters', 'materialCosts', 'calculatedPrice', 'notes', 'directCost', 'indirectCost', 'user'));
+        $pdf->loadView('livewire.proformas.proforma-admin', compact('product', 'parameters', 'materialCosts', 'calculatedPrice', 'notes', 'directCost', 'indirectCost', 'user'));
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
         }, 'proforma_' . now()->format('Ymd_His') . '.pdf');
@@ -86,6 +86,6 @@ class ProformasTable extends Component
 
     public function render()
     {
-        return view('livewire.admin.proformas-table');
+        return view('livewire.admin.proforma.proformas-table')->layout('partials.sidebar');
     }
 }

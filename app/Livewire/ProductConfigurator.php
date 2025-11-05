@@ -25,9 +25,10 @@ class ProductConfigurator extends Component
         $indirectCost = $this->getIndirectCostPercentage();
 
         $user = auth()->user();
+        $isPdf = true; // Indicar que es para PDF
 
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('proforma', compact('product', 'parameters', 'materialCosts', 'calculatedPrice', 'notes', 'directCost', 'indirectCost', 'user'));
+        $pdf->loadView('livewire.proformas.proforma', compact('product', 'parameters', 'materialCosts', 'calculatedPrice', 'notes', 'directCost', 'indirectCost', 'user', 'isPdf'));
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
         }, 'proforma_' . now()->format('Ymd_His') . '.pdf');
@@ -78,21 +79,21 @@ class ProductConfigurator extends Component
     // Límites por tipo de producto
     public $limits = [
         'window' => [
-            'width' => ['min' => 0.5, 'max' => 4.0, 'step' => 0.01],  // dos decimales (cm)
-            'height' => ['min' => 0.3, 'max' => 3.5, 'step' => 0.01],  // dos decimales (cm)
+            'width' => ['min' => 0.5, 'max' => 4.0, 'step' => 0.001],  // tres decimales
+            'height' => ['min' => 0.3, 'max' => 3.5, 'step' => 0.001],  // tres decimales
             'depth' => ['min' => 0.05, 'max' => 0.15, 'step' => 0.001], // tres decimales (mm)
             'frameWidth' => ['min' => 0.02, 'max' => 0.1, 'step' => 0.001] // tres decimales (mm)
         ],
         'door' => [
-            'width' => ['min' => 0.6, 'max' => 1.2, 'step' => 0.1],
-            'height' => ['min' => 1.8, 'max' => 2.5, 'step' => 0.1],
-            'depth' => ['min' => 0.03, 'max' => 0.1, 'step' => 0.01],
-            'frameWidth' => ['min' => 0.05, 'max' => 0.15, 'step' => 0.01]
+            'width' => ['min' => 0.6, 'max' => 1.2, 'step' => 0.001],  // tres decimales
+            'height' => ['min' => 1.8, 'max' => 2.5, 'step' => 0.001],  // tres decimales
+            'depth' => ['min' => 0.03, 'max' => 0.1, 'step' => 0.001],
+            'frameWidth' => ['min' => 0.05, 'max' => 0.15, 'step' => 0.001]
         ],
         'furniture' => [
-            'width' => ['min' => 0.3, 'max' => 2.0, 'step' => 0.1],
-            'height' => ['min' => 0.5, 'max' => 2.0, 'step' => 0.1],
-            'depth' => ['min' => 0.3, 'max' => 1.0, 'step' => 0.1]
+            'width' => ['min' => 0.3, 'max' => 2.0, 'step' => 0.001],  // tres decimales
+            'height' => ['min' => 0.5, 'max' => 2.0, 'step' => 0.001],  // tres decimales
+            'depth' => ['min' => 0.3, 'max' => 1.0, 'step' => 0.001]
         ]
     ];
     // Colores disponibles (se cargan desde la base de datos)
@@ -128,7 +129,7 @@ class ProductConfigurator extends Component
         $pieceSize = $material->piece_size;
         $unitPrice = $material->unit_price;
         $increase = ($pivot && $pivot->increase_value > 0 && $pieceSize > 0)
-            ? round($pivot->increase_value * ($quantity / $pieceSize), 2)
+            ? $pivot->increase_value * ($quantity / $pieceSize)
             : 0;
         $cost = $unitPrice * $quantity + $increase;
         return [$cost, $increase];
@@ -246,9 +247,10 @@ class ProductConfigurator extends Component
             $this->materialCosts = [];
             $totalCost = 0;
 
-            $area = round($width * $height, 3); // mantener 3 decimales para m2
+            // Cálculos sin redondeo para mantener precisión
+            $area = $width * $height;
             $depth = $this->getProductType() === 'window' ? 1.0 : ($this->parameters['depth'] ?? 1.0);
-            $volume = round($area * $depth, 3); // mantener 3 decimales para m3
+            $volume = $area * $depth;
 
             foreach ($this->product->materials as $material) {
                 $quantity = $this->calculateMaterialQuantity($material, $area, $volume);
@@ -263,7 +265,7 @@ class ProductConfigurator extends Component
                 }
                 $this->materialCosts[] = [
                     'name' => $material->name,
-                    'quantity' => round($quantity, 4), // redondear a 4 decimales para calculo de cada material
+                    'quantity' => $quantity, // Sin redondeo en cálculos intermedios
                     'unit' => $material->unit_measure,
                     'unit_price' => $material->unit_price,
                     'total_cost' => $cost,
@@ -279,7 +281,8 @@ class ProductConfigurator extends Component
             $indirectAmount = $totalCost * ($indirectCost / 100);
 
             $precisePrice = $totalCost + $directAmount + $indirectAmount;
-            $this->calculatedPrice = round($precisePrice, 2); // dos decimales al precio final
+            // Redondeo SOLO al final para el precio mostrado al usuario
+            $this->calculatedPrice = round($precisePrice, 2);
         } catch (\Exception $e) {
             $this->calculatedPrice = $this->product->price ?? 0;
         }
@@ -323,10 +326,10 @@ class ProductConfigurator extends Component
         $depth = $parameters['depth'] ?? 0;
         $frameWidth = $parameters['frameWidth'] ?? 0.05;
         
-        // Variables calculadas - mantener alta precisión
-        $area = round($width * $height, 3); // mantener 3 decimales para m2
-        $volume = round($area * $depth, 4); // mantener 4 decimales para m3
-        $perimeter = round(2 * ($width + $height), 2); // mantener 2 decimales para metros lineales
+        // Variables calculadas sin redondeo para mantener máxima precisión
+        $area = $width * $height;
+        $volume = $area * $depth;
+        $perimeter = 2 * ($width + $height);
 
         // Reemplazar variables
         $safeFormula = str_replace(

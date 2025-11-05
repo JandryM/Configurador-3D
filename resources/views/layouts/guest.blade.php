@@ -125,6 +125,13 @@
                                                 <span>Mi Perfil</span>
                                                 @livewire('profile-status')
                                             </a>
+                                            <a href="javascript:void(0)" onclick="Livewire.dispatch('openProformasModal')" id="openProformasModalDesktop" class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 flex items-center gap-2">
+                                                <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                                                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                <span>Mis Proformas</span>
+                                            </a>
                                             @auth
                                                 @if(empty(auth()->user()->oauth_provider))
                                                     <a href="javascript:void(0)" onclick="Livewire.dispatch('openPasswordModal')" id="openPasswordModalDesktop" class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 flex items-center gap-2">
@@ -200,6 +207,9 @@
                                 <a href="javascript:void(0)" id="openProfileModalMobile" class="block text-white/90 hover:text-white transition-colors duration-300 font-medium py-2">
                                     Mi Perfil
                                 </a>
+                                <a href="javascript:void(0)" id="openProformasModalMobile" class="block text-white/90 hover:text-white transition-colors duration-300 font-medium py-2">
+                                    Mis Proformas
+                                </a>
                                 @auth
                                     @if(empty(auth()->user()->oauth_provider))
                                         <a href="javascript:void(0)" id="openPasswordModalMobile" class="block text-white/90 hover:text-white transition-colors duration-300 font-medium py-2">
@@ -244,6 +254,9 @@
         @fluxScripts
         @livewire('profile-modal')
         @livewire('password-modal')
+        @auth
+            @livewire('user-proformas-modal')
+        @endauth
         @livewireScripts
         <!-- Modals globales para usuarios guest -->
         @auth
@@ -377,10 +390,22 @@
                     window.livewire.emit('openProfileModal');
                 }
             }
+            function emitProformasModal() {
+                if(window.Livewire && typeof window.Livewire.emit === 'function') {
+                    window.Livewire.emit('openProformasModal');
+                } else if(window.livewire && typeof window.livewire.emit === 'function') {
+                    window.livewire.emit('openProformasModal');
+                }
+            }
             var desktopBtn = document.getElementById('openProfileModalDesktop');
             var mobileBtn = document.getElementById('openProfileModalMobile');
             if(desktopBtn) desktopBtn.addEventListener('click', function(e){ e.preventDefault(); emitProfileModal(); });
             if(mobileBtn) mobileBtn.addEventListener('click', function(e){ e.preventDefault(); emitProfileModal(); });
+            
+            var desktopProformasBtn = document.getElementById('openProformasModalDesktop');
+            var mobileProformasBtn = document.getElementById('openProformasModalMobile');
+            if(desktopProformasBtn) desktopProformasBtn.addEventListener('click', function(e){ e.preventDefault(); emitProformasModal(); });
+            if(mobileProformasBtn) mobileProformasBtn.addEventListener('click', function(e){ e.preventDefault(); emitProformasModal(); });
         });
         </script>
     </body>

@@ -17,11 +17,11 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade')->comment('Categoría del material');
             $table->text('description')->nullable();
             $table->string('unit_measure');
-            $table->decimal('unit_price', 10, 2);
+            $table->decimal('unit_price', 10, 6);
             
             // Campos para manejo por piezas
             $table->decimal('piece_size', 10, 3)->comment('Tamaño de la pieza completa (ej: 6.4 metros)');
-            $table->decimal('piece_price', 10, 2)->comment('Precio de la pieza completa');
+            $table->decimal('piece_price', 10, 6)->comment('Precio de la pieza completa');
             $table->boolean('is_by_piece')->default(true)->comment('Si se maneja por piezas completas o por unidad');
             $table->boolean('supports_colors')->default(false)->comment('Si el material cambia a diferentes colores');
             

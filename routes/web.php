@@ -54,9 +54,7 @@ Route::middleware(['auth', 'verified', 'account.active', 'admin.seller'])->prefi
     Route::get('/materials', \App\Livewire\Admin\Materials\MaterialsIndex::class)->name('materials.index');
     
     // Gestión de proformas
-    Route::get('/proformas', function () {
-        return view('admin.proformas.index');
-    })->name('proformas.index');
+    Route::get('/proformas', \App\Livewire\Admin\ProformasTable::class)->name('proformas.index');
 
     // Gestión de productos
     Route::get('/products', \App\Livewire\Admin\Products\ProductIndex::class)->name('products.index');
