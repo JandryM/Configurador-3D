@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'not.suspended' => \App\Http\Middleware\EnsureUserNotSuspended::class,
             'admin.seller' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'admin.owner' => \App\Http\Middleware\EnsureUserIsAdminOrOwner::class,
+            'owner' => \App\Http\Middleware\EnsureUserIsOwner::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

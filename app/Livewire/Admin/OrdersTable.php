@@ -110,6 +110,18 @@ class OrdersTable extends Component
     public function approveOrder($orderId)
     {
         $this->updateOrderStatus($orderId, 'approved');
+
+        // Buscar la orden recién aprobada
+        $order = collect($this->orders)->firstWhere('id', $orderId);
+        if ($order && $order['user']) {
+            // Enviar notificación al cliente con los datos bancarios
+            $client = $order['user'];
+            try {
+                $client->notify(new \App\Notifications\SendBankAccountDataToClient($order, $client));
+            } catch (\Exception $e) {
+                \Log::error('No se pudo enviar la notificación de datos bancarios al cliente: ' . $e->getMessage());
+            }
+        }
     }
 
     public function startProduction($orderId)

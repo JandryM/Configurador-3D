@@ -30,6 +30,11 @@ Route::middleware(['auth', 'verified', 'account.active'])->group(function () {
         return view('pages.users.dashboard');
     })->name('dashboard');
 
+    // Configuración de cuenta bancaria (solo owner)
+    Route::middleware('owner')->group(function () {
+        Route::get('/owner/bank-account', \App\Livewire\Owner\BankAccountForm::class)->name('owner.bank-account');
+    });
+
     // Configuración
     Route::redirect('settings', 'settings/profile');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');

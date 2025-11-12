@@ -198,6 +198,15 @@
                     </svg>
                     <span class="sidebar-text">Productos</span>
                 </a>
+                    @if($userRole === 'owner')
+                        <!-- Cuenta Bancaria -->
+                        <a href="{{ route('owner.bank-account') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('owner.bank-account') ? 'active' : '' }}">
+                            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 2h12v10H4V5zm6 2a2 2 0 100 4 2 2 0 000-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="sidebar-text">Cuenta Bancaria</span>
+                        </a>
+                    @endif
 
                 <!-- Materiales -->
                 <a href="{{ route('admin.materials.index') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.materials.*') ? 'active' : '' }}">
