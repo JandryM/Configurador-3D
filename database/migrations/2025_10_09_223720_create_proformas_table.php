@@ -16,19 +16,16 @@ return new class extends Migration
             $table->string('number')->unique()->comment('Código único de la proforma');
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->string('name')->nullable()->comment('Nombre personalizado para la configuración');
             $table->json('configuration')->comment('Parámetros de configuración del producto');
+            $table->integer('quantity')->default(1)->comment('Cantidad de unidades del producto');
             $table->decimal('price', 10, 2)->comment('Precio calculado para esta configuración');
-            $table->json('material_breakdown')->nullable()->comment('Desglose detallado de materiales');
-            $table->string('session_id')->nullable()->comment('ID de sesión para usuarios no autenticados');
-            $table->boolean('is_saved')->default(false)->comment('Si la configuración fue guardada por el usuario');
-            $table->boolean('is_quoted')->default(false)->comment('Si se solicitó cotización');
             $table->boolean('is_ordered')->default(false)->comment('Si se realizó pedido');
             $table->text('notes')->nullable()->comment('Notas adicionales del cliente');
+            $table->date('expiration_date')->nullable()->comment('Fecha de expiración de la proforma');
+            $table->boolean('is_expired')->default(false)->comment('Indica si la proforma ha expirado');
             $table->timestamps();
             
             $table->index(['user_id', 'product_id']);
-            $table->index(['session_id']);
             $table->index(['created_at']);
         });
     }

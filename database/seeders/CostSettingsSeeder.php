@@ -13,12 +13,6 @@ class CostSettingsSeeder extends Seeder
      */
     public function run(): void
     {
-        // Global cost settings
-        DB::table('global_cost_settings')->insert([
-            'indirect_cost_percentage' => 0.00,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
 
         $products = DB::table('products')->take(3)->pluck('id');
         foreach ($products as $i => $productId) {

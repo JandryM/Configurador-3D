@@ -53,8 +53,16 @@ Route::middleware(['auth', 'verified', 'account.active', 'admin.seller'])->prefi
 
     Route::get('/materials', \App\Livewire\Admin\Materials\MaterialsIndex::class)->name('materials.index');
     
+    // Configuración de costos globales
+    Route::get('/cost-settings', \App\Livewire\Admin\GlobalCostSettings::class)->name('cost-settings');
+
+    Route::get('/product-cost-settings', \App\Livewire\Admin\ProductCostSettings::class)->name('product-cost-settings');
+    
     // Gestión de proformas
     Route::get('/proformas', \App\Livewire\Admin\ProformasTable::class)->name('proformas.index');
+
+    // Gestión de órdenes
+    Route::get('/orders', \App\Livewire\Admin\OrdersTable::class)->name('orders.index');
 
     // Gestión de productos
     Route::get('/products', \App\Livewire\Admin\Products\ProductIndex::class)->name('products.index');

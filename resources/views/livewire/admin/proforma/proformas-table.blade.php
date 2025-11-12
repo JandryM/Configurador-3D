@@ -11,8 +11,11 @@
                         <tr class="border-b border-slate-200">
                             <th class="text-left py-3 px-4 font-medium text-slate-700">Número</th>
                             <th class="text-left py-3 px-4 font-medium text-slate-700">Cliente</th>
-                            <th class="text-left py-3 px-4 font-medium text-slate-700">Fecha</th>
+                            <th class="text-left py-3 px-4 font-medium text-slate-700">Fecha Expiración</th>
+                            <th class="text-left py-3 px-4 font-medium text-slate-700">Cantidad</th>
                             <th class="text-left py-3 px-4 font-medium text-slate-700">Monto</th>
+                            <th class="text-center py-3 px-4 font-medium text-slate-700">¿Ordenada?</th>
+                            <th class="text-center py-3 px-4 font-medium text-slate-700">¿Expirada?</th>
                             <th class="text-center py-3 px-4 font-medium text-slate-700">Acciones</th>
                         </tr>
                     </thead>
@@ -40,13 +43,55 @@
                                 </td>
                                 <td class="py-4 px-4">
                                     <span class="text-slate-700">
-                                        {{ \Carbon\Carbon::parse($proforma['date'])->format('d/m/Y') }}
+                                        {{ $proforma['expiration_date'] ? \Carbon\Carbon::parse($proforma['expiration_date'])->format('d/m/Y H:i') : '-' }}
+                                    </span>
+                                </td>
+                                <td class="py-4 px-4">
+                                    <span class="text-slate-700">
+                                        {{ $proforma['quantity'] ?? 1 }} {{ ($proforma['quantity'] ?? 1) == 1 ? 'unidad' : 'unidades' }}
                                     </span>
                                 </td>
                                 <td class="py-4 px-4">
                                     <span class="font-medium text-slate-800">
                                         ${{ number_format($proforma['amount'], 2) }}
                                     </span>
+                                </td>
+                                <td class="py-4 px-4 text-center">
+                                    @php
+                                        $hasOrder = DB::table('orders')->where('proforma_id', $proforma['id'])->exists();
+                                    @endphp
+                                    @if($hasOrder)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Sí
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            No
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="py-4 px-4 text-center">
+                                    @if($proforma['is_expired'])
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Sí
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            No
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="py-4 px-4">
                                     <div class="flex justify-center space-x-2">
@@ -66,7 +111,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-8 text-slate-500">
+                                <td colspan="7" class="text-center py-8 text-slate-500">
                                     No hay proformas registradas
                                 </td>
                             </tr>
@@ -111,12 +156,17 @@
                             @include('livewire.proformas.proforma-admin', [
                                 'product' => $selectedProforma['product'],
                                 'parameters' => $selectedProforma['parameters'],
+                                'quantity' => $selectedProforma['quantity'] ?? 1,
                                 'materialCosts' => $selectedProforma['materialCosts'],
                                 'calculatedPrice' => $selectedProforma['calculatedPrice'],
                                 'notes' => $selectedProforma['notes'],
                                 'directCost' => $selectedProforma['directCost'],
                                 'indirectCost' => $selectedProforma['indirectCost'],
+                                'wastePercentage' => $selectedProforma['wastePercentage'],
+                                'profitMargin' => $selectedProforma['profitMargin'],
                                 'user' => $selectedProforma['user'],
+                                'expiration_date' => $selectedProforma['expiration_date'],
+                                'is_expired' => $selectedProforma['is_expired'],
                                 'showDownloadButton' => false
                             ])
                         @endif

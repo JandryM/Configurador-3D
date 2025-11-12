@@ -48,7 +48,6 @@
     @endif
 </div>
 
-<!-- Datos del Producto -->
 <div class="{{ $isPdf ? 'proforma-section' : 'mt-4' }}">
     <h4 class="{{ $isPdf ? '' : 'text-sm font-semibold text-white mb-2' }}">Datos Generales del Producto</h4>
     <div class="{{ $isPdf ? '' : 'bg-black/30 border border-white/20 rounded-xl overflow-hidden' }}">
@@ -72,6 +71,32 @@
                         Ancho: {{ $parameters['width'] ?? '-' }} m, Alto: {{ $parameters['height'] ?? '-' }} m
                     </td>
                 </tr>
+                <tr class="{{ $isPdf ? '' : 'border-b border-white/10' }}">
+                    <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Cantidad</th>
+                    <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
+                        {{ $quantity ?? 1 }} {{ ($quantity ?? 1) == 1 ? 'unidad' : 'unidades' }}
+                    </td>
+                </tr>
+                <tr class="{{ $isPdf ? '' : 'border-b border-white/10' }}">
+                    <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Precio Unitario</th>
+                    <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
+                        ${{ number_format($calculatedPrice / max(1, $quantity ?? 1), 2) }}
+                    </td>
+                </tr>
+                @if(isset($expiration_date) && ((isset($showExpirationInfo) && $showExpirationInfo) || $isPdf))
+                <tr>
+                    <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Fecha de Expiración</th>
+                    <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
+                        {{ \Carbon\Carbon::parse($expiration_date)->format('d/m/Y H:i') }}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">¿Expirada?</th>
+                    <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
+                        {{ $is_expired ? 'Sí' : 'No' }}
+                    </td>
+                </tr>
+                @endif
             </tbody>
         </table>
     </div>

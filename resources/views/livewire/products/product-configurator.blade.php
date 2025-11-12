@@ -44,12 +44,8 @@
                 <div class="bg-slate-50/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-4 transition-all duration-300 hover:shadow-2xl w-fit mx-auto">
                     <h2 class="text-xl font-bold text-slate-800 mb-3 text-center">Vista 3D Interactiva</h2>
                     
-                    <!-- Contenedor del modelo 3D -->
                     <div wire:ignore id="parametric-3d-viewer" class="w-96 h-96 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-2xl border-2 border-slate-300/50 relative overflow-hidden shadow-inner">
-                        <!-- Canvas de Three.js se insertará aquí -->
                     </div>
-
-                    <!-- Controles del visor 3D optimizados -->
                     <div class="mt-3 flex justify-center space-x-3">
                         <button type="button" 
                                 onclick="resetParametricView()"
@@ -65,7 +61,6 @@
                         </button>
                     </div>
 
-                    <!-- Información del producto -->
                     <div class="mt-3 p-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-100/50 shadow-inner">
                         <div class="grid grid-cols-2 gap-3 text-sm">
                             <div class="text-center">
@@ -90,9 +85,35 @@
 
             </div>
 
-<!-- Panel derecho: Controles compactos -->
         <div class="space-y-4">
-            <!-- Dimensiones compactas -->
+            <div class="bg-white/80 rounded-2xl shadow-lg border border-slate-200 p-4">
+                <h3 class="text-lg font-bold text-slate-800 mb-3">🔢 Cantidad de Unidades</h3>
+                
+                <div class="flex items-center gap-3">
+                    <button type="button" 
+                            wire:click="$set('quantity', {{ max(1, $quantity - 1) }})"
+                            class="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-bold transition-all duration-200 hover:scale-105 shadow-md">
+                        -
+                    </button>
+                    
+                    <input type="number" 
+                           wire:model.live="quantity"
+                           min="1" 
+                           step="1"
+                           class="flex-1 px-4 py-2 text-center text-xl font-bold border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                    
+                    <button type="button" 
+                            wire:click="$set('quantity', {{ $quantity + 1 }})"
+                            class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-bold transition-all duration-200 hover:scale-105 shadow-md">
+                        +
+                    </button>
+                </div>
+                
+                <p class="text-sm text-slate-600 mt-2 text-center">
+                    Precio por unidad: <span class="font-semibold text-blue-600">${{ number_format($calculatedPrice / max(1, $quantity), 2) }}</span>
+                </p>
+            </div>
+
             <div class="bg-white/80 rounded-2xl shadow-lg border border-slate-200 p-4">
                 <h3 class="text-lg font-bold text-slate-800 mb-3">📏 Dimensiones</h3>
                 
@@ -120,15 +141,13 @@
                 @endforeach
             </div>
 
-                <!-- Colores -->
-                <div class="bg-slate-50/80 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/50 p-6 transition-all duration-300 hover:shadow-2xl">
+            <div class="bg-slate-50/80 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/50 p-6 transition-all duration-300 hover:shadow-2xl">
                     <h3 class="text-xl font-bold text-slate-800 mb-4">🎨 Colores Disponibles</h3>
                     
                     <div class="space-y-6">
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-3">Color del Aluminio</label>
                             
-                            <!-- Selector de colores -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 @foreach($availableColors as $colorName => $color)
                                     @if(!str_contains(strtolower($colorName), 'glass') && !str_contains(strtolower($colorName), 'vidrio'))
@@ -146,7 +165,6 @@
                                  hover:border-blue-300 hover:shadow-md
                                  peer-checked:border-blue-500 peer-checked:bg-blue-50 text-black">
                                             
-                                            <!-- Muestra de color visual -->
                                             <div class="w-12 h-12 rounded-md border-2 border-gray-200 mr-4 shadow-inner
                                                         @if($colorName === 'Natural') bg-gradient-to-br from-gray-200 to-gray-300
                                                         @elseif($colorName === 'White') bg-gradient-to-br from-white to-gray-100
@@ -163,7 +181,6 @@
                                                 </div>
                                             </div>
                                             
-                                            <!-- Indicador de selección -->
                                             <div class="ml-2 opacity-0 peer-checked:opacity-100 transition-opacity">
                                                 <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
@@ -175,7 +192,6 @@
                                 @endforeach
                             </div>
                         </div>
-                        <!-- Selector de color de vidrio -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-3">Color del Vidrio</label>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -212,13 +228,24 @@
                     </div>
                 </div>
 
-                <!-- Precio y acciones -->
                 <div class="bg-gradient-to-br from-slate-50 to-blue-50 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/50 p-6 transition-all duration-300 hover:shadow-2xl">
                     <h3 class="text-xl font-bold text-slate-800 mb-4">💰 Precio Estimado</h3>
                     
-                    <div class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-6">
+                    <div class="mb-4 p-3 bg-white/50 rounded-xl">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-slate-600">Cantidad:</span>
+                            <span class="text-lg font-bold text-slate-800">{{ $quantity }} {{ $quantity == 1 ? 'unidad' : 'unidades' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-slate-600">Precio unitario:</span>
+                            <span class="text-lg font-semibold text-blue-600">${{ number_format($calculatedPrice / max(1, $quantity), 2) }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
                         ${{ number_format($calculatedPrice, 2) }}
                     </div>
+                    <p class="text-sm text-slate-500 mb-6">Precio total</p>
 
                     <div class="space-y-3">
                         @if(Auth::check())
@@ -238,7 +265,6 @@
             </div>
         </div>
         
-        <!-- Modal Proforma con Livewire + Alpine.js -->
         <div x-data="{ show: @entangle('showProformaModal') }" x-show="show" x-transition x-cloak class="fixed inset-0 z-50">
             <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
             <div class="flex items-center justify-center min-h-screen px-4">
@@ -265,24 +291,78 @@
                                 </div>
                             @endif
                             <div class="overflow-y-auto max-h-[70vh]">
+                                @if($currentProformaStatus === 'saved')
+                                    <div class="mb-4 p-4 bg-blue-500/20 border border-blue-400/50 rounded-lg">
+                                        <p class="text-blue-200 text-sm font-medium mb-2">✓ Esta configuración ya está guardada como proforma</p>
+                                        <p class="text-blue-100/70 text-xs">La cantidad guardada es <strong>{{ $quantity }} {{ $quantity == 1 ? 'unidad' : 'unidades' }}</strong>. Puedes ajustarla abajo si lo deseas, o mantenerla para ordenar o actualizar la proforma.</p>
+                                    </div>
+                                @endif
+
+                                <div class="mb-4 p-4 bg-black/30 border border-white/20 rounded-xl">
+                                    <h4 class="text-sm font-semibold text-white mb-3">🔢 Ajustar Cantidad</h4>
+                                    <div class="flex items-center gap-3">
+                                        <button type="button" 
+                                                wire:click="$set('quantity', {{ max(1, $quantity - 1) }})"
+                                                class="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-bold transition-all duration-200 hover:scale-105 shadow-md">
+                                            -
+                                        </button>
+                                        
+                                        <input type="number" 
+                                               wire:model.live="quantity"
+                                               min="1" 
+                                               step="1"
+                                               class="flex-1 px-4 py-2 text-center text-lg font-bold border-2 border-white/20 bg-black/30 text-white rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200/50">
+                                        
+                                        <button type="button" 
+                                                wire:click="$set('quantity', {{ $quantity + 1 }})"
+                                                class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-bold transition-all duration-200 hover:scale-105 shadow-md">
+                                            +
+                                        </button>
+                                    </div>
+                                    <div class="mt-2 text-sm text-white/70 text-center">
+                                        <span class="font-medium">Precio unitario:</span> ${{ number_format($calculatedPrice / max(1, $quantity), 2) }}
+                                    </div>
+                                </div>
+
                                 @include('livewire.proformas.proforma', [
                                     'product' => $product,
                                     'parameters' => $parameters,
+                                    'quantity' => $quantity,
                                     'materialCosts' => $materialCosts,
                                     'calculatedPrice' => $calculatedPrice,
                                     'notes' => $parameters['notes'] ?? null,
                                     'directCost' => $directCost ?? null,
-                                    'indirectCost' => $indirectCost ?? null
+                                    'indirectCost' => $indirectCost ?? null,
+                                    'wastePercentage' => $wastePercentage ?? null
                                 ])
                             </div>
                             <div class="mt-6 pt-6 border-t border-white/20 flex flex-col sm:flex-row justify-end gap-3">
-                                <button type="button" wire:click="guardarProforma" class="px-4 py-2 text-sm font-medium border border-cyan-600/40 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
-                                    Guardar Proforma
-                                </button>
-                                <button type="button" wire:click="orderProforma" class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
-                                    Ordenar Proforma
-                                </button>
-                                @if(session()->has('message'))
+                                @if($currentProformaStatus === 'new')
+                                    <button type="button" 
+                                            wire:click="guardarProforma" 
+                                            class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                        Guardar Proforma
+                                    </button>
+                                    <button type="button" 
+                                            wire:click="orderProforma" 
+                                            class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                        Ordenar Proforma
+                                    </button>
+                                
+                                @elseif($currentProformaStatus === 'saved')
+                                    <button type="button" 
+                                            wire:click="orderProforma" 
+                                            class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                        Ordenar Esta Proforma
+                                    </button>
+                                    <button type="button" 
+                                            wire:click="guardarProforma" 
+                                            class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                        Actualizar Proforma
+                                    </button>
+                                @endif
+                                
+                                @if($currentProformaStatus === 'saved' || session()->has('message'))
                                     <button type="button" wire:click="downloadProformaPdf" class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
                                         Descargar PDF
                                     </button>
@@ -300,7 +380,6 @@
             </div>
         </div>
     </div>
-<!-- Fin del contenido principal del configurador -->
 
 @script
 <script>
@@ -308,12 +387,10 @@
     let initAttempts = 0;
     const maxAttempts = 10;
 
-    // Función de inicialización inmediata
     function startViewer() {
         initParametricViewer();
     }
 
-    // Ejecutar inmediatamente si el DOM ya está listo
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', startViewer);
     } else {
@@ -323,13 +400,11 @@
     function initParametricViewer() {
         initAttempts++;
 
-        // Verificar si Three.js está disponible
         if (typeof THREE === 'undefined') {
             updateViewerStatus('Three.js no está disponible');
             return;
         }
 
-        // Verificar si nuestra función está disponible
         if (typeof createParametricProduct3D !== 'function') {
             if (initAttempts < maxAttempts) {
                 setTimeout(initParametricViewer, 1000);
@@ -344,18 +419,15 @@
         const colorTexturePath = '{{ $colorTexturePath }}';
         
         if (productType === 'window') {
-            initialParams.depth = 1.0; // Profundidad fija para ventanas
+            initialParams.depth = 1.0;
         }
         
-        // Agregar información de texturas y color
         initialParams.texturePath = colorTexturePath;
-        initialParams.frameColor = initialParams.frameColor || 0xC0C0C0; // Plata claro como fallback
+        initialParams.frameColor = initialParams.frameColor || 0xC0C0C0;
         initialParams.glassColor = initialParams.glassColor || '#E0F6FF';
 
         try {
             updateViewerStatus('Generando modelo 3D...');
-            // Verificar el contenedor
-            const container = document.getElementById('parametric-3d-viewer');
             parametricViewer = createParametricProduct3D(
                 'parametric-3d-viewer', 
                 productType, 
@@ -380,10 +452,8 @@
         }
     }
 
-    // Escuchar eventos de Livewire para actualizar modelo
     Livewire.on('updateModel3D', (data) => {
         
-        // Manejar diferentes estructuras de datos de Livewire
         let parameters = null;
         if (Array.isArray(data) && data.length > 0) {
             parameters = data[0].parameters || data[0];
@@ -396,14 +466,12 @@
         }
     });
 
-    // Respaldo: Intentar inicializar después de un delay
     setTimeout(() => {
         if (!parametricViewer) {
             startViewer();
         }
     }, 1000);
 
-    // Funciones globales para controles del visor 3D optimizadas
     window.resetParametricView = function() {
         if (parametricViewer) {
             parametricViewer.resetZoom();

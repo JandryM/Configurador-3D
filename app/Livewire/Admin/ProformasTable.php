@@ -30,15 +30,21 @@ class ProformasTable extends Component
                 $directCost = $config['directCost'] ?? DB::table('product_cost_settings')
                     ->where('product_id', $row->product_id)
                     ->value('direct_cost_percentage') ?? 0;
-                $indirectCost = $config['indirectCost'] ?? DB::table('global_cost_settings')
-                    ->orderByDesc('id')
-                    ->value('indirect_cost_percentage') ?? 0;
+                $currentIndirectSetting = \App\Models\GlobalCostSetting::current()->first();
+                $indirectCost = $config['indirectCost'] ?? ($currentIndirectSetting ? $currentIndirectSetting->indirect_cost_percentage : 0);
+                $wastePercentage = $config['wastePercentage'] ?? DB::table('product_cost_settings')
+                    ->where('product_id', $row->product_id)
+                    ->value('waste_percentage') ?? 0;
+                $profitMargin = $config['profitMargin'] ?? DB::table('product_cost_settings')
+                    ->where('product_id', $row->product_id)
+                    ->value('profit_margin_percentage') ?? 0;
                 return [
                     'id' => $row->id,
                     'number' => 'PRF-' . str_pad($row->id, 3, '0', STR_PAD_LEFT),
                     'client' => $user ? $user->name : 'Usuario eliminado',
                     'date' => $row->created_at,
                     'amount' => $row->price,
+                    'quantity' => $row->quantity ?? 1,
                     'product' => $product,
                     'parameters' => $parameters,
                     'materialCosts' => $materialCosts,
@@ -46,7 +52,11 @@ class ProformasTable extends Component
                     'notes' => $notes,
                     'directCost' => $directCost,
                     'indirectCost' => $indirectCost,
+                    'wastePercentage' => $wastePercentage,
+                    'profitMargin' => $profitMargin,
                     'user' => $user,
+                    'expiration_date' => $row->expiration_date,
+                    'is_expired' => $row->is_expired,
                 ];
             });
     }
@@ -71,14 +81,20 @@ class ProformasTable extends Component
         }
         $product = $proforma['product'];
         $parameters = $proforma['parameters'];
+        $quantity = $proforma['quantity'] ?? 1;
         $materialCosts = $proforma['materialCosts'];
         $calculatedPrice = $proforma['calculatedPrice'];
         $notes = $proforma['notes'] ?? null;
         $directCost = $proforma['directCost'] ?? null;
         $indirectCost = $proforma['indirectCost'] ?? null;
+        $wastePercentage = $proforma['wastePercentage'] ?? null;
+        $profitMargin = $proforma['profitMargin'] ?? null;
         $user = $proforma['user'];
+        $expiration_date = $proforma['expiration_date'] ?? null;
+        $is_expired = $proforma['is_expired'] ?? null;
+        
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('livewire.proformas.proforma-admin', compact('product', 'parameters', 'materialCosts', 'calculatedPrice', 'notes', 'directCost', 'indirectCost', 'user'));
+        $pdf->loadView('livewire.proformas.proforma-admin', compact('product', 'parameters', 'quantity', 'materialCosts', 'calculatedPrice', 'notes', 'directCost', 'indirectCost', 'wastePercentage', 'profitMargin', 'user', 'expiration_date', 'is_expired'));
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
         }, 'proforma_' . now()->format('Ymd_His') . '.pdf');

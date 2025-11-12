@@ -105,6 +105,23 @@
             border-right: 3px solid #3b82f6;
         }
         
+        /* Badge de notificación */
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+        
+        .animate-pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
         /* Responsive */
         @media (max-width: 1024px) {
             .sidebar {
@@ -152,6 +169,8 @@
         <!-- Navegación -->
         @php
             $userRole = auth()->user()->role;
+            // Contar órdenes pendientes de aprobación
+            $pendingOrdersCount = DB::table('orders')->where('status', 'pending')->count();
         @endphp
 
         <nav class="mt-6 px-3 space-y-2">
@@ -187,6 +206,15 @@
                     </svg>
                     <span class="sidebar-text">Materiales</span>
                 </a>
+
+                <!-- Costos -->
+                <a href="{{ route('admin.cost-settings') }}" class="nav-item flex items-center px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.cost-settings') || request()->routeIs('admin.product-cost-settings') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="sidebar-text">Costos</span>
+                </a>
             @endif
 
             <!-- Proformas -->
@@ -196,6 +224,27 @@
                     <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 002 2h6a2 2 0 002-2V3a2 2 0 012 2v6.5a1.5 1.5 0 01-1.5 1.5h-6A1.5 1.5 0 019 11.5V4H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-1V4a1 1 0 10-2 0v1H7V4a1 1 0 10-2 0v1z" clip-rule="evenodd"></path>
                 </svg>
                 <span class="sidebar-text">Proformas</span>
+            </a>
+
+            <!-- Órdenes -->
+            <a href="{{ route('admin.orders.index') }}" class="nav-item flex items-center justify-between px-3 py-3 rounded-lg text-white {{ request()->routeIs('admin.orders.*') ? 'active' : '' }} relative">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="sidebar-text">Órdenes</span>
+                </div>
+                @if($pendingOrdersCount > 0)
+                    <!-- Badge cuando sidebar está expandido -->
+                    <span class="sidebar-text bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg animate-pulse-ring">
+                        {{ $pendingOrdersCount > 9 ? '9+' : $pendingOrdersCount }}
+                    </span>
+                    <!-- Badge cuando sidebar está colapsado -->
+                    <span class="sidebar-collapsed-text hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg animate-pulse-ring">
+                        {{ $pendingOrdersCount > 9 ? '9+' : $pendingOrdersCount }}
+                    </span>
+                @endif
             </a>
         </nav>
         

@@ -48,6 +48,30 @@
                     @endif
                 </td>
             </tr>
+            <tr>
+                <th>Cantidad</th>
+                <td>{{ $quantity ?? 1 }} {{ ($quantity ?? 1) == 1 ? 'unidad' : 'unidades' }}</td>
+            </tr>
+            <tr>
+                <th>Precio Unitario</th>
+                <td>${{ number_format($calculatedPrice / max(1, $quantity ?? 1), 2) }}</td>
+            </tr>
+            <tr>
+                <th>Fecha de Expiración</th>
+                <td>{{ isset($expiration_date) ? \Carbon\Carbon::parse($expiration_date)->format('d/m/Y H:i') : '-' }}</td>
+            </tr>
+            <tr>
+                <th>¿Expirada?</th>
+                <td>
+                    @if(isset($is_expired))
+                        <span style="color: {{ $is_expired ? '#dc2626' : '#059669' }}; font-weight: bold;">
+                            {{ $is_expired ? 'Sí' : 'No' }}
+                        </span>
+                    @else
+                        -
+                    @endif
+                </td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -85,9 +109,13 @@
     $totalMateriales = collect($materialCosts)->sum('total_cost');
     $directCost = $directCost ?? 0;
     $indirectCost = $indirectCost ?? 0;
+    $wastePercentage = $wastePercentage ?? 0;
+    $profitMargin = $profitMargin ?? 0;
     $directAmount = $directCost ? $totalMateriales * ($directCost / 100) : 0;
     $indirectAmount = $indirectCost ? $totalMateriales * ($indirectCost / 100) : 0;
-    $subtotal = $totalMateriales + $directAmount + $indirectAmount;
+    $wasteAmount = $wastePercentage ? $totalMateriales * ($wastePercentage / 100) : 0;
+    $subtotal = $totalMateriales + $directAmount + $indirectAmount + $wasteAmount;
+    $profitAmount = $profitMargin ? $subtotal * ($profitMargin / 100) : 0;
 @endphp
 
 <div class="proforma-section text-gray-800">
@@ -143,19 +171,22 @@
                     <th>Costos Indirectos ({{ $indirectCost }}%)</th>
                     <td class="text-right">${{ number_format($indirectAmount, 2) }}</td>
                 </tr>
+                <tr>
+                    <th>Material de Desperdicio ({{ $wastePercentage }}%)</th>
+                    <td class="text-right">${{ number_format($wasteAmount, 2) }}</td>
+                </tr>
                 <tr class="highlight-row">
                     <th>Costo Total de Producción</th>
                     <td class="text-right">${{ number_format($subtotal, 2) }}</td>
                 </tr>
-                @if($calculatedPrice > $subtotal)
                 <tr>
-                    <th>Margen / Utilidad</th>
-                    <td class="text-right text-green-700">
-                        ${{ number_format($calculatedPrice - $subtotal, 2) }}
-                        ({{ number_format((($calculatedPrice - $subtotal) / $subtotal) * 100, 1) }}%)
-                    </td>
+                    <th>Margen de Ganancia ({{ $profitMargin }}%)</th>
+                    <td class="text-right text-green-700">${{ number_format($profitAmount, 2) }}</td>
                 </tr>
-                @endif
+                <tr class="highlight-row" style="background: #dcfce7;">
+                    <th>Precio Final al Cliente</th>
+                    <td class="text-right">${{ number_format($subtotal + $profitAmount, 2) }}</td>
+                </tr>
             </tbody>
         </table>
     </div>

@@ -47,12 +47,15 @@ class UserProformasModal extends Component
                     'number' => $proforma->number,
                     'product' => $product,
                     'parameters' => $configuration['parameters'] ?? [],
+                    'quantity' => $proforma->quantity ?? 1,
                     'materialCosts' => $configuration['material_costs'] ?? [],
                     'calculatedPrice' => $proforma->price,
                     'notes' => $configuration['parameters']['notes'] ?? null,
                     'directCost' => null,
                     'indirectCost' => null,
                     'created_at' => $proforma->created_at,
+                    'expiration_date' => $proforma->expiration_date,
+                    'is_expired' => $proforma->is_expired,
                 ];
             })->toArray();
         }
@@ -95,6 +98,7 @@ class UserProformasModal extends Component
         $pdf = Pdf::loadView('livewire.proformas.proforma', [
             'product' => $product,
             'parameters' => $configuration['parameters'] ?? [],
+            'quantity' => $proformaData->quantity ?? 1,
             'materialCosts' => $configuration['material_costs'] ?? [],
             'calculatedPrice' => $proformaData->price,
             'notes' => $configuration['parameters']['notes'] ?? null,
@@ -102,6 +106,8 @@ class UserProformasModal extends Component
             'indirectCost' => null,
             'user' => Auth::user(),
             'isPdf' => true,
+            'expiration_date' => $proformaData->expiration_date,
+            'is_expired' => $proformaData->is_expired,
         ]);
 
         return response()->streamDownload(function () use ($pdf) {

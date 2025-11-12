@@ -45,6 +45,9 @@
                                     <tr class="bg-gray-50 dark:bg-gray-700">
                                         <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Producto</th>
                                         <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Fecha</th>
+                                        <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Expira</th>
+                                        <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">¿Expirada?</th>
+                                        <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Cantidad</th>
                                         <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Precio</th>
                                         <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Acciones</th>
                                     </tr>
@@ -57,6 +60,21 @@
                                             </td>
                                             <td class="px-4 py-3 border-b dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400">
                                                 {{ \Carbon\Carbon::parse($proforma['created_at'])->format('d/m/Y H:i') }}
+                                            </td>
+                                            <td class="px-4 py-3 border-b dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400">
+                                                {{ isset($proforma['expiration_date']) ? \Carbon\Carbon::parse($proforma['expiration_date'])->format('d/m/Y H:i') : '-' }}
+                                            </td>
+                                            <td class="px-4 py-3 border-b dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400">
+                                                @if(isset($proforma['is_expired']))
+                                                    <span class="{{ $proforma['is_expired'] ? 'text-red-600 dark:text-red-400 font-bold' : 'text-green-700 dark:text-green-400' }}">
+                                                        {{ $proforma['is_expired'] ? 'Sí' : 'No' }}
+                                                    </span>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-3 border-b dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400">
+                                                {{ $proforma['quantity'] ?? 1 }} {{ ($proforma['quantity'] ?? 1) == 1 ? 'unidad' : 'unidades' }}
                                             </td>
                                             <td class="px-4 py-3 border-b dark:border-gray-600 text-sm font-semibold text-green-700 dark:text-green-400">
                                                 ${{ number_format($proforma['calculatedPrice'], 2) }}
@@ -102,13 +120,17 @@
                     @include('livewire.proformas.proforma', [
                         'product' => $selectedProforma['product'],
                         'parameters' => $selectedProforma['parameters'],
+                        'quantity' => $selectedProforma['quantity'] ?? 1,
                         'materialCosts' => $selectedProforma['materialCosts'],
                         'calculatedPrice' => $selectedProforma['calculatedPrice'],
                         'notes' => $selectedProforma['notes'],
                         'directCost' => $selectedProforma['directCost'],
                         'indirectCost' => $selectedProforma['indirectCost'],
                         'user' => auth()->user(),
-                        'isPdf' => false
+                        'isPdf' => false,
+                        'expiration_date' => $selectedProforma['expiration_date'] ?? null,
+                        'is_expired' => $selectedProforma['is_expired'] ?? null,
+                        'showExpirationInfo' => true
                     ])
                 </div>
                 

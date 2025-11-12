@@ -27,7 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withProviders([
-        // Otros providers...
         App\Providers\ProfileMiddlewareServiceProvider::class,
     ])
+    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
+        $schedule->command('proformas:expire')->everyMinute();
+    })
     ->create();

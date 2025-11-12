@@ -21,7 +21,6 @@ class DatabaseSeeder extends Seeder
             ColorMaterialSeeder::class,
             CategoryMaterialColorSeeder::class,
             ProductSeeder::class,
-            CostSettingsSeeder::class,
         ]);
 
         // Crear usuarios de prueba adicionales si es necesario
