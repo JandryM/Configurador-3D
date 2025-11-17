@@ -12,8 +12,8 @@
                             <th class="text-left py-3 px-4 font-medium text-slate-700">Número</th>
                             <th class="text-left py-3 px-4 font-medium text-slate-700">Cliente</th>
                             <th class="text-left py-3 px-4 font-medium text-slate-700">Fecha Expiración</th>
-                            <th class="text-left py-3 px-4 font-medium text-slate-700">Cantidad</th>
-                            <th class="text-left py-3 px-4 font-medium text-slate-700">Monto</th>
+                            <th class="text-left py-3 px-4 font-medium text-slate-700">Cantidad de Productos</th>
+                            <th class="text-left py-3 px-4 font-medium text-slate-700">Total</th>
                             <th class="text-center py-3 px-4 font-medium text-slate-700">¿Ordenada?</th>
                             <th class="text-center py-3 px-4 font-medium text-slate-700">¿Expirada?</th>
                             <th class="text-center py-3 px-4 font-medium text-slate-700">Acciones</th>
@@ -47,13 +47,16 @@
                                     </span>
                                 </td>
                                 <td class="py-4 px-4">
-                                    <span class="text-slate-700">
-                                        {{ $proforma['quantity'] ?? 1 }} {{ ($proforma['quantity'] ?? 1) == 1 ? 'unidad' : 'unidades' }}
-                                    </span>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            {{ $proforma['total_quantity'] }} {{ $proforma['total_quantity'] == 1 ? 'producto' : 'productos' }}
+                                        </span>
+                                        <span class="text-xs text-slate-500">({{ $proforma['items_count'] }} {{ $proforma['items_count'] == 1 ? 'config' : 'configs' }})</span>
+                                    </div>
                                 </td>
                                 <td class="py-4 px-4">
                                     <span class="font-medium text-slate-800">
-                                        ${{ number_format($proforma['amount'], 2) }}
+                                        ${{ number_format($proforma['total_price'], 2) }}
                                     </span>
                                 </td>
                                 <td class="py-4 px-4 text-center">
@@ -150,21 +153,14 @@
                     </div>
                     <!-- Contenido -->
                     <div class="overflow-y-auto px-6 py-4" style="flex: 1;">
-                        @if(!$selectedProforma['product'])
-                            <div class="text-center text-gray-400 py-8">Producto eliminado o no disponible.</div>
+                        @if(empty($selectedProforma['items']) || count($selectedProforma['items']) == 0)
+                            <div class="text-center text-gray-400 py-8">No hay ítems en esta proforma.</div>
                         @else
                             @include('livewire.proformas.proforma-admin', [
-                                'product' => $selectedProforma['product'],
-                                'parameters' => $selectedProforma['parameters'],
-                                'quantity' => $selectedProforma['quantity'] ?? 1,
-                                'materialCosts' => $selectedProforma['materialCosts'],
-                                'calculatedPrice' => $selectedProforma['calculatedPrice'],
-                                'notes' => $selectedProforma['notes'],
-                                'directCost' => $selectedProforma['directCost'],
-                                'indirectCost' => $selectedProforma['indirectCost'],
-                                'wastePercentage' => $selectedProforma['wastePercentage'],
-                                'profitMargin' => $selectedProforma['profitMargin'],
+                                'items' => $selectedProforma['items'],
                                 'user' => $selectedProforma['user'],
+                                'total_price' => $selectedProforma['total_price'],
+                                'number' => $selectedProforma['number'],
                                 'expiration_date' => $selectedProforma['expiration_date'],
                                 'is_expired' => $selectedProforma['is_expired'],
                                 'showDownloadButton' => false

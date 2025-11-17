@@ -15,34 +15,22 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Windows',
-                'description' => 'Aluminum windows in various styles - sliding, casement, fixed',
+                'name' => 'Aluminio',
+                'description' => 'Productos y perfiles de aluminio',
                 'is_active' => true,
                 'sort_order' => 1
             ],
             [
-                'name' => 'Doors',
-                'description' => 'Aluminum doors - entrance doors, patio doors, security doors',
+                'name' => 'Vidrio',
+                'description' => 'Paneles, puertas y accesorios de vidrio',
                 'is_active' => true,
                 'sort_order' => 2
             ],
             [
-                'name' => 'Glass Panels',
-                'description' => 'Fixed glass panels and curtain walls',
+                'name' => 'Melamina',
+                'description' => 'Productos y muebles de melamina',
                 'is_active' => true,
                 'sort_order' => 3
-            ],
-            [
-                'name' => 'Sliding Systems',
-                'description' => 'Large sliding door and window systems',
-                'is_active' => true,
-                'sort_order' => 4
-            ],
-            [
-                'name' => 'Security',
-                'description' => 'Security windows and doors with reinforced frames',
-                'is_active' => true,
-                'sort_order' => 5
             ]
         ];
 

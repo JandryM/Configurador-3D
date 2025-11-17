@@ -1,5 +1,6 @@
 @php
     $isPdf = $isPdf ?? false; // Por defecto es vista web
+    $isMultiItem = isset($items) && is_array($items) && count($items) > 0;
 @endphp
 
 @if($isPdf)
@@ -10,6 +11,8 @@
     .proforma-table th, .proforma-table td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
     .proforma-table th { background: #f5f5f5; }
     .proforma-total { font-weight: bold; font-size: 16px; }
+    .item-card { background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3b82f6; }
+    .highlight-row { background: #fef3c7; font-weight: bold; }
 </style>
 @endif
 
@@ -24,13 +27,25 @@
             </svg>
         </div>
         <div>
-            <h2 class="text-xl font-bold text-white">Proforma de Producto</h2>
-            <p class="text-sm text-white/80">{{ $product->name }} • {{ now()->format('d/m/Y H:i') }}</p>
+            <h2 class="text-xl font-bold text-white">Proforma de Producto{{ $isMultiItem ? 's' : '' }}</h2>
+            <p class="text-sm text-white/80">
+                @if($isMultiItem)
+                    {{ $number ?? '' }} • {{ now()->format('d/m/Y H:i') }}
+                @else
+                    {{ isset($product) && $product ? $product->name : 'Producto' }} • {{ now()->format('d/m/Y H:i') }}
+                @endif
+            </p>
         </div>
     </div>
     @else
-    <h2>Proforma de Producto</h2>
-    <p class="font-bold text-lg mb-1">{{ $product->name }}</p>
+    <h2>Proforma de Producto{{ $isMultiItem ? 's' : '' }}</h2>
+    <p class="font-bold text-lg mb-1">
+        @if($isMultiItem)
+            {{ $number ?? '' }}
+        @else
+            {{ isset($product) && $product ? $product->name : 'Producto' }}
+        @endif
+    </p>
     <p>Fecha: {{ now()->format('d/m/Y H:i') }}</p>
     @endif
     
@@ -48,74 +63,161 @@
     @endif
 </div>
 
-<div class="{{ $isPdf ? 'proforma-section' : 'mt-4' }}">
-    <h4 class="{{ $isPdf ? '' : 'text-sm font-semibold text-white mb-2' }}">Datos Generales del Producto</h4>
-    <div class="{{ $isPdf ? '' : 'bg-black/30 border border-white/20 rounded-xl overflow-hidden' }}">
-        <table class="{{ $isPdf ? 'proforma-table' : 'w-full' }}">
+@if($isMultiItem)
+    <!-- Vista Multi-Item -->
+    <div class="proforma-section text-gray-800">
+        <h4 class="font-semibold mb-2">Información General de la Proforma</h4>
+        <table class="proforma-table text-gray-800">
             <tbody>
-                <tr class="{{ $isPdf ? '' : 'border-b border-white/10' }}">
-                    <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white w-2/5' }}">Nombre del Producto</th>
-                    <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">{{ $product->name }}</td>
-                </tr>
-                <tr class="{{ $isPdf ? '' : 'border-b border-white/10' }}">
-                    <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Color Aluminio</th>
-                    <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">{{ $parameters['color'] ?? '-' }}</td>
-                </tr>
-                <tr class="{{ $isPdf ? '' : 'border-b border-white/10' }}">
-                    <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Color Vidrio</th>
-                    <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">{{ $parameters['glassColor'] ?? '-' }}</td>
+                <tr>
+                    <th width="40%">Número de Proforma</th>
+                    <td>{{ $number ?? '-' }}</td>
                 </tr>
                 <tr>
-                    <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Dimensiones</th>
-                    <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
-                        Ancho: {{ $parameters['width'] ?? '-' }} m, Alto: {{ $parameters['height'] ?? '-' }} m
-                    </td>
+                    <th>Total de Productos</th>
+                    <td>{{ collect($items)->sum('quantity') }} {{ collect($items)->sum('quantity') == 1 ? 'unidad' : 'unidades' }}</td>
                 </tr>
-                <tr class="{{ $isPdf ? '' : 'border-b border-white/10' }}">
-                    <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Cantidad</th>
-                    <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
-                        {{ $quantity ?? 1 }} {{ ($quantity ?? 1) == 1 ? 'unidad' : 'unidades' }}
-                    </td>
-                </tr>
-                <tr class="{{ $isPdf ? '' : 'border-b border-white/10' }}">
-                    <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Precio Unitario</th>
-                    <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
-                        ${{ number_format($calculatedPrice / max(1, $quantity ?? 1), 2) }}
-                    </td>
-                </tr>
-                @if(isset($expiration_date) && ((isset($showExpirationInfo) && $showExpirationInfo) || $isPdf))
+                @if(isset($expiration_date))
                 <tr>
-                    <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Fecha de Expiración</th>
-                    <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
-                        {{ \Carbon\Carbon::parse($expiration_date)->format('d/m/Y H:i') }}
-                    </td>
-                </tr>
-                <tr>
-                    <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">¿Expirada?</th>
-                    <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
-                        {{ $is_expired ? 'Sí' : 'No' }}
-                    </td>
+                    <th>Fecha de Expiración</th>
+                    <td>{{ \Carbon\Carbon::parse($expiration_date)->format('d/m/Y H:i') }}</td>
                 </tr>
                 @endif
             </tbody>
         </table>
     </div>
-</div>
 
-<!-- Precio Total -->
-<div class="{{ $isPdf ? 'proforma-section proforma-total' : 'mt-4 p-4 bg-gradient-to-r from-cyan-700/30 to-slate-700/30 border border-cyan-400/40 rounded-xl' }}">
-    <p class="{{ $isPdf ? '' : 'text-sm text-white/70 mb-1' }}">
-        <span @if($isPdf) style="font-size:18px;" @endif>Precio Final del Producto:</span>
-    </p>
-    <p class="{{ $isPdf ? '' : 'text-4xl font-bold text-white' }}">
-        <span @if($isPdf) style="font-size:22px; font-weight:bold;" @endif>${{ number_format($calculatedPrice, 2) }}</span>
-    </p>
-</div>
+    <!-- Configuraciones -->
+    @foreach($items as $index => $item)
+    <div class="item-card">
+        <h4 class="font-bold text-lg mb-3 text-gray-800">Configuración #{{ $index + 1 }}: {{ $item['product_name'] }}</h4>
+        
+        <table class="proforma-table text-gray-800">
+            <tbody>
+                <tr>
+                    <th width="40%">Nombre del Producto</th>
+                    <td>{{ $item['product_name'] }}</td>
+                </tr>
+                @if(isset($item['parameters']['color']))
+                <tr>
+                    <th>Color Aluminio</th>
+                    <td>{{ $item['parameters']['color'] }}</td>
+                </tr>
+                @endif
+                @if(isset($item['parameters']['glassColor']))
+                <tr>
+                    <th>Color Vidrio</th>
+                    <td>{{ $item['parameters']['glassColor'] }}</td>
+                </tr>
+                @endif
+                @if(isset($item['parameters']['width']) && isset($item['parameters']['height']))
+                <tr>
+                    <th>Dimensiones</th>
+                    <td>
+                        Ancho: {{ $item['parameters']['width'] }} m, Alto: {{ $item['parameters']['height'] }} m
+                        @if(isset($item['parameters']['depth']))
+                            , Profundidad: {{ $item['parameters']['depth'] }} m
+                        @endif
+                    </td>
+                </tr>
+                @endif
+                <tr>
+                    <th>Cantidad</th>
+                    <td>{{ $item['quantity'] }} {{ $item['quantity'] == 1 ? 'unidad' : 'unidades' }}</td>
+                </tr>
+                <tr>
+                    <th>Precio Unitario</th>
+                    <td>${{ number_format($item['price'] / max(1, $item['quantity']), 2) }}</td>
+                </tr>
+                <tr class="highlight-row">
+                    <th>Precio Final</th>
+                    <td>${{ number_format($item['price'], 2) }}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        @if(!empty($item['notes']))
+        <div style="background: #f9fafb; padding: 10px; border-radius: 4px; border-left: 4px solid #3b82f6; margin-top: 10px;">
+            <strong>Notas:</strong> {{ $item['notes'] }}
+        </div>
+        @endif
+    </div>
+    @endforeach
 
-<!-- Notas -->
-@if(!empty($notes))
-<div class="{{ $isPdf ? 'proforma-section' : 'mt-4 p-3 bg-black/30 border border-white/20 rounded-xl' }}">
-    <strong class="{{ $isPdf ? '' : 'text-white text-sm' }}">Notas del Cliente:</strong>
-    <p class="{{ $isPdf ? '' : 'text-white/70 text-sm mt-1' }}">{{ $notes }}</p>
-</div>
+    <!-- Total de la Proforma -->
+    <div class="proforma-section proforma-total text-gray-800" style="background: #dbeafe; padding: 15px; border-radius: 8px; text-align: center;">
+        <span style="font-size:18px;">Total de la Proforma:</span>
+        <span style="font-size:24px; font-weight:bold; color: #1e40af;">${{ number_format($total_price ?? 0, 2) }}</span>
+        <p style="font-size:12px; margin-top: 5px; color: #64748b;">Incluye {{ collect($items)->sum('quantity') }} {{ collect($items)->sum('quantity') == 1 ? 'producto' : 'productos' }}</p>
+    </div>
+
+@else
+    <!-- Vista Single-Item (Legacy) -->
+    @if(isset($product) && $product)
+    <div class="{{ $isPdf ? 'proforma-section' : 'mt-4' }}">
+        <h4 class="{{ $isPdf ? '' : 'text-sm font-semibold text-white mb-2' }}">Datos Generales del Producto</h4>
+        <div class="{{ $isPdf ? '' : 'bg-black/30 border border-white/20 rounded-xl overflow-hidden' }}">
+            <table class="{{ $isPdf ? 'proforma-table' : 'w-full' }}">
+                <tbody>
+                    <tr class="{{ $isPdf ? '' : 'border-b border-white/10' }}">
+                        <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white w-2/5' }}">Nombre del Producto</th>
+                        <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">{{ $product->name }}</td>
+                    </tr>
+                    <tr class="{{ $isPdf ? '' : 'border-b border-white/10' }}">
+                        <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Color Aluminio</th>
+                        <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">{{ $parameters['color'] ?? '-' }}</td>
+                    </tr>
+                    <tr class="{{ $isPdf ? '' : 'border-b border-white/10' }}">
+                        <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Color Vidrio</th>
+                        <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">{{ $parameters['glassColor'] ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Dimensiones</th>
+                        <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
+                            Ancho: {{ $parameters['width'] ?? '-' }} m, Alto: {{ $parameters['height'] ?? '-' }} m
+                        </td>
+                    </tr>
+                    <tr class="{{ $isPdf ? '' : 'border-b border-white/10' }}">
+                        <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Cantidad</th>
+                        <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
+                            {{ $quantity ?? 1 }} {{ ($quantity ?? 1) == 1 ? 'unidad' : 'unidades' }}
+                        </td>
+                    </tr>
+                    <tr class="{{ $isPdf ? '' : 'border-b border-white/10' }}">
+                        <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Precio Unitario</th>
+                        <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
+                            ${{ number_format($calculatedPrice / max(1, $quantity ?? 1), 2) }}
+                        </td>
+                    </tr>
+                    @if(isset($expiration_date) && ((isset($showExpirationInfo) && $showExpirationInfo) || $isPdf))
+                    <tr>
+                        <th class="{{ $isPdf ? '' : 'bg-black/50 px-4 py-2.5 text-left text-sm font-medium text-white' }}">Fecha de Expiración</th>
+                        <td class="{{ $isPdf ? '' : 'px-4 py-2.5 text-sm text-white/80' }}">
+                            {{ \Carbon\Carbon::parse($expiration_date)->format('d/m/Y H:i') }}
+                        </td>
+                    </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Precio Total -->
+    <div class="{{ $isPdf ? 'proforma-section proforma-total' : 'mt-4 p-4 bg-gradient-to-r from-cyan-700/30 to-slate-700/30 border border-cyan-400/40 rounded-xl' }}">
+        <p class="{{ $isPdf ? '' : 'text-sm text-white/70 mb-1' }}">
+            <span @if($isPdf) style="font-size:18px;" @endif>Precio Final del Producto:</span>
+        </p>
+        <p class="{{ $isPdf ? '' : 'text-4xl font-bold text-white' }}">
+            <span @if($isPdf) style="font-size:22px; font-weight:bold;" @endif>${{ number_format($calculatedPrice, 2) }}</span>
+        </p>
+    </div>
+
+    <!-- Notas -->
+    @if(!empty($notes))
+    <div class="{{ $isPdf ? 'proforma-section' : 'mt-4 p-3 bg-black/30 border border-white/20 rounded-xl' }}">
+        <strong class="{{ $isPdf ? '' : 'text-white text-sm' }}">Notas del Cliente:</strong>
+        <p class="{{ $isPdf ? '' : 'text-white/70 text-sm mt-1' }}">{{ $notes }}</p>
+    </div>
+    @endif
+    @endif
 @endif

@@ -43,52 +43,61 @@
                             <table class="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
                                 <thead>
                                     <tr class="bg-gray-50 dark:bg-gray-700">
-                                        <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Producto</th>
+                                        <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Número</th>
+                                        <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Productos</th>
                                         <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Fecha</th>
-                                        <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Expira</th>
-                                        <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">¿Expirada?</th>
-                                        <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Cantidad</th>
-                                        <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Precio</th>
+                                        <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Estado</th>
+                                        <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Total</th>
                                         <th class="px-4 py-3 border-b dark:border-gray-600 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($proformas as $proforma)
                                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                            <td class="px-4 py-3 border-b dark:border-gray-600 text-sm text-gray-800 dark:text-gray-200">
-                                                {{ $proforma['product']?->name ?? 'Producto eliminado' }}
+                                            <td class="px-4 py-3 border-b dark:border-gray-600 text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                                {{ $proforma['number'] }}
                                             </td>
                                             <td class="px-4 py-3 border-b dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400">
-                                                {{ \Carbon\Carbon::parse($proforma['created_at'])->format('d/m/Y H:i') }}
+                                                {{ $proforma['total_quantity'] }} {{ $proforma['total_quantity'] == 1 ? 'producto' : 'productos' }}
                                             </td>
                                             <td class="px-4 py-3 border-b dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400">
-                                                {{ isset($proforma['expiration_date']) ? \Carbon\Carbon::parse($proforma['expiration_date'])->format('d/m/Y H:i') : '-' }}
+                                                {{ \Carbon\Carbon::parse($proforma['created_at'])->format('d/m/Y') }}
                                             </td>
-                                            <td class="px-4 py-3 border-b dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400">
-                                                @if(isset($proforma['is_expired']))
-                                                    <span class="{{ $proforma['is_expired'] ? 'text-red-600 dark:text-red-400 font-bold' : 'text-green-700 dark:text-green-400' }}">
-                                                        {{ $proforma['is_expired'] ? 'Sí' : 'No' }}
+                                            <td class="px-4 py-3 border-b dark:border-gray-600 text-sm">
+                                                @if($proforma['is_expired'])
+                                                    <span class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full text-xs font-semibold">
+                                                        Expirada
+                                                    </span>
+                                                @elseif($proforma['is_ordered'])
+                                                    <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-xs font-semibold">
+                                                        Ordenada
                                                     </span>
                                                 @else
-                                                    -
+                                                    <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-semibold">
+                                                        Activa
+                                                    </span>
                                                 @endif
                                             </td>
-                                            <td class="px-4 py-3 border-b dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400">
-                                                {{ $proforma['quantity'] ?? 1 }} {{ ($proforma['quantity'] ?? 1) == 1 ? 'unidad' : 'unidades' }}
-                                            </td>
                                             <td class="px-4 py-3 border-b dark:border-gray-600 text-sm font-semibold text-green-700 dark:text-green-400">
-                                                ${{ number_format($proforma['calculatedPrice'], 2) }}
+                                                ${{ number_format($proforma['total_price'], 2) }}
                                             </td>
                                             <td class="px-4 py-3 border-b dark:border-gray-600">
                                                 <div class="flex gap-2">
                                                     <button wire:click="showProforma({{ $proforma['id'] }})" 
-                                                            class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded transition-colors">
+                                                            class="px-4 py-2 text-xs font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-blue-600 to-cyan-700 hover:from-blue-700 hover:to-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
                                                         Ver
                                                     </button>
                                                     <button wire:click="downloadProformaPdf({{ $proforma['id'] }})" 
-                                                            class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded transition-colors">
+                                                            class="px-4 py-2 text-xs font-medium border border-green-600/40 rounded-lg text-white bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
                                                         PDF
                                                     </button>
+                                                    @if(!$proforma['is_expired'] && !$proforma['is_ordered'])
+                                                    <button wire:click="orderProforma({{ $proforma['id'] }})" 
+                                                            wire:confirm="¿Estás seguro de que deseas crear una orden con esta proforma?"
+                                                            class="px-4 py-2 text-xs font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl border border-amber-600/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 font-semibold">
+                                                        🚀 Ordenar Proforma
+                                                    </button>
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>
@@ -117,31 +126,87 @@
                 
                 <!-- Contenido de la proforma -->
                 <div class="overflow-y-auto max-h-[70vh]">
-                    @include('livewire.proformas.proforma', [
-                        'product' => $selectedProforma['product'],
-                        'parameters' => $selectedProforma['parameters'],
-                        'quantity' => $selectedProforma['quantity'] ?? 1,
-                        'materialCosts' => $selectedProforma['materialCosts'],
-                        'calculatedPrice' => $selectedProforma['calculatedPrice'],
-                        'notes' => $selectedProforma['notes'],
-                        'directCost' => $selectedProforma['directCost'],
-                        'indirectCost' => $selectedProforma['indirectCost'],
-                        'user' => auth()->user(),
-                        'isPdf' => false,
-                        'expiration_date' => $selectedProforma['expiration_date'] ?? null,
-                        'is_expired' => $selectedProforma['is_expired'] ?? null,
-                        'showExpirationInfo' => true
-                    ])
+                    <h3 class="text-2xl font-bold mb-4">Proforma {{ $selectedProforma['number'] }}</h3>
+                    
+                    <div class="mb-6 p-4 bg-white/10 rounded-lg border border-white/20">
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-white/70">Fecha de creación:</span>
+                                <p class="font-semibold">{{ \Carbon\Carbon::parse($selectedProforma['created_at'])->format('d/m/Y H:i') }}</p>
+                            </div>
+                            <div>
+                                <span class="text-white/70">Estado:</span>
+                                <p class="font-semibold">
+                                    @if($selectedProforma['is_expired'])
+                                        <span class="text-red-400">Expirada</span>
+                                    @elseif($selectedProforma['is_ordered'])
+                                        <span class="text-blue-400">Ordenada</span>
+                                    @else
+                                        <span class="text-green-400">Activa</span>
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="text-lg font-semibold mb-3">Configuraciones ({{ count($selectedProforma['items']) }} {{ count($selectedProforma['items']) == 1 ? 'ítem' : 'ítems' }})</h4>
+                    
+                    <div class="space-y-4">
+                        @foreach($selectedProforma['items'] as $item)
+                        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                            <div class="flex justify-between items-start mb-2">
+                                <h5 class="font-bold text-lg">{{ $item['product_name'] }}</h5>
+                                <span class="text-cyan-300 font-bold text-lg">${{ number_format($item['price'], 2) }}</span>
+                            </div>
+                            
+                            @if(!empty($item['parameters']))
+                            <div class="grid grid-cols-2 gap-3 text-sm text-white/80 mt-3">
+                                @if(isset($item['parameters']['width']))
+                                <div>
+                                    <span class="text-white/60">Dimensiones:</span>
+                                    <p>{{ number_format($item['parameters']['width'], 2) }}m × {{ number_format($item['parameters']['height'], 2) }}m</p>
+                                </div>
+                                @endif
+                                @if(isset($item['parameters']['color']))
+                                <div>
+                                    <span class="text-white/60">Color:</span>
+                                    <p>{{ $item['parameters']['color'] }}</p>
+                                </div>
+                                @endif
+                                <div>
+                                    <span class="text-white/60">Cantidad:</span>
+                                    <p class="font-semibold">{{ $item['quantity'] }} {{ $item['quantity'] == 1 ? 'unidad' : 'unidades' }}</p>
+                                </div>
+                                <div>
+                                    <span class="text-white/60">Precio unitario:</span>
+                                    <p class="font-semibold">${{ number_format($item['price'] / $item['quantity'], 2) }}</p>
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div>
+
+                    <div class="mt-6 p-4 bg-gradient-to-r from-blue-600/30 to-cyan-600/30 rounded-lg border border-blue-400/30">
+                        <div class="flex justify-between items-center">
+                            <span class="text-white font-semibold text-lg">Total de la Proforma:</span>
+                            <span class="text-3xl font-bold text-white">${{ number_format($selectedProforma['total_price'], 2) }}</span>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Botones de acción -->
                 <div class="mt-6 pt-6 border-t border-white/20 flex justify-end gap-3">
-                    <button wire:click="closeProformaModal" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">
-                        Cerrar
+                    <button wire:click="downloadProformaPdf({{ $selectedProformaId }})" class="px-4 py-2 text-sm font-medium border border-green-600/40 rounded-lg text-white bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                        📄 Descargar PDF
                     </button>
-                    <button wire:click="downloadProformaPdf({{ $selectedProforma['id'] }})" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
-                        Descargar PDF
+                    @if(!$selectedProforma['is_expired'] && !$selectedProforma['is_ordered'])
+                    <button wire:click="orderProforma({{ $selectedProformaId }})" 
+                            wire:confirm="¿Estás seguro de que deseas crear una orden con esta proforma?"
+                            class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl border border-amber-600/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 font-semibold">
+                        🚀 Ordenar Proforma
                     </button>
+                    @endif
                 </div>
             </div>
         </div>
