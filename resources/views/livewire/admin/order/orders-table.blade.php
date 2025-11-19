@@ -320,24 +320,86 @@
                             </div>
                         @endif
 
-                        <!-- Información del Producto -->
-                        @if($selectedOrder['product'])
-                            <div class="mb-6">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-3">Detalles del Producto</h3>
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <p class="font-medium text-gray-800 mb-2">{{ $selectedOrder['product']->name }}</p>
-                                    @if(isset($selectedOrder['configuration']['parameters']))
-                                        <div class="grid grid-cols-2 gap-2 text-sm">
-                                            @foreach($selectedOrder['configuration']['parameters'] as $key => $value)
-                                                @if(!in_array($key, ['notes']) && !is_array($value))
-                                                    <div>
-                                                        <span class="text-gray-600">{{ ucfirst($key) }}:</span>
-                                                        <span class="text-gray-800 font-medium">{{ $value }}</span>
+                        <!-- Detalle de Productos de la Proforma -->
+                        @if(isset($selectedOrder['items']) && is_array($selectedOrder['items']) && count($selectedOrder['items']) > 0)
+                            <div class="mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Productos ({{ count($selectedOrder['items']) }})</h3>
+                                <div class="space-y-2">
+                                    @foreach($selectedOrder['items'] as $index => $item)
+                                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md hover:border-indigo-300">
+                                            <!-- Header del producto (siempre visible) -->
+                                            <button 
+                                                type="button"
+                                                onclick="document.getElementById('product-detail-{{ $index }}').classList.toggle('hidden'); document.getElementById('chevron-{{ $index }}').classList.toggle('rotate-180')"
+                                                class="w-full px-3 py-2 flex items-center justify-between hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-colors"
+                                            >
+                                                <div class="flex items-center space-x-2 flex-1 min-w-0">
+                                                    <div class="w-7 h-7 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-md flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                                                        {{ $index + 1 }}
                                                     </div>
-                                                @endif
-                                            @endforeach
+                                                    <div class="text-left flex-1 min-w-0">
+                                                        <p class="font-semibold text-gray-800 text-sm truncate">
+                                                            {{ $item['product_name'] ?? ($item['product'] ? $item['product']->name : 'Producto eliminado') }}
+                                                        </p>
+                                                        <p class="text-xs text-gray-600">
+                                                            <span class="font-medium text-indigo-600">{{ $item['quantity'] ?? 1 }}×</span> ${{ number_format($item['unit_price'] ?? $item['price'] ?? 0, 2) }}
+                                                            <span class="mx-1">•</span>
+                                                            <span class="font-semibold text-gray-800">${{ number_format(($item['quantity'] ?? 1) * ($item['unit_price'] ?? $item['price'] ?? 0), 2) }}</span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <svg 
+                                                    id="chevron-{{ $index }}"
+                                                    class="w-5 h-5 text-gray-500 transition-transform duration-200 flex-shrink-0" 
+                                                    fill="currentColor" 
+                                                    viewBox="0 0 20 20"
+                                                >
+                                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                                </svg>
+                                            </button>
+
+                                            <!-- Detalle del producto (colapsable) -->
+                                            <div id="product-detail-{{ $index }}" class="hidden border-t border-gray-300">
+                                                <div class="px-3 py-2 bg-white">
+                                                    @php
+                                                        // Campos permitidos y sus traducciones
+                                                        $allowedFields = [
+                                                            'height' => 'Alto',
+                                                            'width' => 'Ancho',
+                                                            'color' => 'Color aluminio',
+                                                            'glassColor' => 'Color de vidrio',
+                                                            'material' => 'Material',
+                                                            'quantity' => 'Cantidad',
+                                                            'profile' => 'Perfil',
+                                                            'glass' => 'Vidrio',
+                                                            'type' => 'Tipo',
+                                                            'finish' => 'Acabado',
+                                                        ];
+                                                    @endphp
+                                                    @if(isset($item['configuration']['parameters']))
+                                                        <p class="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Configuración</p>
+                                                        <div class="grid grid-cols-3 gap-1.5 mb-2">
+                                                            @foreach($allowedFields as $key => $label)
+                                                                @if(isset($item['configuration']['parameters'][$key]) && !is_array($item['configuration']['parameters'][$key]))
+                                                                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded px-2 py-1.5">
+                                                                        <p class="text-xs text-gray-600 leading-tight">{{ $label }}</p>
+                                                                        <p class="text-xs font-semibold text-gray-800 leading-tight mt-0.5">{{ $item['configuration']['parameters'][$key] }}</p>
+                                                                    </div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+
+                                                    @if(isset($item['configuration']['parameters']['notes']) && !empty($item['configuration']['parameters']['notes']))
+                                                        <div class="bg-yellow-50 border border-yellow-200 rounded px-2 py-1.5">
+                                                            <p class="text-xs font-medium text-yellow-800 mb-0.5">📝 Notas</p>
+                                                            <p class="text-xs text-gray-700">{{ $item['configuration']['parameters']['notes'] }}</p>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </div>
-                                    @endif
+                                    @endforeach
                                 </div>
                             </div>
                         @endif

@@ -79,6 +79,14 @@ class Product extends Model
     }
 
     /**
+     * Relación con los ítems de proforma
+     */
+    public function proformaItems(): HasMany
+    {
+        return $this->hasMany(ProformaItem::class);
+    }
+
+    /**
      * Relación muchos a muchos con materiales
      */
     public function materials(): BelongsToMany

@@ -257,7 +257,7 @@
                             </button>
                         @else
                             <div class="w-full bg-gradient-to-r from-yellow-100 to-amber-100 border border-yellow-300/50 text-yellow-800 font-semibold py-3 px-4 rounded-xl text-center shadow-md">
-                                ⚠️ Debes iniciar sesión para visualizar y guardar la proforma.
+                                ⚠️ Debes iniciar sesión para agregar a la proforma.
                             </div>
                         @endif
                     </div>
@@ -280,9 +280,11 @@
                                             <svg class="w-16 h-16 text-green-400 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 12l2 2l4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                             <h3 class="text-xl font-bold text-white mb-2">
                                                 @if(str_contains(session('message'), 'Orden creada'))
-                                                    ¡Proforma enviada a orden!
+                                                    ¡Orden creada exitosamente!
+                                                @elseif(str_contains(session('message'), 'agregada'))
+                                                    ¡Configuración agregada!
                                                 @else
-                                                    ¡Proforma guardada!
+                                                    ¡Operación exitosa!
                                                 @endif
                                             </h3>
                                             <p class="text-white/80 text-center">{{ session('message') }}</p>
@@ -290,11 +292,16 @@
                                     </div>
                                 </div>
                             @endif
-                            <div class="overflow-y-auto max-h-[70vh]">
+                            <div class="overflow-y-auto max-h-[75vh] pr-2" style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.3) rgba(255,255,255,0.1);">
                                 @if($currentProformaStatus === 'saved')
+                                    <div class="mb-4 p-4 bg-green-500/20 border border-green-400/50 rounded-lg">
+                                        <p class="text-green-200 text-sm font-medium mb-2">✓ Esta configuración ya está guardada</p>
+                                        <p class="text-green-100/70 text-xs">Se encuentra en la proforma {{ DB::table('proformas')->where('id', $currentProformaId)->value('number') }}. Puedes actualizar la cantidad.</p>
+                                    </div>
+                                @else
                                     <div class="mb-4 p-4 bg-blue-500/20 border border-blue-400/50 rounded-lg">
-                                        <p class="text-blue-200 text-sm font-medium mb-2">✓ Esta configuración ya está guardada como proforma</p>
-                                        <p class="text-blue-100/70 text-xs">La cantidad guardada es <strong>{{ $quantity }} {{ $quantity == 1 ? 'unidad' : 'unidades' }}</strong>. Puedes ajustarla abajo si lo deseas, o mantenerla para ordenar o actualizar la proforma.</p>
+                                        <p class="text-blue-200 text-sm font-medium mb-2">➕ Nueva configuración</p>
+                                        <p class="text-blue-100/70 text-xs">Elige dónde guardar esta configuración: crea una nueva proforma o agrégala a una existente.</p>
                                     </div>
                                 @endif
 
@@ -322,6 +329,16 @@
                                     <div class="mt-2 text-sm text-white/70 text-center">
                                         <span class="font-medium">Precio unitario:</span> ${{ number_format($calculatedPrice / max(1, $quantity), 2) }}
                                     </div>
+
+                                    <!-- Botón colapsable para notas -->
+                                    <div class="mt-2 flex justify-end">
+                                        <button type="button" onclick="document.getElementById('notes-section').classList.toggle('hidden'); this.classList.toggle('opacity-70')" class="text-xs text-cyan-200 hover:text-cyan-100 px-2 py-1 rounded transition-opacity opacity-50 focus:outline-none">
+                                            📝 Añadir notas opcionales
+                                        </button>
+                                    </div>
+                                    <div id="notes-section" class="hidden mt-2">
+                                        <textarea wire:model.defer="parameters.notes" rows="2" maxlength="250" placeholder="Notas para esta configuración (opcional)" class="w-full px-3 py-2 rounded-lg border border-white/20 bg-black/30 text-white text-xs focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200/50 resize-none"></textarea>
+                                    </div>
                                 </div>
 
                                 @include('livewire.proformas.proforma', [
@@ -335,37 +352,93 @@
                                     'indirectCost' => $indirectCost ?? null,
                                     'wastePercentage' => $wastePercentage ?? null
                                 ])
-                            </div>
-                            <div class="mt-6 pt-6 border-t border-white/20 flex flex-col sm:flex-row justify-end gap-3">
-                                @if($currentProformaStatus === 'new')
-                                    <button type="button" 
-                                            wire:click="guardarProforma" 
-                                            class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
-                                        Guardar Proforma
-                                    </button>
-                                    <button type="button" 
-                                            wire:click="orderProforma" 
-                                            class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
-                                        Ordenar Proforma
-                                    </button>
-                                
-                                @elseif($currentProformaStatus === 'saved')
-                                    <button type="button" 
-                                            wire:click="orderProforma" 
-                                            class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
-                                        Ordenar Esta Proforma
-                                    </button>
-                                    <button type="button" 
-                                            wire:click="guardarProforma" 
-                                            class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
-                                        Actualizar Proforma
-                                    </button>
+
+                                @if($currentProformaId && $proformaItems && $proformaItems->count() > 0)
+                                <div class="mt-6 pt-6 border-t border-white/20">
+                                    <h4 class="text-lg font-bold text-white mb-4">📦 Ítems en esta Proforma ({{ $proformaItems->count() }} {{ $proformaItems->count() == 1 ? 'ítem' : 'ítems' }})</h4>
+                                    <div class="space-y-3 max-h-64 overflow-y-auto">
+                                        @foreach($proformaItems as $item)
+                                        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 hover:bg-white/15 transition-all">
+                                            <div class="flex items-start gap-3">
+                                                <div class="flex-1">
+                                                    <h5 class="font-semibold text-white mb-1">{{ $item->product_name }}</h5>
+                                                    <div class="text-xs text-white/70 space-y-1">
+                                                        @if(isset($item->parsed_config['parameters']))
+                                                        <div class="flex gap-4">
+                                                            @if(isset($item->parsed_config['parameters']['width']))
+                                                            <span>📏 {{ number_format($item->parsed_config['parameters']['width'], 2) }}m × {{ number_format($item->parsed_config['parameters']['height'], 2) }}m</span>
+                                                            @endif
+                                                            @if(isset($item->parsed_config['parameters']['color']))
+                                                            <span>🎨 {{ $item->parsed_config['parameters']['color'] }}</span>
+                                                            @endif
+                                                        </div>
+                                                        @endif
+                                                        <div class="flex gap-4 mt-2">
+                                                            <span class="font-medium">Cantidad: {{ $item->quantity }}</span>
+                                                            <span class="font-bold text-cyan-300">${{ number_format($item->price, 2) }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @if($item->product_id == $product->id && isset($item->parsed_config['parameters']) && 
+                                                    $item->parsed_config['parameters']['width'] == $parameters['width'] &&
+                                                    $item->parsed_config['parameters']['height'] == $parameters['height'] &&
+                                                    ($item->parsed_config['parameters']['color'] ?? null) == ($parameters['color'] ?? null))
+                                                <span class="text-green-400 text-xs font-bold">✓ Actual</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                    <div class="mt-4 p-4 bg-gradient-to-r from-blue-600/30 to-cyan-600/30 rounded-lg border border-blue-400/30">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-white font-semibold">Total de la Proforma:</span>
+                                            <span class="text-2xl font-bold text-white">${{ number_format($proformaTotalPrice, 2) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
                                 @endif
-                                
-                                @if($currentProformaStatus === 'saved' || session()->has('message'))
-                                    <button type="button" wire:click="downloadProformaPdf" class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
-                                        Descargar PDF
-                                    </button>
+                            </div>
+                            <div class="mt-6 pt-6 border-t border-white/20">
+                                @if($currentProformaStatus === 'saved')
+                                    <!-- Configuración ya guardada - Solo actualizar -->
+                                    <div class="flex flex-col sm:flex-row justify-end gap-3">
+                                        <button type="button" 
+                                                wire:click="guardarProforma" 
+                                                class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                            🔄 Actualizar Cantidad
+                                        </button>
+                                        
+                                        @if($currentProformaId)
+                                            <button type="button" 
+                                                    wire:click="orderProforma" 
+                                                    class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                                🚀 Ordenar Proforma
+                                            </button>
+                                            
+                                            <button type="button" 
+                                                    wire:click="downloadProformaPdf({{ $currentProformaId }})" 
+                                                    class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                                📄 Descargar PDF
+                                            </button>
+                                        @endif
+                                    </div>
+                                @else
+                                    <!-- Botones principales para nueva configuración -->
+                                    <div class="flex flex-col sm:flex-row justify-end gap-3">
+                                        <button type="button" 
+                                                wire:click="crearNuevaProforma" 
+                                                class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                            ➕ Crear Nueva Proforma
+                                        </button>
+                                        
+                                        @if(count($availableProformas) > 0)
+                                        <button type="button" 
+                                                wire:click="openProformaSelectorModal" 
+                                                class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                            📋 Agregar a Proforma Existente
+                                        </button>
+                                        @endif
+                                    </div>
                                 @endif
                             </div>
                         </div>
@@ -379,7 +452,89 @@
                 </div>
             </div>
         </div>
+            <!-- Modal Selector de Proformas (Separado) -->
+    <div x-data="{ show: @entangle('showProformaSelectorModal') }" x-show="show" x-transition x-cloak class="fixed inset-0 z-[60]">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
+        <div class="flex items-center justify-center min-h-screen px-4 py-6">
+            <div class="w-full max-w-lg relative">
+                <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-2xl w-full p-6 relative text-white border border-white/10">
+                    <button @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-white text-3xl font-bold z-10">&times;</button>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold text-white mb-2">📋 Selecciona una Proforma</h3>
+                        <p class="text-white/70 text-sm">Elige a qué proforma deseas agregar esta configuración</p>
+                    </div>
+
+                    <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-2 mb-6" style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.3) rgba(255,255,255,0.1);">
+                        @forelse($availableProformas as $proforma)
+                        <label class="flex items-start p-4 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-all border-2 @if($selectedProformaToAdd == $proforma['id']) border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/20 @else border-white/10 @endif group">
+                            <input type="radio" 
+                                   wire:model.live="selectedProformaToAdd" 
+                                   value="{{ $proforma['id'] }}"
+                                   class="mt-1 mr-4 w-5 h-5 flex-shrink-0 text-cyan-500">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="font-bold text-lg text-white">{{ $proforma['number'] }}</div>
+                                    <span class="px-2 py-0.5 text-xs font-medium bg-cyan-500/20 text-cyan-300 rounded-full">
+                                        {{ $proforma['items_count'] }} {{ $proforma['items_count'] == 1 ? 'ítem' : 'ítems' }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-white/60">Total actual:</span>
+                                    <span class="font-bold text-green-400">${{ number_format($proforma['total_price'], 2) }}</span>
+                                </div>
+                                <div class="text-xs text-white/50 mt-1">
+                                    Creada: {{ \Carbon\Carbon::parse($proforma['created_at'])->format('d/m/Y H:i') }}
+                                </div>
+                            </div>
+                        </label>
+                        @empty
+                        <div class="text-center text-white/70 py-8">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <p class="font-medium">No tienes proformas disponibles</p>
+                        </div>
+                        @endforelse
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="button" 
+                                wire:click="closeProformaSelectorModal"
+                                class="flex-1 px-5 py-3 text-sm font-medium bg-gray-600 hover:bg-gray-700 text-white rounded-xl transition-all hover:scale-[1.02]">
+                            Cancelar
+                        </button>
+                        <button type="button" 
+                                wire:click="guardarEnProformaSeleccionada"
+                                class="flex-1 px-5 py-3 text-sm font-medium bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-xl transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                @if(!$selectedProformaToAdd) disabled @endif>
+                            ✓ Agregar a Proforma
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    @if($showCostUpdateWarning)
+<div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border-2 border-amber-400 relative">
+        <button type="button" wire:click="cancelarActualizarCostosYAgregar" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+        <div class="flex flex-col items-center">
+            <svg class="w-16 h-16 text-amber-400 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3 class="text-xl font-bold text-amber-700 mb-2 text-center">¡Atención! Costos desactualizados</h3>
+            <p class="text-gray-700 text-center mb-4">Si agregas este producto a la proforma seleccionada, <span class="font-semibold text-amber-700">los precios de los productos existentes se actualizarán a los costos actuales</span> y la fecha de expiración se renovará.<br>¿Deseas continuar?</p>
+            <div class="flex gap-4 mt-4">
+                <button type="button" wire:click="cancelarActualizarCostosYAgregar" class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-semibold">Cancelar</button>
+                <button type="button" wire:click="confirmarActualizarCostosYAgregar" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg font-semibold shadow-lg">Actualizar y Agregar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+</div>
 
 @script
 <script>

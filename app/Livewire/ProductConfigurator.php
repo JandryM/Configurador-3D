@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire;
 use App\Models\Product;
 use App\Models\Color;
@@ -7,16 +8,81 @@ use Illuminate\Support\Facades\DB;
 
 class ProductConfigurator extends Component
 {
+    // Para advertencia de actualización de costos
+    public $showCostUpdateWarning = false;
+    public $proformaIdPendingCostUpdate = null;
+    public $pendingConfiguration = null;
     public $showProformaModal = false;
     public $currentProformaStatus = null; // 'new' o 'saved'
     public $currentProformaId = null;
+    public $showProformaSelectorModal = false; // Modal separado para selector
+    public $availableProformas = []; // Lista de proformas disponibles
+    public $selectedProformaToAdd = null; // Proforma seleccionada para agregar
     
     public function updatedShowProformaModal($value)
     {
         if ($value) {
             // Cuando se abre el modal, verificar el estado de la configuración actual
             $this->checkCurrentConfigurationStatus();
+            // Cargar proformas disponibles
+            $this->loadAvailableProformas();
         }
+    }
+
+    /**
+     * Query builder para obtener proformas activas (no ordenadas, no expiradas)
+     */
+    private function getActiveProformasQuery()
+    {
+        return DB::table('proformas')
+            ->leftJoin('orders', 'proformas.id', '=', 'orders.proforma_id')
+            ->whereNull('orders.id')
+            ->where('proformas.user_id', auth()->id())
+            ->where('proformas.is_expired', false)
+            ->where('proformas.expiration_date', '>', now())
+            ->select('proformas.*');
+    }
+
+    /**
+     * Cargar todas las proformas disponibles del usuario (no ordenadas, no expiradas)
+     */
+    public function loadAvailableProformas()
+    {
+        if (!auth()->check()) {
+            $this->availableProformas = [];
+            return;
+        }
+
+        $proformas = $this->getActiveProformasQuery()
+            ->orderBy('proformas.created_at', 'desc')
+            ->get();
+
+        $this->availableProformas = $proformas->map(function ($proforma) {
+            $itemsCount = DB::table('proforma_items')
+                ->where('proforma_id', $proforma->id)
+                ->count();
+            
+            return [
+                'id' => $proforma->id,
+                'number' => $proforma->number,
+                'total_price' => $proforma->total_price,
+                'items_count' => $itemsCount,
+                'created_at' => $proforma->created_at,
+            ];
+        })->toArray();
+    }
+
+    public function openProformaSelectorModal()
+    {
+        $this->loadAvailableProformas();
+        $this->selectedProformaToAdd = null;
+        $this->showProformaSelectorModal = true;
+    }
+
+    public function closeProformaSelectorModal()
+    {
+        $this->showProformaSelectorModal = false;
+        $this->selectedProformaToAdd = null;
     }
 
     public function checkCurrentConfigurationStatus()
@@ -27,105 +93,142 @@ class ProductConfigurator extends Component
             return;
         }
 
-        // Buscar proformas SIN orden asociada con esta configuración exacta
-        // (Las proformas con orden ya no son relevantes - cada orden es independiente)
-        $existingProformasWithoutOrder = DB::table('proformas')
-            ->leftJoin('orders', 'proformas.id', '=', 'orders.proforma_id')
-            ->whereNull('orders.id') // Sin orden
-            ->where('proformas.user_id', auth()->id())
-            ->where('proformas.product_id', $this->product->id)
-            ->select('proformas.*')
-            ->get();
+        // Buscar en TODAS las proformas activas si existe esta configuración
+        $activeProformas = $this->getActiveProformasQuery()->get();
 
-        $matchingProformaWithoutOrder = null;
-        foreach ($existingProformasWithoutOrder as $proforma) {
-            // Verificar si la proforma ha expirado
-            if (!$proforma->is_expired && now()->greaterThan($proforma->expiration_date)) {
-                // Marcar como expirada
-                DB::table('proformas')
-                    ->where('id', $proforma->id)
-                    ->update(['is_expired' => true, 'updated_at' => now()]);
-                $proforma->is_expired = true;
-            }
-            
-            // Si la proforma está expirada, ignorarla (no es válida)
-            if ($proforma->is_expired) {
-                continue;
-            }
-            
-            $proformaConfig = json_decode($proforma->configuration, true);
-            $proformaParams = $proformaConfig['parameters'] ?? [];
-            
-            // Comparar parámetros clave
-            $paramsMatch = 
-                ($proformaParams['width'] ?? null) == ($this->parameters['width'] ?? null) &&
-                ($proformaParams['height'] ?? null) == ($this->parameters['height'] ?? null) &&
-                ($proformaParams['depth'] ?? null) == ($this->parameters['depth'] ?? null) &&
-                ($proformaParams['color'] ?? null) == ($this->parameters['color'] ?? null) &&
-                ($proformaParams['glassColor'] ?? null) == ($this->parameters['glassColor'] ?? null);
-            
-            if ($paramsMatch) {
-                $matchingProformaWithoutOrder = $proforma;
-                break;
+        foreach ($activeProformas as $proforma) {
+            // Buscar ítems de esta proforma que coincidan con el producto y configuración actual
+            $existingItems = DB::table('proforma_items')
+                ->where('proforma_id', $proforma->id)
+                ->where('product_id', $this->product->id)
+                ->get();
+
+            foreach ($existingItems as $item) {
+                $itemConfig = json_decode($item->configuration, true);
+                $itemParams = $itemConfig['parameters'] ?? [];
+                
+                // Comparar parámetros clave
+                $paramsMatch = 
+                    ($itemParams['width'] ?? null) == ($this->parameters['width'] ?? null) &&
+                    ($itemParams['height'] ?? null) == ($this->parameters['height'] ?? null) &&
+                    ($itemParams['depth'] ?? null) == ($this->parameters['depth'] ?? null) &&
+                    ($itemParams['color'] ?? null) == ($this->parameters['color'] ?? null) &&
+                    ($itemParams['glassColor'] ?? null) == ($this->parameters['glassColor'] ?? null);
+                
+                if ($paramsMatch) {
+                    // Encontramos la configuración en esta proforma
+                    $this->currentProformaStatus = 'saved';
+                    $this->currentProformaId = $proforma->id;
+                    $this->quantity = $item->quantity ?? 1;
+                    $this->calculatePrice();
+                    return;
+                }
             }
         }
 
-        // Si encontramos una proforma válida SIN orden
-        if ($matchingProformaWithoutOrder) {
-            $this->currentProformaStatus = 'saved';
-            $this->currentProformaId = $matchingProformaWithoutOrder->id;
-            
-            // Cargar la cantidad de la proforma guardada
-            $this->quantity = $matchingProformaWithoutOrder->quantity ?? 1;
-            
-            // Recalcular el precio con la cantidad correcta
-            $this->calculatePrice();
-            
-            return;
-        }
-
-        // Si no encontramos ninguna proforma válida sin orden, es una configuración nueva
+        // Si no encontramos la configuración en ninguna proforma, es nueva
         $this->currentProformaStatus = 'new';
         $this->currentProformaId = null;
     }
 
-    public function downloadProformaPdf()
+    /**
+     * Obtener los items de una proforma con toda su información completa
+     */
+    private function getProformaItemsForPdf($proformaId)
+    {
+        return DB::table('proforma_items')
+            ->where('proforma_id', $proformaId)
+            ->get()
+            ->map(function ($item) {
+                $product = \App\Models\Product::find($item->product_id);
+                $config = json_decode($item->configuration, true) ?? [];
+                $parameters = $config['parameters'] ?? [];
+                $materialCosts = $config['material_costs'] ?? [];
+                
+                // Obtener costos si no están en la configuración
+                $directCost = $config['directCost'] ?? DB::table('product_cost_settings')
+                    ->where('product_id', $item->product_id)
+                    ->value('direct_cost_percentage') ?? 0;
+                    
+                $currentIndirectSetting = \App\Models\GlobalCostSetting::current()->first();
+                $indirectCost = $config['indirectCost'] ?? ($currentIndirectSetting ? $currentIndirectSetting->indirect_cost_percentage : 0);
+                
+                $wastePercentage = $config['wastePercentage'] ?? DB::table('product_cost_settings')
+                    ->where('product_id', $item->product_id)
+                    ->value('waste_percentage') ?? 0;
+                    
+                $profitMargin = $config['profitMargin'] ?? DB::table('product_cost_settings')
+                    ->where('product_id', $item->product_id)
+                    ->value('profit_margin_percentage') ?? 0;
+                
+                return [
+                    'id' => $item->id,
+                    'product' => $product,
+                    'product_name' => $product ? $product->name : 'Producto eliminado',
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'notes' => $item->notes,
+                    'parameters' => $parameters,
+                    'materialCosts' => $materialCosts,
+                    'directCost' => $directCost,
+                    'indirectCost' => $indirectCost,
+                    'wastePercentage' => $wastePercentage,
+                    'profitMargin' => $profitMargin,
+                ];
+            })
+            ->toArray();
+    }
+
+    public function downloadProformaPdf($proformaId = null)
     {
         if (!auth()->check()) {
             abort(403, 'No autorizado. Debes iniciar sesión para descargar la proforma.');
         }
 
-        // Buscar la última proforma guardada con esta configuración
-        $proformaData = DB::table('proformas')
-            ->where('user_id', auth()->id())
-            ->where('product_id', $this->product->id)
-            ->orderBy('created_at', 'desc')
-            ->first();
+        // Si se pasa un ID, buscar esa proforma específica
+        if ($proformaId) {
+            $proforma = DB::table('proformas')
+                ->where('id', $proformaId)
+                ->where('user_id', auth()->id())
+                ->first();
+        } else {
+            // Si no, buscar la proforma activa del usuario
+            $proforma = $this->getOrCreateActiveProforma(false);
+        }
+        
+        if (!$proforma) {
+            session()->flash('error', 'No tienes ninguna proforma guardada.');
+            return;
+        }
 
-        $product = $this->product;
-        $parameters = $this->parameters;
-        $quantity = $this->quantity;
-        $materialCosts = $this->materialCosts;
-        $calculatedPrice = $this->calculatedPrice;
-        $notes = $this->parameters['notes'] ?? null;
+        $items = $this->getProformaItemsForPdf($proforma->id);
 
-        $directCost = $this->getDirectCostPercentage();
-        $indirectCost = $this->getIndirectCostPercentage();
-        $wastePercentage = $this->getWastePercentage();
-        $profitMargin = $this->getProfitMarginPercentage();
+        if (empty($items)) {
+            session()->flash('error', 'La proforma está vacía.');
+            return;
+        }
 
         $user = auth()->user();
-        $isPdf = true; // Indicar que es para PDF
-
-        // Agregar datos de expiración si existe la proforma guardada
-        $expiration_date = $proformaData->expiration_date ?? null;
-        $is_expired = $proformaData->is_expired ?? null;
+        $total_price = $proforma->total_price;
+        $number = $proforma->number;
+        $expiration_date = $proforma->expiration_date;
+        $is_expired = $proforma->is_expired;
+        $isPdf = true;
 
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('livewire.proformas.proforma', compact('product', 'parameters', 'quantity', 'materialCosts', 'calculatedPrice', 'notes', 'directCost', 'indirectCost', 'wastePercentage', 'profitMargin', 'user', 'isPdf', 'expiration_date', 'is_expired'));
+        $pdf->loadView('livewire.proformas.proforma', compact(
+            'items',
+            'user',
+            'total_price',
+            'number',
+            'expiration_date',
+            'is_expired',
+            'isPdf'
+        ));
+        
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
-        }, 'proforma_' . now()->format('Ymd_His') . '.pdf');
+        }, 'proforma_' . $number . '_' . now()->format('Ymd_His') . '.pdf');
     }
 
     public function guardarProforma()
@@ -136,6 +239,154 @@ class ProductConfigurator extends Component
         $this->saveProforma();
         // Actualizar estado después de guardar
         $this->checkCurrentConfigurationStatus();
+        $this->loadAvailableProformas();
+    }
+
+    /**
+     * Guardar en una proforma específica seleccionada por el usuario
+     */
+    public function guardarEnProformaSeleccionada()
+    {
+        if (!auth()->check()) {
+            abort(403, 'No autorizado. Debes iniciar sesión para guardar la proforma.');
+        }
+
+        if (!$this->selectedProformaToAdd) {
+            session()->flash('error', 'Debes seleccionar una proforma.');
+            return;
+        }
+
+        // Verificar si hay desactualización de costos
+        if ($this->proformaNeedsCostUpdate($this->selectedProformaToAdd)) {
+            $this->showCostUpdateWarning = true;
+            $this->proformaIdPendingCostUpdate = $this->selectedProformaToAdd;
+            $this->pendingConfiguration = $this->buildConfiguration();
+            return;
+        }
+
+        $this->saveProformaToSpecific($this->selectedProformaToAdd);
+        $this->selectedProformaToAdd = null;
+        $this->showProformaSelectorModal = false;
+        $this->checkCurrentConfigurationStatus();
+        $this->loadAvailableProformas();
+    }
+
+    /**
+     * Detectar si los costos actuales difieren de los almacenados en los ítems de la proforma
+     */
+    private function proformaNeedsCostUpdate($proformaId)
+    {
+        $items = DB::table('proforma_items')->where('proforma_id', $proformaId)->get();
+        $currentDirect = $this->getDirectCostPercentage();
+        $currentIndirect = $this->getIndirectCostPercentage();
+        $currentWaste = $this->getWastePercentage();
+        $currentProfit = $this->getProfitMarginPercentage();
+        foreach ($items as $item) {
+            $config = json_decode($item->configuration, true);
+            if (
+                ($config['directCost'] ?? null) != $currentDirect ||
+                ($config['indirectCost'] ?? null) != $currentIndirect ||
+                ($config['wastePercentage'] ?? null) != $currentWaste ||
+                ($config['profitMargin'] ?? null) != $currentProfit
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Confirmar actualización de costos y agregar el producto
+     */
+    public function confirmarActualizarCostosYAgregar()
+    {
+        if (!$this->proformaIdPendingCostUpdate || !$this->pendingConfiguration) {
+            $this->showCostUpdateWarning = false;
+            return;
+        }
+        // Actualizar todos los ítems de la proforma con los costos actuales
+        $items = DB::table('proforma_items')->where('proforma_id', $this->proformaIdPendingCostUpdate)->get();
+        foreach ($items as $item) {
+            $config = json_decode($item->configuration, true);
+            $config['directCost'] = $this->getDirectCostPercentage();
+            $config['indirectCost'] = $this->getIndirectCostPercentage();
+            $config['wastePercentage'] = $this->getWastePercentage();
+            $config['profitMargin'] = $this->getProfitMarginPercentage();
+            // Recalcular precio
+            $newPrice = $this->recalcularPrecioItem($item->product_id, $config, $item->quantity);
+            DB::table('proforma_items')->where('id', $item->id)->update([
+                'configuration' => json_encode($config),
+                'price' => $newPrice,
+                'updated_at' => now()
+            ]);
+        }
+        // Actualizar fecha de expiración de la proforma
+        DB::table('proformas')->where('id', $this->proformaIdPendingCostUpdate)->update([
+            'expiration_date' => now()->addDays(15),
+            'updated_at' => now()
+        ]);
+        // Agregar el nuevo producto/configuración
+        $this->createProformaItem($this->proformaIdPendingCostUpdate, $this->pendingConfiguration);
+        $this->updateProformaTotalPrice($this->proformaIdPendingCostUpdate);
+        $proforma = DB::table('proformas')->where('id', $this->proformaIdPendingCostUpdate)->first();
+        session()->flash('message', '¡Costos actualizados y configuración agregada a la proforma ' . ($proforma->number ?? '') . '!');
+        $this->showCostUpdateWarning = false;
+        $this->proformaIdPendingCostUpdate = null;
+        $this->pendingConfiguration = null;
+        $this->selectedProformaToAdd = null;
+        $this->showProformaSelectorModal = false;
+        $this->checkCurrentConfigurationStatus();
+        $this->loadAvailableProformas();
+    }
+
+    /**
+     * Cancelar la advertencia de actualización de costos
+     */
+    public function cancelarActualizarCostosYAgregar()
+    {
+        $this->showCostUpdateWarning = false;
+        $this->proformaIdPendingCostUpdate = null;
+        $this->pendingConfiguration = null;
+    }
+
+    /**
+     * Recalcular el precio de un ítem con la configuración y cantidad dadas
+     */
+    private function recalcularPrecioItem($productId, $config, $quantity)
+    {
+        $product = Product::find($productId);
+        if (!$product) return 0;
+        // Simular cálculo de precio usando la configuración y cantidad
+        // Puedes adaptar esto según tu lógica de cálculo real
+        $basePrice = $product->price ?? 0;
+        // Si tienes lógica más precisa, úsala aquí
+        // Por ahora, solo recalcula con los porcentajes
+        $materialCosts = $config['material_costs'] ?? [];
+        $totalCost = 0;
+        foreach ($materialCosts as $mat) {
+            $totalCost += $mat['total_cost'] ?? 0;
+        }
+        $directAmount = $totalCost * (($config['directCost'] ?? 0) / 100);
+        $indirectAmount = $totalCost * (($config['indirectCost'] ?? 0) / 100);
+        $wasteAmount = $totalCost * (($config['wastePercentage'] ?? 0) / 100);
+        $totalProductionCost = $totalCost + $directAmount + $indirectAmount + $wasteAmount;
+        $profitAmount = $totalProductionCost * (($config['profitMargin'] ?? 0) / 100);
+        $precisePrice = $totalProductionCost + $profitAmount;
+        return round($precisePrice * $quantity, 2);
+    }
+
+    /**
+     * Crear una nueva proforma con esta configuración
+     */
+    public function crearNuevaProforma()
+    {
+        if (!auth()->check()) {
+            abort(403, 'No autorizado. Debes iniciar sesión para crear la proforma.');
+        }
+        
+        $this->saveProformaToNew();
+        $this->checkCurrentConfigurationStatus();
+        $this->loadAvailableProformas();
     }
 
     public function orderProforma()
@@ -513,115 +764,253 @@ class ProductConfigurator extends Component
         }
     }
 
+    /**
+     * Construir el array de configuración del producto actual
+     */
+    private function buildConfiguration()
+    {
+        return [
+            'product_id' => $this->product->id,
+            'parameters' => $this->parameters,
+            'quantity' => $this->quantity,
+            'calculated_price' => $this->calculatedPrice,
+            'material_costs' => $this->materialCosts,
+            'directCost' => $this->getDirectCostPercentage(),
+            'indirectCost' => $this->getIndirectCostPercentage(),
+            'wastePercentage' => $this->getWastePercentage(),
+            'profitMargin' => $this->getProfitMarginPercentage(),
+            'timestamp' => now()
+        ];
+    }
+
+    /**
+     * Generar el siguiente número de proforma
+     */
+    private function generateNextProformaNumber()
+    {
+        $lastId = DB::table('proformas')->max('id');
+        return 'PRF-' . str_pad(($lastId + 1), 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Crear un ítem de proforma en la base de datos
+     */
+    private function createProformaItem($proformaId, $configuration)
+    {
+        DB::table('proforma_items')->insert([
+            'proforma_id' => $proformaId,
+            'product_id' => $this->product->id,
+            'configuration' => json_encode($configuration),
+            'quantity' => $this->quantity,
+            'price' => $this->calculatedPrice,
+            'notes' => $this->parameters['notes'] ?? null,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+    }
+
+    /**
+     * Verificar si existe un ítem con la misma configuración
+     */
+    private function findMatchingItem($proformaId)
+    {
+        $existingItems = DB::table('proforma_items')
+            ->where('proforma_id', $proformaId)
+            ->where('product_id', $this->product->id)
+            ->get();
+
+        foreach ($existingItems as $item) {
+            $itemConfig = json_decode($item->configuration, true);
+            $itemParams = $itemConfig['parameters'] ?? [];
+            
+            $paramsMatch = 
+                ($itemParams['width'] ?? null) == ($this->parameters['width'] ?? null) &&
+                ($itemParams['height'] ?? null) == ($this->parameters['height'] ?? null) &&
+                ($itemParams['depth'] ?? null) == ($this->parameters['depth'] ?? null) &&
+                ($itemParams['color'] ?? null) == ($this->parameters['color'] ?? null) &&
+                ($itemParams['glassColor'] ?? null) == ($this->parameters['glassColor'] ?? null);
+            
+            if ($paramsMatch) {
+                return $item;
+            }
+        }
+
+        return null;
+    }
+
     public function saveProforma($returnId = false)
     {
         try {
-            // Guardar configuración del usuario
-            $configuration = [
-                'product_id' => $this->product->id,
-                'parameters' => $this->parameters,
-                'quantity' => $this->quantity,
-                'calculated_price' => $this->calculatedPrice,
-                'material_costs' => $this->materialCosts,
-                'directCost' => $this->getDirectCostPercentage(),
-                'indirectCost' => $this->getIndirectCostPercentage(),
-                'wastePercentage' => $this->getWastePercentage(),
-                'profitMargin' => $this->getProfitMarginPercentage(),
-                'timestamp' => now()
-            ];
+            if (!auth()->check()) {
+                if ($returnId) return null;
+                session()->flash('error', 'Debes iniciar sesión para guardar la configuración.');
+                return;
+            }
 
-            $proformaId = null;
-            if (auth()->check()) {
-                // Configurar fecha de expiración (15 días)
-                $expirationDate = now()->addDays(15);
-                
-                // Buscar proforma existente con la misma configuración (SOLO las que NO tienen orden)
-                $existingProformas = DB::table('proformas')
-                    ->leftJoin('orders', 'proformas.id', '=', 'orders.proforma_id')
-                    ->whereNull('orders.id') // Excluir las que ya tienen una orden
-                    ->where('proformas.user_id', auth()->id())
-                    ->where('proformas.product_id', $this->product->id)
-                    ->select('proformas.*')
-                    ->get();
-                
-                $matchingProforma = null;
-                foreach ($existingProformas as $proforma) {
-                    // Verificar si la proforma ha expirado
-                    if (!$proforma->is_expired && now()->greaterThan($proforma->expiration_date)) {
-                        // Marcar como expirada
-                        DB::table('proformas')
-                            ->where('id', $proforma->id)
-                            ->update(['is_expired' => true, 'updated_at' => now()]);
-                        $proforma->is_expired = true;
-                    }
-                    
-                    // Si la proforma está expirada, ignorarla (no es válida para actualizar)
-                    if ($proforma->is_expired) {
-                        continue;
-                    }
-                    
-                    $proformaConfig = json_decode($proforma->configuration, true);
-                    $proformaParams = $proformaConfig['parameters'] ?? [];
-                    
-                    // Comparar parámetros clave (width, height, depth, color, glassColor)
-                    $paramsMatch = 
-                        ($proformaParams['width'] ?? null) == ($this->parameters['width'] ?? null) &&
-                        ($proformaParams['height'] ?? null) == ($this->parameters['height'] ?? null) &&
-                        ($proformaParams['depth'] ?? null) == ($this->parameters['depth'] ?? null) &&
-                        ($proformaParams['color'] ?? null) == ($this->parameters['color'] ?? null) &&
-                        ($proformaParams['glassColor'] ?? null) == ($this->parameters['glassColor'] ?? null);
-                    
-                    if ($paramsMatch) {
-                        $matchingProforma = $proforma;
-                        break;
-                    }
-                }
-                
-                // Si existe una proforma NO ordenada con la misma configuración
-                if ($matchingProforma) {
-                    // Actualizar la proforma existente
-                    $proformaId = $matchingProforma->id;
-                    DB::table('proformas')
-                        ->where('id', $proformaId)
-                        ->update([
-                            'configuration' => json_encode($configuration),
-                            'quantity' => $this->quantity,
-                            'price' => $this->calculatedPrice,
-                            'expiration_date' => $expirationDate,
-                            'is_expired' => false, // Renovar estado
-                            'updated_at' => now()
-                        ]);
-                } else {
-                    // Crear nueva proforma (no existe ninguna NO ordenada con esta configuración)
-                    $lastId = DB::table('proformas')->max('id');
-                    $nextNumber = 'PRF-' . str_pad(($lastId + 1), 4, '0', STR_PAD_LEFT);
-                    $proformaId = DB::table('proformas')->insertGetId([
-                        'number' => $nextNumber,
-                        'user_id' => auth()->id(),
-                        'product_id' => $this->product->id,
+            $configuration = $this->buildConfiguration();
+            $proforma = $this->getOrCreateActiveProforma(true);
+            
+            if (!$proforma) {
+                if ($returnId) return null;
+                session()->flash('error', 'No se pudo crear la proforma.');
+                return;
+            }
+
+            $matchingItem = $this->findMatchingItem($proforma->id);
+
+            if ($matchingItem) {
+                // Actualizar ítem existente
+                DB::table('proforma_items')
+                    ->where('id', $matchingItem->id)
+                    ->update([
                         'configuration' => json_encode($configuration),
                         'quantity' => $this->quantity,
                         'price' => $this->calculatedPrice,
-                        'expiration_date' => $expirationDate,
-                        'is_expired' => false,
-                        'is_ordered' => false,
-                        'created_at' => now(),
                         'updated_at' => now()
                     ]);
-                }
+            } else {
+                // Crear nuevo ítem
+                $this->createProformaItem($proforma->id, $configuration);
             }
 
-            // Guardar en sesión
-            session(['product_configuration' => $configuration]);
+            $this->updateProformaTotalPrice($proforma->id);
 
             if ($returnId) {
-                return $proformaId;
+                return $proforma->id;
             }
-            session()->flash('message', '¡Configuración guardada exitosamente!');
+            
+            session()->flash('message', $matchingItem 
+                ? '¡Configuración actualizada en la proforma!' 
+                : '¡Configuración agregada a la proforma exitosamente!');
         } catch (\Exception $e) {
             session()->flash('error', 'Error al guardar la configuración: ' . $e->getMessage());
             if ($returnId) return null;
         }
+    }
+
+    /**
+     * Obtener o crear una proforma activa (no ordenada, no expirada) para el usuario actual
+     */
+    private function getOrCreateActiveProforma($create = false)
+    {
+        if (!auth()->check()) {
+            return null;
+        }
+
+        // Buscar proforma activa (no ordenada, no expirada)
+        $activeProforma = $this->getActiveProformasQuery()
+            ->orderBy('proformas.created_at', 'desc')
+            ->first();
+
+        if ($activeProforma) {
+            return $activeProforma;
+        }
+
+        // Si no existe y se solicita crear, crear una nueva
+        if ($create) {
+            $nextNumber = $this->generateNextProformaNumber();
+            $expirationDate = now()->addDays(15);
+            
+            $proformaId = DB::table('proformas')->insertGetId([
+                'number' => $nextNumber,
+                'user_id' => auth()->id(),
+                'total_price' => 0,
+                'expiration_date' => $expirationDate,
+                'is_expired' => false,
+                'is_ordered' => false,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            return DB::table('proformas')->where('id', $proformaId)->first();
+        }
+
+        return null;
+    }
+
+    /**
+     * Guardar configuración en una proforma específica
+     */
+    private function saveProformaToSpecific($proformaId)
+    {
+        try {
+            if (!auth()->check()) {
+                session()->flash('error', 'Debes iniciar sesión.');
+                return;
+            }
+
+            // Verificar que la proforma pertenece al usuario
+            $proforma = DB::table('proformas')
+                ->where('id', $proformaId)
+                ->where('user_id', auth()->id())
+                ->first();
+
+            if (!$proforma) {
+                session()->flash('error', 'Proforma no encontrada.');
+                return;
+            }
+
+            $configuration = $this->buildConfiguration();
+            $this->createProformaItem($proformaId, $configuration);
+            $this->updateProformaTotalPrice($proformaId);
+
+            session()->flash('message', '¡Configuración agregada a la proforma ' . $proforma->number . '!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al guardar: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Crear una nueva proforma con esta configuración
+     */
+    private function saveProformaToNew()
+    {
+        try {
+            if (!auth()->check()) {
+                session()->flash('error', 'Debes iniciar sesión.');
+                return;
+            }
+
+            $configuration = $this->buildConfiguration();
+
+            // Crear nueva proforma
+            $nextNumber = $this->generateNextProformaNumber();
+            $expirationDate = now()->addDays(15);
+            
+            $proformaId = DB::table('proformas')->insertGetId([
+                'number' => $nextNumber,
+                'user_id' => auth()->id(),
+                'total_price' => $this->calculatedPrice,
+                'expiration_date' => $expirationDate,
+                'is_expired' => false,
+                'is_ordered' => false,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            $this->createProformaItem($proformaId, $configuration);
+
+            session()->flash('message', '¡Nueva proforma ' . $nextNumber . ' creada exitosamente!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error al crear proforma: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Actualizar el precio total de una proforma sumando todos sus ítems
+     */
+    private function updateProformaTotalPrice($proformaId)
+    {
+        $totalPrice = DB::table('proforma_items')
+            ->where('proforma_id', $proformaId)
+            ->sum('price');
+
+        DB::table('proformas')
+            ->where('id', $proformaId)
+            ->update([
+                'total_price' => $totalPrice,
+                'updated_at' => now()
+            ]);
     }
 
 
@@ -647,6 +1036,32 @@ class ProductConfigurator extends Component
         }
 
         return $proforma->is_expired;
+    }
+
+    /**
+     * Obtener todos los ítems de la proforma activa
+     */
+    public function getProformaItems()
+    {
+        if (!$this->currentProformaId) {
+            return collect([]);
+        }
+
+        $items = DB::table('proforma_items')
+            ->join('products', 'proforma_items.product_id', '=', 'products.id')
+            ->where('proforma_items.proforma_id', $this->currentProformaId)
+            ->select(
+                'proforma_items.*',
+                'products.name as product_name',
+                'products.image as product_image'
+            )
+            ->get();
+
+        return $items->map(function ($item) {
+            $config = json_decode($item->configuration, true);
+            $item->parsed_config = $config;
+            return $item;
+        });
     }
 
     private function loadAvailableColors()
@@ -685,6 +1100,11 @@ class ProductConfigurator extends Component
         $wastePercentage = $this->getWastePercentage();
         $profitMargin = $this->getProfitMarginPercentage();
         $user = auth()->user();
+        $proformaItems = $this->getProformaItems();
+        $proformaTotalPrice = $this->currentProformaId 
+            ? DB::table('proformas')->where('id', $this->currentProformaId)->value('total_price') 
+            : 0;
+        
         return view('livewire.products.product-configurator', [
             'productType' => $this->getProductType(),
             'parameterLimits' => $this->limits[$this->getProductType()] ?? [],
@@ -695,7 +1115,9 @@ class ProductConfigurator extends Component
             'indirectCost' => $indirectCost,
             'wastePercentage' => $wastePercentage,
             'profitMargin' => $profitMargin,
-            'user' => $user
+            'user' => $user,
+            'proformaItems' => $proformaItems,
+            'proformaTotalPrice' => $proformaTotalPrice,
         ])->layout('layouts.guest', [
             'title' => 'Configurador 3D - ' . $this->product->name,
             'description' => 'Personaliza ' . $this->product->name . ' en tiempo real con nuestro configurador 3D interactivo.'

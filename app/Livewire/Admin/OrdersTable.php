@@ -29,9 +29,6 @@ class OrdersTable extends Component
             ->leftJoin('users', 'proformas.user_id', '=', 'users.id')
             ->select(
                 'orders.*',
-                'proformas.product_id',
-                'proformas.price',
-                'proformas.configuration',
                 'proformas.user_id',
                 'users.name as user_name',
                 'users.email as user_email'
@@ -39,10 +36,29 @@ class OrdersTable extends Component
             ->orderByDesc('orders.created_at')
             ->get()
             ->map(function ($order) {
-                $config = json_decode($order->configuration, true) ?? [];
-                $product = Product::find($order->product_id);
+                // Obtener todos los ítems de la proforma asociada a la orden
+                $items = DB::table('proforma_items')->where('proforma_id', $order->proforma_id)->get();
+                $amount = $items->sum('price');
+                $quantity = $items->sum('quantity');
+                $firstItem = $items->first();
+                $config = $firstItem ? (json_decode($firstItem->configuration, true) ?? []) : [];
+                $product = $firstItem ? Product::find($firstItem->product_id) : null;
                 $user = User::find($order->user_id);
 
+                // Preparar detalle de productos para la vista
+                $itemsDetail = [];
+                foreach ($items as $item) {
+                    $itemProduct = Product::find($item->product_id);
+                    $itemConfig = json_decode($item->configuration, true) ?? [];
+                    $itemsDetail[] = [
+                        'product' => $itemProduct,
+                        'product_name' => $itemProduct ? $itemProduct->name : 'Producto eliminado',
+                        'quantity' => $item->quantity,
+                        'unit_price' => $item->price,
+                        'price' => $item->price,
+                        'configuration' => $itemConfig,
+                    ];
+                }
                 return [
                     'id' => $order->id,
                     'number' => $order->number,
@@ -51,14 +67,15 @@ class OrdersTable extends Component
                     'client' => $user ? $user->name : ($order->user_name ?? 'Usuario eliminado'),
                     'email' => $user ? $user->email : ($order->user_email ?? '-'),
                     'product_name' => $product ? $product->name : 'Producto eliminado',
-                    'amount' => $order->price,
-                    'quantity' => $config['quantity'] ?? 1,
+                    'amount' => $amount,
+                    'quantity' => $quantity,
                     'created_at' => $order->created_at,
                     'product_created_at' => $order->product_created_at,
                     'estimated_finish_at' => $order->estimated_finish_at,
                     'product' => $product,
                     'user' => $user,
                     'configuration' => $config,
+                    'items' => $itemsDetail,
                 ];
             })
             ->toArray();
