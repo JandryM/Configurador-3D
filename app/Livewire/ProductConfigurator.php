@@ -462,6 +462,16 @@ class ProductConfigurator extends Component
             'width' => ['min' => 0.3, 'max' => 2.0, 'step' => 0.001],  // tres decimales
             'height' => ['min' => 0.5, 'max' => 2.0, 'step' => 0.001],  // tres decimales
             'depth' => ['min' => 0.3, 'max' => 1.0, 'step' => 0.001]
+        ],
+        'closet' => [
+            'width' => ['min' => 0.5, 'max' => 3.0, 'step' => 0.001],
+            'height' => ['min' => 1.5, 'max' => 2.5, 'step' => 0.001],
+            'depth' => ['min' => 0.3, 'max' => 1.0, 'step' => 0.001]
+        ],
+        'mesh' => [
+            'width' => ['min' => 0.5, 'max' => 2.0, 'step' => 0.001],
+            'height' => ['min' => 0.5, 'max' => 2.0, 'step' => 0.001],
+            'depth' => ['min' => 0.01, 'max' => 0.05, 'step' => 0.001]
         ]
     ];
     // Colores disponibles (se cargan desde la base de datos)
@@ -541,11 +551,18 @@ class ProductConfigurator extends Component
     private function getProductType()
     {
         $categoryName = strtolower($this->product->category?->name ?? '');
-        
+        $productName = strtolower($this->product->name ?? '');
+
+        // Prioridad: si el nombre del producto contiene malla, mesh o mosquito, es mesh
+        if (str_contains($productName, 'malla') || str_contains($productName, 'mesh') || str_contains($productName, 'mosquito')) {
+            return 'mesh';
+        }
         if (str_contains($categoryName, 'window') || str_contains($categoryName, 'ventana') || str_contains($categoryName, 'vidrio')) {
             return 'window';
         } elseif (str_contains($categoryName, 'door') || str_contains($categoryName, 'puerta')) {
             return 'door';
+        } elseif (str_contains($categoryName, 'melamina') || str_contains($productName, 'closet')) {
+            return 'closet';
         } else {
             return 'furniture';
         }
@@ -597,7 +614,11 @@ class ProductConfigurator extends Component
         if ($this->getProductType() === 'window') {
             $parametersFor3D = array_merge($this->parameters, ['depth' => 1.0]);
         }
+        $productType = $this->getProductType();
         $parametersFor3D['texturePath'] = $this->getColorTexturePath($this->parameters['color']);
+        if ($productType === 'closet' && (!$parametersFor3D['texturePath'] || str_contains($parametersFor3D['texturePath'], 'aluminum'))) {
+            $parametersFor3D['texturePath'] = '/textures/melamina/natural/';
+        }
         $parametersFor3D['glassTexturePath'] = $this->getGlassTexturePath($this->parameters['glassColor']);
         $this->dispatch('updateModel3D', parameters: $parametersFor3D);
     }
@@ -1081,7 +1102,16 @@ class ProductConfigurator extends Component
     public function getColorTexturePath($colorName)
     {
         $color = $this->availableColors[$colorName] ?? null;
-        return $color ? $color->texture_path : '/textures/aluminum/natural/';
+        $productType = $this->getProductType();
+        if ($color && $color->texture_path) {
+            return $color->texture_path;
+        }
+        // Si es closet y no hay texture_path, usar melamina por defecto
+        if ($productType === 'closet') {
+            return '/textures/melamina/natural/';
+        }
+        // Por defecto aluminio
+        return '/textures/aluminum/natural/';
     }
 
     public function getGlassTexturePath($glassColorName)

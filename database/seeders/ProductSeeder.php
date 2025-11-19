@@ -29,8 +29,7 @@ class ProductSeeder extends Seeder
 
         // Obtener las categorías
         $windowsCategory = Category::where('name', 'Windows')->first();
-        $doorsCategory = Category::where('name', 'Doors')->first();
-        $glassPanelsCategory = Category::where('name', 'Glass Panels')->first();
+        $melaminaCategory = Category::where('name', 'Melamina')->first();
 
         // Crear productos de prueba
         $products = [
@@ -63,22 +62,40 @@ class ProductSeeder extends Seeder
                 ]
             ],
             [
-                'name' => 'Ventana Corrediza Premium',
-                'description' => 'Ventana corrediza de alta calidad con doble vidrio hermético. Sistema de rieles premium y múltiples opciones de personalización.',
+                'name' => 'Malla Antimosquitos',
+                'description' => 'Malla antimosquitos para ventanas, fabricada en aluminio y malla de alta resistencia. Ideal para evitar el ingreso de insectos sin perder ventilación.',
                 'price' => 0.00,
                 'category_id' => $windowsCategory?->id,
                 'product_type' => 'customizable',
                 'image' => null,
                 'base_dimensions' => [
-                    'width' => 2.0,
-                    'height' => 1.4,
-                    'depth' => 0.12,
-                    'frameWidth' => 0.06
+                    'width' => 1.0,
+                    'height' => 1.2,
+                    'depth' => 0.02,
+                    'frameWidth' => 0.02
                 ],
                 'base_cost' => 0.00,
                 'allows_customization' => true,
                 'is_gallery_visible' => true,
-                'has_3d_model' => true,
+                'has_3d_model' => false,
+                'model_scale' => 1.0
+            ],
+            [
+                'name' => 'Closet Melamina 2 Puertas',
+                'description' => 'Closet de melamina con 2 puertas, estantes internos y acabado premium. Ideal para dormitorios modernos.',
+                'price' => 0.00,
+                'category_id' => $melaminaCategory?->id,
+                'product_type' => 'customizable',
+                'image' => null,
+                'base_dimensions' => [
+                    'width' => 1.5,
+                    'height' => 2.0,
+                    'depth' => 0.6
+                ],
+                'base_cost' => 0.00,
+                'allows_customization' => true,
+                'is_gallery_visible' => true,
+                'has_3d_model' => false,
                 'model_scale' => 1.0
             ],
         ];
