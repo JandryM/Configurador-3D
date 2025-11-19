@@ -5,6 +5,8 @@ import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 import { WindowModel } from './models/WindowModel.js';
 import { DoorModel } from './models/DoorModel.js';
 import { FurnitureModel } from './models/FurnitureModel.js';
+import { ClosetModel } from './models/ClosetModel.js';
+import { MeshModel } from './models/Mesh.js';
 
 class ParametricProduct3D {
     constructor(containerId, productType, initialParams = {}) {
@@ -50,7 +52,9 @@ class ParametricProduct3D {
         this.models = {
             window: new WindowModel(this.THREE),
             door: new DoorModel(this.THREE),
-            furniture: new FurnitureModel(this.THREE)
+            furniture: new FurnitureModel(this.THREE),
+            closet: new ClosetModel(this.THREE),
+            mesh: new MeshModel(this.THREE)
         };
 
         this.init();
@@ -220,6 +224,13 @@ class ParametricProduct3D {
             
             if (intersects.length > 0) {
                 let clickedObject = intersects[0].object;
+                
+                // Verificar si es un closet con funcionalidad interactiva
+                if (this.productMesh.userData && this.productMesh.userData.handleClick) {
+                    const handled = this.productMesh.userData.handleClick(clickedObject);
+                    if (handled) return;
+                }
+                
                 let windowGroup = null;
                 let specificPanel = null;
                 
@@ -370,6 +381,15 @@ class ParametricProduct3D {
                 break;
             case 'furniture':
                 this.productMesh = this.models.furniture.generate(parametersWithHDRI);
+                break;
+            case 'closet':
+            case 'melamine_closet':
+                this.productMesh = this.models.closet.generate(parametersWithHDRI);
+                break;
+            case 'mesh':
+            case 'mosquito_mesh':
+            case 'malla':
+                this.productMesh = this.models.mesh.generate(parametersWithHDRI);
                 break;
             default:
                 this.productMesh = this.models.window.generate(parametersWithHDRI);

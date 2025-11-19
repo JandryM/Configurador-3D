@@ -571,12 +571,14 @@
 
         const productType = '{{ $productType }}';
         const initialParams = @json($parameters);
-        const colorTexturePath = '{{ $colorTexturePath }}';
-        
+        // Lógica explícita para el path de textura según tipo de producto
+        let colorTexturePath = '{{ $colorTexturePath }}';
+        if (productType === 'closet' && (!colorTexturePath || colorTexturePath.includes('aluminum'))) {
+            colorTexturePath = '/textures/melamina/natural/';
+        }
         if (productType === 'window') {
             initialParams.depth = 1.0;
         }
-        
         initialParams.texturePath = colorTexturePath;
         initialParams.frameColor = initialParams.frameColor || 0xC0C0C0;
         initialParams.glassColor = initialParams.glassColor || '#E0F6FF';
