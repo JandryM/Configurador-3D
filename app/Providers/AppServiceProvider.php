@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
+use App\Models\Product;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
                 if ($request->expectsJson()) {
                     return response()->json(['message' => 'Forbidden'], 403);
                 }
-                return redirect()->route('dashboard')->with('error', 'No tienes permisos para acceder a esta sección.');
+                return redirect()->route('home')->with('error', 'No tienes permisos para acceder a esta sección.');
             }
             return $next($request);
         });
@@ -42,6 +44,14 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
+        // View composer para pasar productos personalizables (solo los que tienen allows_customization = true) a la barra de navegación pública
+        View::composer('layouts.guest', function ($view) {
+            $customizableProducts = Product::where('product_type', 'customizable')
+                ->where('allows_customization', true)
+                ->orderBy('name')
+                ->get(['name', 'slug']);
+            $view->with('customizableProducts', $customizableProducts);
+        });
         // Registrar listener para actualizar last_login_at cuando un usuario inicie sesión
         Event::listen(\Illuminate\Auth\Events\Login::class, \App\Listeners\UpdateLastLoginAt::class);
 

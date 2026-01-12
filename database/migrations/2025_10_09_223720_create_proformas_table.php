@@ -19,6 +19,7 @@ return new class extends Migration
             $table->boolean('is_ordered')->default(false)->comment('Si se realizó pedido');
             $table->date('expiration_date')->nullable()->comment('Fecha de expiración de la proforma');
             $table->boolean('is_expired')->default(false)->comment('Indica si la proforma ha expirado');
+            $table->boolean('is_active')->default(true)->comment('Indica si la proforma está activa');
             $table->timestamps();
             $table->index(['user_id']);
             $table->index(['created_at']);

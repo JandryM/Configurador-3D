@@ -27,18 +27,18 @@ class ColorMaterialSeeder extends Seeder
             'Transparent Glass', 'Reflective Blue Sky Glass', 'Reflective Gray Dark Glass',
         ])->get();
 
-        // Obtener los IDs de categoría desde la tabla categories con los nuevos nombres
-        $windowsCategoryId = DB::table('categories')->where('name', 'Windows')->value('id');
-        $doorsCategoryId = DB::table('categories')->where('name', 'Doors')->value('id');
-        $glassPanelsCategoryId = DB::table('categories')->where('name', 'Glass Panels')->value('id');
-        $slidingSystemsCategoryId = DB::table('categories')->where('name', 'Sliding Systems')->value('id');
-        $securityCategoryId = DB::table('categories')->where('name', 'Security')->value('id');
-
-        // Puedes ajustar la lógica según cómo quieras asignar colores/materiales a cada categoría
-        // Ejemplo: asignar colores de aluminio a ventanas y puertas
-        $aluminumMaterials = Material::whereIn('category_id', [$windowsCategoryId, $doorsCategoryId])->where('supports_colors', true)->whereRaw('lower(name) not like ?', ['%vidrio%'])->get();
-        $glassMaterials = Material::where('supports_colors', true)->whereRaw('lower(name) like ?', ['%vidrio%'])->get();
-        $otherMaterials = Material::whereIn('category_id', [$slidingSystemsCategoryId, $securityCategoryId])->get();
+        // Obtener materiales de aluminio (todos los que soportan colores y no son vidrio)
+        $aluminumMaterials = Material::where('supports_colors', true)
+            ->whereRaw('lower(name) not like ?', ['%vidrio%'])
+            ->get();
+        
+        // Obtener materiales de vidrio
+        $glassMaterials = Material::where('supports_colors', true)
+            ->whereRaw('lower(name) like ?', ['%vidrio%'])
+            ->get();
+        
+        // Otros materiales (sin soporte de colores)
+        $otherMaterials = Material::where('supports_colors', false)->get();
 
         // Asignar colores de aluminio a materiales de aluminio (ventanas y puertas)
         $colorIncreases = [

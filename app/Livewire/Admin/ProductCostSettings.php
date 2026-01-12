@@ -32,7 +32,10 @@ class ProductCostSettings extends Component
 
     public function loadProducts()
     {
-        $this->products = Product::orderBy('name')->get();
+        $this->products = Product::where('product_type', 'customizable')
+            ->where('allows_customization', true)
+            ->orderBy('name')
+            ->get();
     }
 
     public function loadCurrentSetting()
@@ -142,6 +145,9 @@ class ProductCostSettings extends Component
         
         $this->loadCurrentSetting();
         $this->initializeForm();
+        
+        // Notificar al dashboard sobre la actualización
+        $this->dispatch('costos-productos-actualizados');
     }
 
     public function render()

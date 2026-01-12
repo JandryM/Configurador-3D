@@ -300,19 +300,28 @@
                                 @if($userRole === 'admin' || $userRole === 'owner')
                                     <td class="py-4 px-4">
                                         <div class="flex justify-center space-x-2">
-                                            <button wire:click="editMaterial({{ $material->id }})" class="text-blue-600 hover:text-blue-800 transition-colors" title="Editar">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
-                                                </svg>
-                                            </button>
+                                            <div class="relative group">
+                                                <button wire:click="editMaterial({{ $material->id }})" class="text-blue-600 hover:text-blue-800 transition-colors">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                                                    </svg>
+                                                </button>
+                                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                                                    Editar material
+                                                </span>
+                                            </div>
                                         <!-- Botón Eliminar -->
-                                            <button wire:click="confirmDelete({{ $material->id }})" 
-                                                    class="text-red-600 hover:text-red-800 transition-colors"
-                                                    title="Eliminar material">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                                </svg>
-                                            </button>
+                                            <div class="relative group">
+                                                <button wire:click="confirmDelete({{ $material->id }})" 
+                                                        class="text-red-600 hover:text-red-800 transition-colors">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </button>
+                                                <span class="absolute bottom-full left-1/1 -translate-x-1/1 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                                                    Eliminar material
+                                                </span>
+                                            </div>
                                         </div>
                                     </td>
                                 @endif
@@ -327,8 +336,92 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mt-6">
-                {{ $materials->links() }}
+            
+            {{-- Paginación --}}
+            <div class="flex justify-center items-center gap-3 mt-6">
+                <nav aria-label="Paginación de materiales" class="flex items-center gap-3 w-full justify-center">
+                    <div class="flex items-center w-full">
+                        <div class="flex-1 flex justify-start">
+                            <button wire:click="anteriorPaginaMateriales" @if($paginaMateriales <= 1) disabled aria-disabled="true" @endif
+                                class="flex items-center gap-1 px-2 py-1 rounded-lg border border-blue-200 bg-blue-50 text-blue-600 font-medium shadow-sm hover:bg-blue-100 focus:outline-none focus:ring-1 focus:ring-blue-300 transition disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+                                aria-label="Página anterior" tabindex="0">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                                <span class="hidden sm:inline">Anterior</span>
+                            </button>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div x-data="{
+                                paginaActual: @entangle('paginaMateriales'),
+                                totalPaginas: {{ ceil($totalMateriales / $materialesPorPagina) }},
+                                todasPaginas() {
+                                    let arr = [];
+                                    for (let i = 1; i <= this.totalPaginas; i++) arr.push(i);
+                                    return arr;
+                                },
+                                carouselOffset() {
+                                    let offset;
+                                    if (this.totalPaginas <= 3) {
+                                        offset = 0;
+                                    } else if (this.paginaActual === 1) {
+                                        offset = 0;
+                                    } else if (this.paginaActual === this.totalPaginas) {
+                                        offset = -((this.totalPaginas - 3) * 1.75);
+                                    } else {
+                                        offset = -((this.paginaActual - 2) * 1.75);
+                                    }
+                                    return offset + 'rem';
+                                }
+                            }" class="flex gap-1.5 items-center">
+                                <!-- Botón ir al inicio -->
+                                <button
+                                    @click="$wire.actualizarMateriales(1); paginaActual = 1"
+                                    :disabled="paginaActual == 1"
+                                    class="w-6 h-6 rounded-lg border flex items-center justify-center text-xs font-semibold bg-blue-50 text-blue-600 border-blue-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-100"
+                                    aria-label="Ir a la primera página"
+                                >
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                                </button>
+                                <!-- Carousel de números -->
+                                <div class="relative w-[5.5rem] h-8 overflow-hidden flex items-center justify-start">
+                                    <div class="flex gap-1 transition-transform duration-500 ease-in-out" :style="'transform: translateX(' + carouselOffset() + ');'">
+                                        <template x-for="(i, idx) in todasPaginas()" :key="i">
+                                            <button
+                                                @click="$wire.actualizarMateriales(i); paginaActual = i"
+                                                :class="
+                                                    paginaActual == i
+                                                        ? 'w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold bg-blue-500 text-white border-blue-500 shadow-md scale-110 z-10'
+                                                        : 'w-6 h-6 rounded-full border flex items-center justify-center text-xs font-semibold bg-white text-blue-600 border-blue-200 hover:bg-blue-50 hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300'
+                                                "
+                                                :aria-label="'Ir a página ' + i"
+                                                :aria-current="paginaActual == i ? 'page' : null"
+                                                style="transition: all 0.3s ease;"
+                                            >
+                                                <span x-text="i"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+                                <!-- Botón ir al final -->
+                                <button
+                                    @click="$wire.actualizarMateriales(totalPaginas); paginaActual = totalPaginas"
+                                    :disabled="paginaActual == totalPaginas"
+                                    class="w-6 h-6 rounded-lg border flex items-center justify-center text-xs font-semibold bg-blue-50 text-blue-600 border-blue-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-100"
+                                    aria-label="Ir a la última página"
+                                >
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex-1 flex justify-end">
+                            <button wire:click="siguientePaginaMateriales" @if($paginaMateriales >= ceil($totalMateriales / $materialesPorPagina)) disabled aria-disabled="true" @endif
+                                class="flex items-center gap-1 px-2 py-1 rounded-lg border border-blue-200 bg-blue-50 text-blue-600 font-medium shadow-sm hover:bg-blue-100 focus:outline-none focus:ring-1 focus:ring-blue-300 transition disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+                                aria-label="Página siguiente" tabindex="0">
+                                <span class="hidden sm:inline">Siguiente</span>
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </nav>
             </div>
         </div>
     </div>

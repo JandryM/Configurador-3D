@@ -32,24 +32,6 @@ class Color extends Model
     }
 
     /**
-     * Many-to-many relationship with categories
-     */
-    public function categories(): BelongsToMany
-    {
-        return $this->belongsToMany(Category::class, 'category_color')
-                    ->withTimestamps();
-    }
-
-    /**
-     * Many-to-many relationship with products
-     */
-    public function products(): BelongsToMany
-    {
-        return $this->belongsToMany(Product::class, 'product_color')
-                    ->withTimestamps();
-    }
-
-    /**
      * Scope for active colors
      */
     public function scopeActive($query)

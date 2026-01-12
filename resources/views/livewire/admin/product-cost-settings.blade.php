@@ -1,30 +1,24 @@
 <div>
     <!-- Encabezado de la sección -->
-    <div class="fade-in mb-8">
-        <div class="glass-card rounded-2xl shadow-xl p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-slate-800">Configuración de Costos por Producto</h1>
-                        <p class="text-slate-600">Administra los porcentajes de costos directos, desperdicio y margen de ganancia para cada producto</p>
-                    </div>
-                </div>
-                <div class="flex space-x-3">
-                    <a href="{{ route('admin.cost-settings') }}" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-2 rounded-lg transition flex items-center space-x-2 shadow-lg">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span>Costos Globales</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header 
+        title="Configuración de Costos por Producto"
+        description="Administra los porcentajes de costos directos, desperdicio y margen de ganancia para cada producto"
+        gradient="from-cyan-600 to-teal-700"
+        :show-button="true"
+        button-text="Costos Globales"
+        button-link="{{ route('admin.cost-settings') }}"
+    >
+        <x-slot name="icon">
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+            </svg>
+        </x-slot>
+        <x-slot name="buttonIcon">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
+            </svg>
+        </x-slot>
+    </x-page-header>
 
     {{-- Mensajes de éxito/error --}}
     @if (session()->has('message'))
@@ -41,21 +35,39 @@
 
     {{-- Selector de Producto --}}
     <div class="glass-card rounded-2xl shadow-xl p-6 mb-8 card-hover">
-        <label class="block text-sm font-semibold text-slate-700 mb-3 bg-white">
-            Seleccionar Producto *
+        <label class="block text-sm font-semibold text-slate-700 mb-3">
+            Seleccionar Producto Personalizable *
         </label>
-        <select 
-            wire:model.live="product_id"
-            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition shadow-sm bg-white text-slate-900"
-        >
-            <option value="" class="bg-white text-slate-900">-- Selecciona un producto --</option>
-            @foreach($products as $product)
-                <option value="{{ $product->id }}" class="bg-white text-slate-900">{{ $product->name }}</option>
-            @endforeach
-        </select>
-        @error('product_id') 
-            <span class="text-red-500 text-sm mt-2 block">{{ $message }}</span> 
-        @enderror
+        @if($products->count() > 0)
+            <select 
+                wire:model.live="product_id"
+                class="w-full px-4 py-3 border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition shadow-sm bg-white/80 backdrop-blur-sm text-slate-900"
+            >
+                <option value="" class="bg-white text-slate-900">-- Selecciona un producto --</option>
+                @foreach($products as $product)
+                    <option value="{{ $product->id }}" class="bg-white text-slate-900">{{ $product->name }}</option>
+                @endforeach
+            </select>
+            @error('product_id') 
+                <span class="text-red-500 text-sm mt-2 block">{{ $message }}</span> 
+            @enderror
+            <p class="text-xs text-slate-500 mt-2">Solo se muestran productos personalizables</p>
+        @else
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            <strong>No hay productos personalizables disponibles.</strong> Solo se pueden configurar costos para productos con tipo "Personalizable" y que permitan personalización.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 
     @php $role = auth()->user()->role ?? null; @endphp
@@ -70,19 +82,19 @@
                 </span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="bg-white">
+                <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
                     <label class="block text-sm font-medium text-slate-600 mb-1">Costos Directos</label>
                     <div class="text-3xl font-bold text-blue-600">{{ $currentSetting->direct_cost_percentage }}%</div>
                 </div>
-                <div class="bg-white">
+                <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
                     <label class="block text-sm font-medium text-slate-600 mb-1">Desperdicio</label>
                     <div class="text-3xl font-bold text-yellow-600">{{ $currentSetting->waste_percentage }}%</div>
                 </div>
-                <div class="bg-white">
+                <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
                     <label class="block text-sm font-medium text-slate-600 mb-1">Margen de Ganancia</label>
                     <div class="text-3xl font-bold text-green-600">{{ $currentSetting->profit_margin_percentage }}%</div>
                 </div>
-                <div class="bg-white">
+                <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
                     <label class="block text-sm font-medium text-slate-600 mb-1">Creado por</label>
                     <div class="text-lg font-semibold text-slate-800">
                         {{ $currentSetting->user->name ?? 'N/A' }}
@@ -93,7 +105,7 @@
                 </div>
             </div>
             @if($currentSetting->notes)
-                <div class="mt-4 pt-4 border-t border-slate-200 bg-white">
+                <div class="mt-4 pt-4 border-t border-slate-200/50">
                     <label class="block text-sm font-medium text-slate-600 mb-1">Notas</label>
                     <p class="text-slate-700">{{ $currentSetting->notes }}</p>
                 </div>
@@ -121,14 +133,14 @@
                 </div>
             @endif
 
-            <h3 class="text-lg font-semibold text-slate-800 mb-4 bg-white">
+            <h3 class="text-lg font-semibold text-slate-800 mb-4">
                 {{ $currentSetting ? 'Crear Nueva Configuración' : 'Configuración de Costos' }}
             </h3>
 
             <form wire:submit.prevent="save">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {{-- Costos Directos --}}
-                    <div class="bg-white">
+                    <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">
                             Costos Directos (%) *
                         </label>
@@ -139,7 +151,7 @@
                                 step="0.01"
                                 min="0"
                                 max="100"
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
+                                class="w-full px-4 py-2 border border-slate-200/50 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-slate-900"
                                 placeholder="Ej: 25.00"
                                 required
                             >
@@ -148,11 +160,11 @@
                         @error('direct_cost_percentage') 
                             <span class="text-red-500 text-sm">{{ $message }}</span> 
                         @enderror
-                        <p class="text-xs text-slate-500 mt-1 bg-white">Porcentaje de costos directos del producto</p>
+                        <p class="text-xs text-slate-500 mt-1">Porcentaje de costos directos del producto</p>
                     </div>
 
                     {{-- Desperdicio --}}
-                    <div class="bg-white">
+                    <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">
                             Desperdicio (%) *
                         </label>
@@ -163,7 +175,7 @@
                                 step="0.01"
                                 min="0"
                                 max="100"
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white text-slate-900"
+                                class="w-full px-4 py-2 border border-slate-200/50 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-slate-900"
                                 placeholder="Ej: 5.00"
                                 required
                             >
@@ -172,11 +184,11 @@
                         @error('waste_percentage') 
                             <span class="text-red-500 text-sm">{{ $message }}</span> 
                         @enderror
-                        <p class="text-xs text-slate-500 mt-1 bg-white">Porcentaje adicional por desperdicio</p>
+                        <p class="text-xs text-slate-500 mt-1">Porcentaje adicional por desperdicio</p>
                     </div>
 
                     {{-- Margen de Ganancia --}}
-                    <div class="bg-white">
+                    <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">
                             Margen de Ganancia (%) *
                         </label>
@@ -187,7 +199,7 @@
                                 step="0.01"
                                 min="0"
                                 max="100"
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white text-slate-900"
+                                class="w-full px-4 py-2 border border-slate-200/50 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-slate-900"
                                 placeholder="Ej: 30.00"
                                 required
                             >
@@ -196,11 +208,11 @@
                         @error('profit_margin_percentage') 
                             <span class="text-red-500 text-sm">{{ $message }}</span> 
                         @enderror
-                        <p class="text-xs text-slate-500 mt-1 bg-white">Margen de ganancia sobre el costo total</p>
+                        <p class="text-xs text-slate-500 mt-1">Margen de ganancia sobre el costo total</p>
                     </div>
 
                     {{-- Notas --}}
-                    <div class="md:col-span-3 bg-white">
+                    <div class="md:col-span-3">
                         <label class="block text-sm font-medium text-slate-700 mb-2">
                             Notas (Opcional)
                         </label>
@@ -208,7 +220,7 @@
                             wire:model="notes"
                             rows="3"
                             maxlength="1000"
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
+                            class="w-full px-4 py-2 border border-slate-200/50 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-slate-900"
                             placeholder="Agrega notas o comentarios sobre esta configuración..."
                         ></textarea>
                         @error('notes') 
@@ -221,7 +233,7 @@
                 <div class="mt-6 flex justify-end space-x-3">
                     <button 
                         type="submit"
-                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition"
+                        class="px-6 py-2 bg-gradient-to-r from-cyan-600 to-teal-700 hover:from-cyan-700 hover:to-teal-800 text-white font-semibold rounded-lg shadow-lg transition-all"
                     >
                         💾 Guardar Configuración
                     </button>
@@ -255,49 +267,49 @@
     @if($product_id && $settingsHistory->count() > 0)
         <div class="glass-card rounded-2xl shadow-xl p-6 card-hover">
             <h3 class="text-xl font-bold text-slate-800 mb-6">📋 Historial de Configuraciones</h3>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200 bg-white">
-                    <thead class="bg-slate-50">
+            <div class="overflow-x-auto rounded-xl border border-slate-200/50">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50/50 backdrop-blur-sm">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider bg-slate-50">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                 Fecha
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider bg-slate-50">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                 Costos Directos
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider bg-slate-50">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                 Desperdicio
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider bg-slate-50">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                 Margen
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider bg-slate-50">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                 Creado por
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider bg-slate-50">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                 Notas
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-slate-200">
+                    <tbody class="bg-white/50 backdrop-blur-sm divide-y divide-slate-200/50">
                         @foreach($settingsHistory as $setting)
-                            <tr class="hover:bg-slate-50 bg-white">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 bg-white">
+                            <tr class="hover:bg-white/60 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                     {{ $setting->created_at->format('d/m/Y H:i') }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600 bg-white">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600">
                                     {{ $setting->direct_cost_percentage }}%
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-yellow-600 bg-white">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-yellow-600">
                                     {{ $setting->waste_percentage }}%
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600 bg-white">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
                                     {{ $setting->profit_margin_percentage }}%
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700 bg-white">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
                                     {{ $setting->user->name ?? 'N/A' }}
                                 </td>
-                                <td class="px-6 py-4 text-sm text-slate-500 bg-white">
+                                <td class="px-6 py-4 text-sm text-slate-500">
                                     {{ $setting->notes ? Str::limit($setting->notes, 50) : '-' }}
                                 </td>
                             </tr>

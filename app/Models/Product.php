@@ -11,6 +11,7 @@ class Product extends Model
 {
     protected $fillable = [
         'name',
+        'slug',
         'description',
         'price',
         'category_id',
@@ -31,6 +32,13 @@ class Product extends Model
         'height',
         'width'
     ];
+    /**
+     * Usar el slug para el route model binding
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     protected $casts = [
         'price' => 'decimal:2',
@@ -59,15 +67,6 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
-    }
-
-    /**
-     * Relación muchos a muchos con colores
-     */
-    public function colors(): BelongsToMany
-    {
-        return $this->belongsToMany(Color::class, 'product_color')
-                    ->withTimestamps();
     }
 
     /**

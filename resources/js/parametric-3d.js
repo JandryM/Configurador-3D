@@ -4,7 +4,6 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 import { WindowModel } from './models/WindowModel.js';
 import { DoorModel } from './models/DoorModel.js';
-import { FurnitureModel } from './models/FurnitureModel.js';
 import { ClosetModel } from './models/ClosetModel.js';
 import { MeshModel } from './models/Mesh.js';
 
@@ -52,7 +51,6 @@ class ParametricProduct3D {
         this.models = {
             window: new WindowModel(this.THREE),
             door: new DoorModel(this.THREE),
-            furniture: new FurnitureModel(this.THREE),
             closet: new ClosetModel(this.THREE),
             mesh: new MeshModel(this.THREE)
         };
@@ -231,40 +229,42 @@ class ParametricProduct3D {
                     if (handled) return;
                 }
                 
-                let windowGroup = null;
+                let productGroup = null;
                 let specificPanel = null;
                 
-                // Buscar ventana deslizable y panel específico
-                while (clickedObject.parent && !windowGroup) {
+                // Buscar ventana/puerta deslizable y panel específico
+                while (clickedObject.parent && !productGroup) {
                     // Verificar si es un panel específico
                     if (clickedObject.name && (clickedObject.name === 'slidingPanel1' || clickedObject.name === 'slidingPanel2')) {
                         specificPanel = clickedObject.name;
                     }
                     
-                    // Buscar el grupo principal de la ventana
-                    if (clickedObject.parent.userData && clickedObject.parent.userData.slideWindow) {
-                        windowGroup = clickedObject.parent;
+                    // Buscar el grupo principal de la ventana o puerta
+                    if (clickedObject.parent.userData && (clickedObject.parent.userData.slideWindow || clickedObject.parent.userData.slideDoor)) {
+                        productGroup = clickedObject.parent;
                         break;
                     }
                     clickedObject = clickedObject.parent;
                 }
                 
                 // Manejar la interacción
-                if (windowGroup && windowGroup.userData.slideWindow) {
+                if (productGroup && productGroup.userData) {
                     if (specificPanel) {
                         // Click en panel específico
                         const panelNumber = specificPanel.replace('slidingPanel', '');
                         
-                        if (windowGroup.userData.slidePanel) {
-                            windowGroup.userData.slidePanel(panelNumber, 'toggle');
+                        if (productGroup.userData.slidePanel) {
+                            productGroup.userData.slidePanel(panelNumber, 'toggle');
                         }
                         
-                        // ...efecto visual eliminado...
                     } else {
-                        // Click general en la ventana
-                        windowGroup.userData.slideWindow('toggle');
+                        // Click general en la ventana o puerta
+                        if (productGroup.userData.slideWindow) {
+                            productGroup.userData.slideWindow('toggle');
+                        } else if (productGroup.userData.slideDoor) {
+                            productGroup.userData.slideDoor('toggle');
+                        }
                         
-                        // ...efecto visual eliminado...
                     }
                 }
             }

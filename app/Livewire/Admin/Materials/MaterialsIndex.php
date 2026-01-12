@@ -18,6 +18,9 @@ class MaterialsIndex extends Component
     public $showEditModal = false;
     public $editingMaterial = null;
     public $materialToDelete = null;
+    public int $paginaMateriales = 1;
+    public int $materialesPorPagina = 4;
+    public int $totalMateriales = 0;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -120,7 +123,7 @@ class MaterialsIndex extends Component
 
     public function render()
     {
-        $materials = Material::query()
+        $query = Material::query()
             ->with('category')
             ->when($this->search, function($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
@@ -133,9 +136,34 @@ class MaterialsIndex extends Component
                     $query->where('is_by_piece', false);
                 }
             })
-            ->orderBy('name')
-            ->paginate(4);
+            ->orderBy('name');
+        
+        $this->totalMateriales = $query->count();
+        $materials = $query->skip(($this->paginaMateriales - 1) * $this->materialesPorPagina)
+            ->take($this->materialesPorPagina)
+            ->get();
 
         return view('livewire.admin.materials.index', compact('materials'))->layout('partials.sidebar');
+    }
+
+    public function actualizarMateriales($pagina = null)
+    {
+        if ($pagina !== null) {
+            $this->paginaMateriales = $pagina;
+        }
+    }
+
+    public function siguientePaginaMateriales()
+    {
+        if ($this->paginaMateriales < ceil($this->totalMateriales / $this->materialesPorPagina)) {
+            $this->paginaMateriales++;
+        }
+    }
+
+    public function anteriorPaginaMateriales()
+    {
+        if ($this->paginaMateriales > 1) {
+            $this->paginaMateriales--;
+        }
     }
 }

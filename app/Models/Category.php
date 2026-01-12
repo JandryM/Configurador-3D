@@ -12,12 +12,14 @@ class Category extends Model
         'name',
         'description',
         'is_active',
-        'sort_order'
+        'sort_order',
+        'parent_id'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'sort_order' => 'integer'
+        'sort_order' => 'integer',
+        'parent_id' => 'integer'
     ];
 
     /**
@@ -29,21 +31,32 @@ class Category extends Model
     }
 
     /**
-     * Relación muchos a muchos con materiales
+     * Relación con categoría padre
      */
-    public function materials(): BelongsToMany
+    public function parent()
     {
-        return $this->belongsToMany(Material::class, 'category_material')
-                    ->withTimestamps();
+        return $this->belongsTo(Category::class, 'parent_id');
     }
 
     /**
-     * Relación muchos a muchos con colores
+     * Relación con categorías hijas
      */
-    public function colors(): BelongsToMany
+    public function children()
     {
-        return $this->belongsToMany(Color::class, 'category_color')
-                    ->withTimestamps();
+        return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    /**
+     * Obtener todas las IDs de categorías hijas (recursivo)
+     */
+    public function getAllChildrenIds()
+    {
+        $ids = [];
+        foreach ($this->children as $child) {
+            $ids[] = $child->id;
+            $ids = array_merge($ids, $child->getAllChildrenIds());
+        }
+        return $ids;
     }
 
     /**

@@ -18,7 +18,9 @@ class ProductConfigurator extends Component
     public $showProformaSelectorModal = false; // Modal separado para selector
     public $availableProformas = []; // Lista de proformas disponibles
     public $selectedProformaToAdd = null; // Proforma seleccionada para agregar
-    
+    public $showCreateConfirmModal = false; // Modal de confirmación para crear nueva proforma
+    public $showOrderConfirmModal = false; // Modal de confirmación para ordenar proforma
+
     public function updatedShowProformaModal($value)
     {
         if ($value) {
@@ -30,7 +32,7 @@ class ProductConfigurator extends Component
     }
 
     /**
-     * Query builder para obtener proformas activas (no ordenadas, no expiradas)
+     * Query builder para obtener proformas activas (no ordenadas, no expiradas y no desactivadas) del usuario autenticado
      */
     private function getActiveProformasQuery()
     {
@@ -39,12 +41,13 @@ class ProductConfigurator extends Component
             ->whereNull('orders.id')
             ->where('proformas.user_id', auth()->id())
             ->where('proformas.is_expired', false)
+            ->where('proformas.is_active', true)
             ->where('proformas.expiration_date', '>', now())
             ->select('proformas.*');
     }
 
     /**
-     * Cargar todas las proformas disponibles del usuario (no ordenadas, no expiradas)
+     * Cargar todas las proformas disponibles del usuario (no ordenadas, no expiradas y no desactivadas)
      */
     public function loadAvailableProformas()
     {
@@ -61,7 +64,7 @@ class ProductConfigurator extends Component
             $itemsCount = DB::table('proforma_items')
                 ->where('proforma_id', $proforma->id)
                 ->count();
-            
+
             return [
                 'id' => $proforma->id,
                 'number' => $proforma->number,
@@ -97,24 +100,23 @@ class ProductConfigurator extends Component
         $activeProformas = $this->getActiveProformasQuery()->get();
 
         foreach ($activeProformas as $proforma) {
-            // Buscar ítems de esta proforma que coincidan con el producto y configuración actual
+            // Buscar ítems activos de esta proforma que coincidan con el producto y configuración actual
             $existingItems = DB::table('proforma_items')
                 ->where('proforma_id', $proforma->id)
                 ->where('product_id', $this->product->id)
+                ->where('is_active', true)
                 ->get();
 
             foreach ($existingItems as $item) {
                 $itemConfig = json_decode($item->configuration, true);
                 $itemParams = $itemConfig['parameters'] ?? [];
-                
                 // Comparar parámetros clave
-                $paramsMatch = 
+                $paramsMatch =
                     ($itemParams['width'] ?? null) == ($this->parameters['width'] ?? null) &&
                     ($itemParams['height'] ?? null) == ($this->parameters['height'] ?? null) &&
                     ($itemParams['depth'] ?? null) == ($this->parameters['depth'] ?? null) &&
                     ($itemParams['color'] ?? null) == ($this->parameters['color'] ?? null) &&
                     ($itemParams['glassColor'] ?? null) == ($this->parameters['glassColor'] ?? null);
-                
                 if ($paramsMatch) {
                     // Encontramos la configuración en esta proforma
                     $this->currentProformaStatus = 'saved';
@@ -144,23 +146,23 @@ class ProductConfigurator extends Component
                 $config = json_decode($item->configuration, true) ?? [];
                 $parameters = $config['parameters'] ?? [];
                 $materialCosts = $config['material_costs'] ?? [];
-                
+
                 // Obtener costos si no están en la configuración
                 $directCost = $config['directCost'] ?? DB::table('product_cost_settings')
                     ->where('product_id', $item->product_id)
                     ->value('direct_cost_percentage') ?? 0;
-                    
+
                 $currentIndirectSetting = \App\Models\GlobalCostSetting::current()->first();
                 $indirectCost = $config['indirectCost'] ?? ($currentIndirectSetting ? $currentIndirectSetting->indirect_cost_percentage : 0);
-                
+
                 $wastePercentage = $config['wastePercentage'] ?? DB::table('product_cost_settings')
                     ->where('product_id', $item->product_id)
                     ->value('waste_percentage') ?? 0;
-                    
+
                 $profitMargin = $config['profitMargin'] ?? DB::table('product_cost_settings')
                     ->where('product_id', $item->product_id)
                     ->value('profit_margin_percentage') ?? 0;
-                
+
                 return [
                     'id' => $item->id,
                     'product' => $product,
@@ -195,7 +197,7 @@ class ProductConfigurator extends Component
             // Si no, buscar la proforma activa del usuario
             $proforma = $this->getOrCreateActiveProforma(false);
         }
-        
+
         if (!$proforma) {
             session()->flash('error', 'No tienes ninguna proforma guardada.');
             return;
@@ -225,7 +227,7 @@ class ProductConfigurator extends Component
             'is_expired',
             'isPdf'
         ));
-        
+
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
         }, 'proforma_' . $number . '_' . now()->format('Ymd_His') . '.pdf');
@@ -312,11 +314,21 @@ class ProductConfigurator extends Component
             $config['indirectCost'] = $this->getIndirectCostPercentage();
             $config['wastePercentage'] = $this->getWastePercentage();
             $config['profitMargin'] = $this->getProfitMarginPercentage();
-            // Recalcular precio
+            // Recalcular precio y snapshot de costos
             $newPrice = $this->recalcularPrecioItem($item->product_id, $config, $item->quantity);
+            $costSnapshot = $this->recalcularCostSnapshot($config, $item->quantity);
+            
             DB::table('proforma_items')->where('id', $item->id)->update([
                 'configuration' => json_encode($config),
                 'price' => $newPrice,
+                // Actualizar snapshot de costos
+                'material_cost' => $costSnapshot['material_cost'],
+                'direct_cost' => $costSnapshot['direct_cost'],
+                'indirect_cost' => $costSnapshot['indirect_cost'],
+                'waste_cost' => $costSnapshot['waste_cost'],
+                'profit_amount' => $costSnapshot['profit_amount'],
+                'total_cost' => $costSnapshot['total_cost'],
+                'profit_margin_percentage' => $costSnapshot['profit_margin_percentage'],
                 'updated_at' => now()
             ]);
         }
@@ -355,7 +367,8 @@ class ProductConfigurator extends Component
     private function recalcularPrecioItem($productId, $config, $quantity)
     {
         $product = Product::find($productId);
-        if (!$product) return 0;
+        if (!$product)
+            return 0;
         // Simular cálculo de precio usando la configuración y cantidad
         // Puedes adaptar esto según tu lógica de cálculo real
         $basePrice = $product->price ?? 0;
@@ -374,6 +387,47 @@ class ProductConfigurator extends Component
         $precisePrice = $totalProductionCost + $profitAmount;
         return round($precisePrice * $quantity, 2);
     }
+    
+    /**
+     * Recalcular snapshot de costos desde una configuración existente
+     */
+    private function recalcularCostSnapshot($config, $quantity)
+    {
+        // Calcular costo total de materiales desde la configuración
+        $materialCosts = $config['material_costs'] ?? [];
+        $materialCost = 0;
+        foreach ($materialCosts as $mat) {
+            $materialCost += $mat['total_cost'] ?? 0;
+        }
+        
+        // Obtener porcentajes de la configuración
+        $directCostPercentage = $config['directCost'] ?? 0;
+        $indirectCostPercentage = $config['indirectCost'] ?? 0;
+        $wastePercentage = $config['wastePercentage'] ?? 0;
+        $profitMarginPercentage = $config['profitMargin'] ?? 0;
+        
+        // Calcular montos
+        $directCost = $materialCost * ($directCostPercentage / 100);
+        $indirectCost = $materialCost * ($indirectCostPercentage / 100);
+        $wasteCost = $materialCost * ($wastePercentage / 100);
+        
+        // Costo total de producción (sin ganancia)
+        $totalCost = $materialCost + $directCost + $indirectCost + $wasteCost;
+        
+        // Margen de ganancia sobre el costo total
+        $profitAmount = $totalCost * ($profitMarginPercentage / 100);
+        
+        // Multiplicar por cantidad
+        return [
+            'material_cost' => round($materialCost * $quantity, 2),
+            'direct_cost' => round($directCost * $quantity, 2),
+            'indirect_cost' => round($indirectCost * $quantity, 2),
+            'waste_cost' => round($wasteCost * $quantity, 2),
+            'profit_amount' => round($profitAmount * $quantity, 2),
+            'total_cost' => round($totalCost * $quantity, 2),
+            'profit_margin_percentage' => round($profitMarginPercentage, 2),
+        ];
+    }
 
     /**
      * Crear una nueva proforma con esta configuración
@@ -383,7 +437,7 @@ class ProductConfigurator extends Component
         if (!auth()->check()) {
             abort(403, 'No autorizado. Debes iniciar sesión para crear la proforma.');
         }
-        
+
         $this->saveProformaToNew();
         $this->checkCurrentConfigurationStatus();
         $this->loadAvailableProformas();
@@ -409,10 +463,27 @@ class ProductConfigurator extends Component
             return;
         }
 
+        // Verificar si la proforma está activa
+        $proforma = DB::table('proformas')->where('id', $proformaId)->first();
+        if (!$proforma || !$proforma->is_active) {
+            session()->flash('error', 'La proforma no está activa. No se puede ordenar.');
+            return;
+        }
+
+        // Verificar que tenga al menos un item activo
+        $activeItemsCount = DB::table('proforma_items')
+            ->where('proforma_id', $proformaId)
+            ->where('is_active', true)
+            ->count();
+        if ($activeItemsCount === 0) {
+            session()->flash('error', 'La proforma no tiene configuraciones activas. No se puede ordenar.');
+            return;
+        }
+
         // Generar número/código único de orden (ej: ORD-0001)
         $lastOrderId = DB::table('orders')->max('id');
         $nextOrderNumber = 'ORD-' . str_pad(($lastOrderId + 1), 4, '0', STR_PAD_LEFT);
-        
+
         // Crear la orden asociada
         DB::table('orders')->insert([
             'proforma_id' => $proformaId,
@@ -423,12 +494,12 @@ class ProductConfigurator extends Component
             'created_at' => now(),
             'updated_at' => now()
         ]);
-        
+
         // Marcar la proforma como ordenada
         DB::table('proformas')->where('id', $proformaId)->update(['is_ordered' => true]);
-        
+
         session()->flash('message', '¡Orden creada exitosamente!');
-        
+
         // Actualizar estado después de ordenar
         $this->checkCurrentConfigurationStatus();
     }
@@ -447,30 +518,20 @@ class ProductConfigurator extends Component
     // Límites por tipo de producto
     public $limits = [
         'window' => [
-            'width' => ['min' => 0.5, 'max' => 4.0, 'step' => 0.001],  // tres decimales
-            'height' => ['min' => 0.3, 'max' => 3.5, 'step' => 0.001],  // tres decimales
+            'width' => ['min' => 0.8, 'max' => 2, 'step' => 0.001],  // tres decimales
+            'height' => ['min' => 0.8, 'max' => 2, 'step' => 0.001],  // tres decimales
             'depth' => ['min' => 0.05, 'max' => 0.15, 'step' => 0.001], // tres decimales (mm)
             'frameWidth' => ['min' => 0.02, 'max' => 0.1, 'step' => 0.001] // tres decimales (mm)
         ],
         'door' => [
-            'width' => ['min' => 0.6, 'max' => 1.2, 'step' => 0.001],  // tres decimales
-            'height' => ['min' => 1.8, 'max' => 2.5, 'step' => 0.001],  // tres decimales
+            'width' => ['min' => 2, 'max' => 3, 'step' => 0.001],  // tres decimales 
+            'height' => ['min' => 2, 'max' => 3, 'step' => 0.001],  // tres decimales 
             'depth' => ['min' => 0.03, 'max' => 0.1, 'step' => 0.001],
             'frameWidth' => ['min' => 0.05, 'max' => 0.15, 'step' => 0.001]
         ],
-        'furniture' => [
-            'width' => ['min' => 0.3, 'max' => 2.0, 'step' => 0.001],  // tres decimales
-            'height' => ['min' => 0.5, 'max' => 2.0, 'step' => 0.001],  // tres decimales
-            'depth' => ['min' => 0.3, 'max' => 1.0, 'step' => 0.001]
-        ],
-        'closet' => [
-            'width' => ['min' => 0.5, 'max' => 3.0, 'step' => 0.001],
-            'height' => ['min' => 1.5, 'max' => 2.5, 'step' => 0.001],
-            'depth' => ['min' => 0.3, 'max' => 1.0, 'step' => 0.001]
-        ],
         'mesh' => [
-            'width' => ['min' => 0.5, 'max' => 2.0, 'step' => 0.001],
-            'height' => ['min' => 0.5, 'max' => 2.0, 'step' => 0.001],
+            'width' => ['min' => 0.8, 'max' => 3, 'step' => 0.001],
+            'height' => ['min' => 0.8, 'max' => 3, 'step' => 0.001],
             'depth' => ['min' => 0.01, 'max' => 0.05, 'step' => 0.001]
         ]
     ];
@@ -515,11 +576,17 @@ class ProductConfigurator extends Component
 
     public function mount(Product $product)
     {
+        // Verificar que el producto permita personalización
+        if (!$product->allows_customization) {
+            session()->flash('error', 'Este producto no está disponible para personalización.');
+            return redirect()->route('home');
+        }
+
         $this->product = $product;
-        
+
         // Cargar colores disponibles desde la base de datos
         $this->loadAvailableColors();
-        
+
         // Cargar configuración inicial del producto
         if ($product->base_dimensions) {
             $this->parameters = array_merge($this->parameters, $product->base_dimensions);
@@ -527,7 +594,7 @@ class ProductConfigurator extends Component
 
         // Establecer tipo de producto para límites
         $this->setParameterLimits();
-        
+
         // Calcular precio inicial
         $this->calculatePrice();
     }
@@ -540,7 +607,7 @@ class ProductConfigurator extends Component
             foreach ($this->limits[$productType] as $param => $limit) {
                 if (isset($this->parameters[$param])) {
                     $this->parameters[$param] = max(
-                        $limit['min'], 
+                        $limit['min'],
                         min($limit['max'], $this->parameters[$param])
                     );
                 }
@@ -553,14 +620,24 @@ class ProductConfigurator extends Component
         $categoryName = strtolower($this->product->category?->name ?? '');
         $productName = strtolower($this->product->name ?? '');
 
-        // Prioridad: si el nombre del producto contiene malla, mesh o mosquito, es mesh
+        // Usar la subcategoría directamente si existe
+        if ($categoryName === 'window') {
+            return 'window';
+        } elseif ($categoryName === 'door') {
+            return 'door';
+        } elseif ($categoryName === 'mesh') {
+            return 'mesh';
+        }
+
+        // Fallback: detectar por nombre del producto si no hay categoría
         if (str_contains($productName, 'malla') || str_contains($productName, 'mesh') || str_contains($productName, 'mosquito')) {
             return 'mesh';
         }
-        if (str_contains($categoryName, 'window') || str_contains($categoryName, 'ventana') || str_contains($categoryName, 'vidrio')) {
-            return 'window';
-        } elseif (str_contains($categoryName, 'door') || str_contains($categoryName, 'puerta')) {
+        if (str_contains($productName, 'puerta') || str_contains($productName, 'portón') || str_contains($productName, 'door')) {
             return 'door';
+        }
+        if (str_contains($categoryName, 'window') || str_contains($categoryName, 'ventana') || str_contains($categoryName, 'vidrio') || str_contains($productName, 'ventana')) {
+            return 'window';
         } elseif (str_contains($categoryName, 'melamina') || str_contains($productName, 'closet')) {
             return 'closet';
         } else {
@@ -604,7 +681,7 @@ class ProductConfigurator extends Component
         $productType = $this->getProductType();
         if (isset($this->limits[$productType][$parameter])) {
             $limit = $this->limits[$productType][$parameter];
-            $value = max($limit['min'], min($limit['max'], (float)$value));
+            $value = max($limit['min'], min($limit['max'], (float) $value));
         }
 
         $this->parameters[$parameter] = $value;
@@ -627,14 +704,14 @@ class ProductConfigurator extends Component
     {
         // NO resetear estado - permitir que se mantenga saved/ordered
         // para que el usuario pueda actualizar la cantidad en la misma proforma
-        
+
         // Validar que la cantidad sea al menos 1
         if (!is_numeric($value) || $value < 1) {
             $this->quantity = 1;
         } else {
-            $this->quantity = (int)$value;
+            $this->quantity = (int) $value;
         }
-        
+
         $this->calculatePrice();
     }
 
@@ -688,13 +765,13 @@ class ProductConfigurator extends Component
             $directAmount = $totalCost * ($directCost / 100);
             $indirectAmount = $totalCost * ($indirectCost / 100);
             $wasteAmount = $totalCost * ($wastePercentage / 100);
-            
+
             // Calcular costo total de producción
             $totalProductionCost = $totalCost + $directAmount + $indirectAmount + $wasteAmount;
-            
+
             // Agregar margen de ganancia sobre el costo total de producción
             $profitAmount = $totalProductionCost * ($profitMargin / 100);
-            
+
             $precisePrice = $totalProductionCost + $profitAmount;
             // Redondeo SOLO al final para el precio mostrado al usuario
             // Multiplicar por la cantidad
@@ -742,11 +819,11 @@ class ProductConfigurator extends Component
         // Usar la fórmula de la tabla pivote si existe
         $pivot = $material->pivot ?? null;
         $formula = $pivot->calculation_formula ?? null;
-        
+
         if ($formula) {
             return $this->evaluateFormulaSafely($formula, $this->parameters);
         }
-        
+
         // Si no hay fórmula, usar área o volumen según corresponda
         return $material->has_dimensions ? $area : $volume;
     }
@@ -758,7 +835,7 @@ class ProductConfigurator extends Component
         $height = $parameters['height'] ?? 0;
         $depth = $parameters['depth'] ?? 0;
         $frameWidth = $parameters['frameWidth'] ?? 0.05;
-        
+
         // Variables calculadas sin redondeo para mantener máxima precisión
         $area = $width * $height;
         $volume = $area * $depth;
@@ -767,19 +844,29 @@ class ProductConfigurator extends Component
         // Reemplazar variables
         $safeFormula = str_replace(
             [
-                '{width}', '{height}', '{depth}', '{frameWidth}',
-                '{area}', '{volume}', '{perimeter}'
+                '{width}',
+                '{height}',
+                '{depth}',
+                '{frameWidth}',
+                '{area}',
+                '{volume}',
+                '{perimeter}'
             ],
             [
-                $width, $height, $depth, $frameWidth,
-                $area, $volume, $perimeter
+                $width,
+                $height,
+                $depth,
+                $frameWidth,
+                $area,
+                $volume,
+                $perimeter
             ],
             $formula
         );
-        
+
         try {
-            $result = eval("return $safeFormula;");
-            return is_numeric($result) ? (float)$result : 0;
+            $result = eval ("return $safeFormula;");
+            return is_numeric($result) ? (float) $result : 0;
         } catch (\Throwable $e) {
             return 0;
         }
@@ -818,6 +905,9 @@ class ProductConfigurator extends Component
      */
     private function createProformaItem($proformaId, $configuration)
     {
+        // Calcular snapshot de costos
+        $costSnapshot = $this->calculateCostSnapshot();
+        
         DB::table('proforma_items')->insert([
             'proforma_id' => $proformaId,
             'product_id' => $this->product->id,
@@ -825,9 +915,58 @@ class ProductConfigurator extends Component
             'quantity' => $this->quantity,
             'price' => $this->calculatedPrice,
             'notes' => $this->parameters['notes'] ?? null,
+            'is_active' => true,
+            // Snapshot de costos
+            'material_cost' => $costSnapshot['material_cost'],
+            'direct_cost' => $costSnapshot['direct_cost'],
+            'indirect_cost' => $costSnapshot['indirect_cost'],
+            'waste_cost' => $costSnapshot['waste_cost'],
+            'profit_amount' => $costSnapshot['profit_amount'],
+            'total_cost' => $costSnapshot['total_cost'],
+            'profit_margin_percentage' => $costSnapshot['profit_margin_percentage'],
             'created_at' => now(),
             'updated_at' => now()
         ]);
+    }
+    
+    /**
+     * Calcular snapshot de costos para guardar en ProformaItem
+     */
+    private function calculateCostSnapshot()
+    {
+        // Calcular costo total de materiales
+        $materialCost = 0;
+        foreach ($this->materialCosts as $material) {
+            $materialCost += $material['total_cost'];
+        }
+        
+        // Obtener porcentajes actuales
+        $directCostPercentage = $this->getDirectCostPercentage();
+        $indirectCostPercentage = $this->getIndirectCostPercentage();
+        $wastePercentage = $this->getWastePercentage();
+        $profitMarginPercentage = $this->getProfitMarginPercentage();
+        
+        // Calcular montos
+        $directCost = $materialCost * ($directCostPercentage / 100);
+        $indirectCost = $materialCost * ($indirectCostPercentage / 100);
+        $wasteCost = $materialCost * ($wastePercentage / 100);
+        
+        // Costo total de producción (sin ganancia)
+        $totalCost = $materialCost + $directCost + $indirectCost + $wasteCost;
+        
+        // Margen de ganancia sobre el costo total
+        $profitAmount = $totalCost * ($profitMarginPercentage / 100);
+        
+        // Multiplicar por cantidad
+        return [
+            'material_cost' => round($materialCost * $this->quantity, 2),
+            'direct_cost' => round($directCost * $this->quantity, 2),
+            'indirect_cost' => round($indirectCost * $this->quantity, 2),
+            'waste_cost' => round($wasteCost * $this->quantity, 2),
+            'profit_amount' => round($profitAmount * $this->quantity, 2),
+            'total_cost' => round($totalCost * $this->quantity, 2),
+            'profit_margin_percentage' => round($profitMarginPercentage, 2),
+        ];
     }
 
     /**
@@ -838,24 +977,22 @@ class ProductConfigurator extends Component
         $existingItems = DB::table('proforma_items')
             ->where('proforma_id', $proformaId)
             ->where('product_id', $this->product->id)
+            ->where('is_active', true)
             ->get();
 
         foreach ($existingItems as $item) {
             $itemConfig = json_decode($item->configuration, true);
             $itemParams = $itemConfig['parameters'] ?? [];
-            
-            $paramsMatch = 
+            $paramsMatch =
                 ($itemParams['width'] ?? null) == ($this->parameters['width'] ?? null) &&
                 ($itemParams['height'] ?? null) == ($this->parameters['height'] ?? null) &&
                 ($itemParams['depth'] ?? null) == ($this->parameters['depth'] ?? null) &&
                 ($itemParams['color'] ?? null) == ($this->parameters['color'] ?? null) &&
                 ($itemParams['glassColor'] ?? null) == ($this->parameters['glassColor'] ?? null);
-            
             if ($paramsMatch) {
                 return $item;
             }
         }
-
         return null;
     }
 
@@ -863,16 +1000,24 @@ class ProductConfigurator extends Component
     {
         try {
             if (!auth()->check()) {
-                if ($returnId) return null;
+                if ($returnId)
+                    return null;
                 session()->flash('error', 'Debes iniciar sesión para guardar la configuración.');
                 return;
             }
 
             $configuration = $this->buildConfiguration();
-            $proforma = $this->getOrCreateActiveProforma(true);
-            
+
+            // Si ya tenemos una proforma guardada (currentProformaId), usarla
+            if ($this->currentProformaId) {
+                $proforma = DB::table('proformas')->where('id', $this->currentProformaId)->first();
+            } else {
+                $proforma = $this->getOrCreateActiveProforma(true);
+            }
+
             if (!$proforma) {
-                if ($returnId) return null;
+                if ($returnId)
+                    return null;
                 session()->flash('error', 'No se pudo crear la proforma.');
                 return;
             }
@@ -880,13 +1025,23 @@ class ProductConfigurator extends Component
             $matchingItem = $this->findMatchingItem($proforma->id);
 
             if ($matchingItem) {
-                // Actualizar ítem existente
+                // Actualizar ítem existente con nuevo snapshot de costos
+                $costSnapshot = $this->calculateCostSnapshot();
+                
                 DB::table('proforma_items')
                     ->where('id', $matchingItem->id)
                     ->update([
                         'configuration' => json_encode($configuration),
                         'quantity' => $this->quantity,
                         'price' => $this->calculatedPrice,
+                        // Actualizar snapshot de costos
+                        'material_cost' => $costSnapshot['material_cost'],
+                        'direct_cost' => $costSnapshot['direct_cost'],
+                        'indirect_cost' => $costSnapshot['indirect_cost'],
+                        'waste_cost' => $costSnapshot['waste_cost'],
+                        'profit_amount' => $costSnapshot['profit_amount'],
+                        'total_cost' => $costSnapshot['total_cost'],
+                        'profit_margin_percentage' => $costSnapshot['profit_margin_percentage'],
                         'updated_at' => now()
                     ]);
             } else {
@@ -899,13 +1054,14 @@ class ProductConfigurator extends Component
             if ($returnId) {
                 return $proforma->id;
             }
-            
-            session()->flash('message', $matchingItem 
-                ? '¡Configuración actualizada en la proforma!' 
+
+            session()->flash('message', $matchingItem
+                ? '¡Configuración actualizada en la proforma!'
                 : '¡Configuración agregada a la proforma exitosamente!');
         } catch (\Exception $e) {
             session()->flash('error', 'Error al guardar la configuración: ' . $e->getMessage());
-            if ($returnId) return null;
+            if ($returnId)
+                return null;
         }
     }
 
@@ -931,7 +1087,7 @@ class ProductConfigurator extends Component
         if ($create) {
             $nextNumber = $this->generateNextProformaNumber();
             $expirationDate = now()->addDays(15);
-            
+
             $proformaId = DB::table('proformas')->insertGetId([
                 'number' => $nextNumber,
                 'user_id' => auth()->id(),
@@ -992,12 +1148,18 @@ class ProductConfigurator extends Component
                 return;
             }
 
+            $user = auth()->user();
+            if (!$this->userHasCompleteProfile($user)) {
+                session()->flash('error', 'Debes completar tus datos personales antes de guardar una proforma.');
+                return;
+            }
+
             $configuration = $this->buildConfiguration();
 
             // Crear nueva proforma
             $nextNumber = $this->generateNextProformaNumber();
             $expirationDate = now()->addDays(15);
-            
+
             $proformaId = DB::table('proformas')->insertGetId([
                 'number' => $nextNumber,
                 'user_id' => auth()->id(),
@@ -1016,6 +1178,28 @@ class ProductConfigurator extends Component
             session()->flash('error', 'Error al crear proforma: ' . $e->getMessage());
         }
     }
+    /**
+     * Verifica si el usuario tiene todos los datos personales requeridos
+     */
+    private function userHasCompleteProfile($user)
+    {
+        if (!$user)
+            return false;
+        $required = [
+            'name',
+            'email',
+            'phone',
+            'address',
+            'province',
+            'city',
+        ];
+        foreach ($required as $field) {
+            if (empty($user->$field)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Actualizar el precio total de una proforma sumando todos sus ítems
@@ -1024,6 +1208,7 @@ class ProductConfigurator extends Component
     {
         $totalPrice = DB::table('proforma_items')
             ->where('proforma_id', $proformaId)
+            ->where('is_active', true)
             ->sum('price');
 
         DB::table('proformas')
@@ -1052,7 +1237,7 @@ class ProductConfigurator extends Component
             DB::table('proformas')
                 ->where('id', $proformaId)
                 ->update(['is_expired' => true, 'updated_at' => now()]);
-            
+
             return true;
         }
 
@@ -1089,9 +1274,9 @@ class ProductConfigurator extends Component
     {
         // Cargar todos los colores activos
         $this->availableColors = Color::where('is_active', true)
-                                     ->orderBy('sort_order')
-                                     ->get()
-                                     ->keyBy('color_name');
+            ->orderBy('sort_order')
+            ->get()
+            ->keyBy('color_name');
     }
 
     public function getAvailableColors()
@@ -1131,10 +1316,10 @@ class ProductConfigurator extends Component
         $profitMargin = $this->getProfitMarginPercentage();
         $user = auth()->user();
         $proformaItems = $this->getProformaItems();
-        $proformaTotalPrice = $this->currentProformaId 
-            ? DB::table('proformas')->where('id', $this->currentProformaId)->value('total_price') 
+        $proformaTotalPrice = $this->currentProformaId
+            ? DB::table('proformas')->where('id', $this->currentProformaId)->value('total_price')
             : 0;
-        
+
         return view('livewire.products.product-configurator', [
             'productType' => $this->getProductType(),
             'parameterLimits' => $this->limits[$this->getProductType()] ?? [],
@@ -1148,9 +1333,10 @@ class ProductConfigurator extends Component
             'user' => $user,
             'proformaItems' => $proformaItems,
             'proformaTotalPrice' => $proformaTotalPrice,
+            'userProfileComplete' => $this->userHasCompleteProfile($user),
         ])->layout('layouts.guest', [
-            'title' => 'Configurador 3D - ' . $this->product->name,
-            'description' => 'Personaliza ' . $this->product->name . ' en tiempo real con nuestro configurador 3D interactivo.'
-        ]);
+                    'title' => 'Configurador 3D - ' . $this->product->name,
+                    'description' => 'Personaliza ' . $this->product->name . ' en tiempo real con nuestro configurador 3D interactivo.'
+                ]);
     }
 }

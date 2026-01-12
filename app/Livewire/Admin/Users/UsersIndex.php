@@ -2,26 +2,35 @@
 
 namespace App\Livewire\Admin\Users;
 
+use App\Livewire\Traits\WithCustomPagination;
 use App\Models\User;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Carbon\Carbon;
 
 
 class UsersIndex extends Component
 {
-    use WithPagination;
+    use WithCustomPagination;
+
+    protected $listeners = ['close-modal' => 'closeCreateModal', 'user-created' => 'refreshUsers'];
 
     public string $search = '';
     public string $statusFilter = 'all';
     public string $roleFilter = 'all';
     public bool $showUserModal = false;
     public bool $showUserDetailsModal = false;
+    public bool $showCreateModal = false;
     public ?User $selectedUser = null;
     public ?User $userDetails = null;
     public string $actionType = '';
     public string $actionReason = '';
     public string $suspensionDays = '7';
+
+    public function mount()
+    {
+        // Inicializar paginación con 5 elementos por página
+        $this->perPage = 5;
+    }
 
     public function render()
     {
@@ -55,7 +64,14 @@ class UsersIndex extends Component
                 $query->whereNull('email_verified_at');
                 break;
         }
-        $users = $query->orderBy('created_at', 'desc')->paginate(4);
+        
+        // Guardar el total para la paginación
+        $this->total = $query->count();
+        $users = $query->orderBy('created_at', 'desc')
+            ->skip(($this->page - 1) * $this->perPage)
+            ->take($this->perPage)
+            ->get();
+        
         $totalUsers = User::count();
         $adminUsers = User::where('role', 'admin')->count();
         $suspendedUsers = User::where('is_suspended', true)->count();
@@ -69,6 +85,16 @@ class UsersIndex extends Component
             'verifiedUsers' => $verifiedUsers,
             'recentLogins' => $recentLogins,
         ])->layout('partials.sidebar');
+    }
+
+    public function openCreateModal()
+    {
+        $this->showCreateModal = true;
+    }
+
+    public function closeCreateModal()
+    {
+        $this->showCreateModal = false;
     }
 
     public function openUserModal(User $user, string $action)
@@ -164,5 +190,11 @@ class UsersIndex extends Component
     public function updatingRoleFilter()
     {
         $this->resetPage();
+    }
+
+    public function refreshUsers()
+    {
+
+        $this->resetPage(); // Volver a la primera página
     }
 }

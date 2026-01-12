@@ -11,6 +11,7 @@ class ProductCreate extends Component
 {
     use WithFileUploads;
 
+    public $showCreateProductModal = true;
     public $name = '';
     public $description = '';
     public $price = '';
@@ -100,8 +101,10 @@ class ProductCreate extends Component
             $imagePath = $this->image->store('products', 'public');
         }
 
+        $slug = $this->generateUniqueSlug($this->name);
         $productData = [
             'name' => $this->name,
+            'slug' => $slug,
             'description' => $this->description,
             'category_id' => $this->category_id,
             'product_type' => $this->product_type,
@@ -120,22 +123,34 @@ class ProductCreate extends Component
 
         $product = Product::create($productData);
 
-        if ($this->product_type === 'gallery') {
-            session()->flash('message', 'Producto de galería creado exitosamente.');
-            return redirect()->route('admin.products.index');
-        } else {
-            session()->flash('message', 'Producto personalizable creado exitosamente. Ahora puedes agregar materiales para calcular costos.');
-            return redirect()->route('admin.products.edit', $product);
-        }
+        $this->reset();
+        $this->dispatch('productCreated');
+        session()->flash('message', 'Producto creado exitosamente.');
     }
 
     public function cancel()
     {
-        return redirect()->route('admin.products.index');
+        $this->reset();
+        $this->dispatch('closeCreateProductModal');
+    }
+
+        /**
+     * Genera un slug único para el producto
+     */
+    private function generateUniqueSlug($name)
+    {
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
+        $originalSlug = $slug;
+        $count = 1;
+        while (\App\Models\Product::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count;
+            $count++;
+        }
+        return $slug;
     }
 
     public function render()
     {
-        return view('livewire.admin.products.create')->layout('partials.sidebar');
+        return view('livewire.admin.products.create');
     }
 }

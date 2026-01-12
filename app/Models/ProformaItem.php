@@ -16,6 +16,14 @@ class ProformaItem extends Model
         'quantity',
         'price',
         'notes',
+        // Snapshot de costos calculados
+        'material_cost',
+        'direct_cost',
+        'indirect_cost',
+        'waste_cost',
+        'profit_amount',
+        'total_cost',
+        'profit_margin_percentage',
     ];
 
     protected $casts = [

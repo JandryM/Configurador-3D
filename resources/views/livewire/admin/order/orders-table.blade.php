@@ -1,42 +1,176 @@
 <div>
-    <div class="glass-card rounded-2xl shadow-xl">
-        <div class="p-6 border-b border-slate-200/50">
-            <h2 class="text-xl font-bold text-slate-800">Gestión de Órdenes</h2>
-            <p class="text-slate-600 mt-1">Administra y aprueba las órdenes de producción</p>
+    <!-- Encabezado de la sección -->
+    <x-page-header 
+        title="Gestión de Órdenes"
+        description="Administra y aprueba las órdenes de producción"
+        gradient="from-indigo-400 to-purple-500"
+        :show-button="false"
+        icon-gradient="from-blue-500 to-indigo-600"
+    >
+        <x-slot name="icon">
+            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+            </svg>
+        </x-slot>
+    </x-page-header>
+
+    @if (session()->has('message'))
+        <div class="mb-4 animate-in fade-in slide-in-from-top-2 duration-500"
+            x-data="{ show: true }" 
+            x-show="show" 
+            x-init="setTimeout(() => show = false, 2000)"
+            x-transition:leave="transition ease-in duration-500"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0">
+            <div class="bg-white/70 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white">
+                {{ session('message') }}
+            </div>
+        </div>
+    @endif
+
+    @if (session()->has('error'))
+        <div class="mb-4 animate-in fade-in slide-in-from-top-2 duration-500"
+            x-data="{ show: true }" 
+            x-show="show" 
+            x-init="setTimeout(() => show = false, 2000)"
+            x-transition:leave="transition ease-in duration-500"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0">
+            <div class="bg-white/70 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-6 bg-gradient-to-r from-red-500 to-rose-600 text-white">
+                {{ session('error') }}
+            </div>
+        </div>
+    @endif
+
+    <!-- Estadísticas -->
+    <x-stats-grid columns="4">
+            <x-stat-card 
+                title="Total Órdenes" 
+                :value="$total"
+                gradient="from-blue-500 to-indigo-600"
+                hover-color="blue-300"
+            >
+                <x-slot name="icon">
+                    <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                    </svg>
+                </x-slot>
+            </x-stat-card>
+
+            <x-stat-card 
+                title="Ganancia Total" 
+                value="${{ number_format($gananciaTotal, 2) }}"
+                gradient="from-green-500 to-emerald-600"
+                hover-color="green-300"
+            >
+                <x-slot name="icon">
+                    <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                    </svg>
+                </x-slot>
+            </x-stat-card>
+
+            <x-stat-card 
+                title="Productos" 
+                :value="$cantidadProductos"
+                gradient="from-purple-500 to-pink-600"
+                hover-color="purple-300"
+            >
+                <x-slot name="icon">
+                    <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
+                    </svg>
+                </x-slot>
+            </x-stat-card>
+
+            <x-stat-card 
+                title="Completadas" 
+                :value="$ordenesTerminadas"
+                gradient="from-yellow-500 to-orange-600"
+                hover-color="yellow-300"
+            >
+                <x-slot name="icon">
+                    <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                </x-slot>
+            </x-stat-card>
+        </x-stats-grid>
+
+    <!-- Tabla de órdenes -->
+    <x-table-container
+        :has-pagination="true"
+        :page="$page"
+        :per-page="$perPage"
+        :total="$total"
+        item-name="orden"
+    >
+        <!-- Filtros y búsqueda dentro de la tabla -->
+        <div class="bg-white border-b border-slate-200 shadow-lg mb-2 md:mb-3 lg:mb-4">
+            <div class="flex flex-wrap gap-1 sm:gap-1.5 md:gap-2 lg:gap-3 xl:gap-3 2xl:gap-4 items-end">
+                <!-- Búsqueda -->
+                <div class="flex-1 min-w-[200px] sm:min-w-[220px] md:min-w-[250px]">
+                    <label class="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm font-semibold text-slate-700 mb-0.5 sm:mb-1 md:mb-1.5 lg:mb-1.5 xl:mb-1 2xl:mb-2">
+                        <svg class="w-3 h-3 sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 lg:w-3.5 lg:h-3.5 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Buscar Orden
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            wire:model.live.debounce.300ms="search"
+                            placeholder="Número o cliente..."
+                            class="w-full pl-8 sm:pl-9 md:pl-10 lg:pl-10 xl:pl-8 2xl:pl-10 pr-2 sm:pr-3 md:pr-4 lg:pr-4 xl:pr-3 2xl:pr-4 py-1 sm:py-1.5 md:py-2 lg:py-2 xl:py-1.5 2xl:py-2.5 border-2 border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm hover:border-slate-300 shadow-lg"
+                        >
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-3.5 xl:h-3.5 2xl:w-5 2xl:h-5 text-slate-400 absolute left-2 sm:left-2.5 md:left-3 lg:left-3 xl:left-2 2xl:left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Filtro por estado -->
+                <div class="min-w-[140px] sm:min-w-[150px] md:min-w-[180px]">
+                    <label class="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm font-semibold text-slate-700 mb-0.5 sm:mb-1 md:mb-1.5 lg:mb-1.5 xl:mb-1 2xl:mb-2">
+                        <svg class="w-3 h-3 sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 lg:w-3.5 lg:h-3.5 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Estado
+                    </label>
+                    <select 
+                        wire:model.live="statusFilter"
+                        class="w-full px-2 sm:px-3 md:px-4 lg:px-4 xl:px-3 2xl:px-4 py-1 sm:py-1.5 md:py-2 lg:py-2 xl:py-1.5 2xl:py-2.5 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 active:scale-[0.98] transition-all duration-200 text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm cursor-pointer shadow-md font-medium {{ $statusFilter !== '' ? 'border-blue-400 bg-gradient-to-br from-blue-100 to-blue-50 text-blue-900 shadow-lg hover:border-blue-500 hover:shadow-xl hover:from-blue-200 hover:to-blue-100' : 'border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100/50 text-slate-800 hover:border-blue-300 hover:shadow-lg hover:from-blue-50 hover:to-slate-50' }} [&>option]:bg-white [&>option]:text-slate-800 [&>option]:py-2 [&>option:hover]:bg-gradient-to-r [&>option:hover]:from-blue-50 [&>option:hover]:to-blue-100 [&>option:checked]:bg-blue-500 [&>option:checked]:text-white"
+                    >
+                        <option value="" class="py-2">✨ Todos</option>
+                        <option value="pending" class="py-2">⏳ Pendiente</option>
+                        <option value="approved" class="py-2">✅ Aprobada</option>
+                        <option value="in_production" class="py-2">🔧 En Producción</option>
+                        <option value="completed" class="py-2">🎉 Completada</option>
+                        <option value="cancelled" class="py-2">❌ Cancelada</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
-        @if (session()->has('message'))
-            <div class="mx-6 mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p class="text-sm font-medium text-green-700">{{ session('message') }}</p>
-            </div>
-        @endif
-
-        @if (session()->has('error'))
-            <div class="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p class="text-sm font-medium text-red-700">{{ session('error') }}</p>
-            </div>
-        @endif
-
-        <div class="p-6">
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="border-b border-slate-200">
-                            <th class="text-left py-3 px-4 font-medium text-slate-700">Número</th>
-                            <th class="text-left py-3 px-4 font-medium text-slate-700">Cliente</th>
-                            <th class="text-left py-3 px-4 font-medium text-slate-700">Producto</th>
-                            <th class="text-left py-3 px-4 font-medium text-slate-700">Cantidad</th>
-                            <th class="text-left py-3 px-4 font-medium text-slate-700">Monto</th>
-                            <th class="text-left py-3 px-4 font-medium text-slate-700">Estado</th>
-                            <th class="text-left py-3 px-4 font-medium text-slate-700">Fecha Creación</th>
-                            <th class="text-left py-3 px-4 font-medium text-slate-700">Fecha Estimada</th>
-                            <th class="text-center py-3 px-4 font-medium text-slate-700">Acciones</th>
+        <thead>
+            <tr class="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b-2 border-indigo-200 shadow-sm">
+                            <x-table-header>Número</x-table-header>
+                            <x-table-header>Cliente</x-table-header>
+                            <x-table-header>Producto</x-table-header>
+                            <x-table-header>Cantidad</x-table-header>
+                            <x-table-header>Monto</x-table-header>
+                            <x-table-header>Estado</x-table-header>
+                            <x-table-header>Fecha Creación</x-table-header>
+                            <x-table-header>Fecha Estimada</x-table-header>
+                            <x-table-header align="center">Acciones</x-table-header>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($orders as $order)
-                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                                <td class="py-4 px-4">
+                            <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-all duration-150">
+                                <x-table-cell>
                                     <div class="flex items-center space-x-3">
                                         <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
                                             <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -49,27 +183,27 @@
                                             <p class="text-sm text-slate-500">Orden</p>
                                         </div>
                                     </div>
-                                </td>
-                                <td class="py-4 px-4">
+                                </x-table-cell>
+                                <x-table-cell>
                                     <div>
                                         <p class="font-medium text-slate-800">{{ $order['client'] }}</p>
                                         <p class="text-sm text-slate-500">{{ $order['email'] }}</p>
                                     </div>
-                                </td>
-                                <td class="py-4 px-4">
+                                </x-table-cell>
+                                <x-table-cell>
                                     <span class="text-slate-700">{{ $order['product_name'] }}</span>
-                                </td>
-                                <td class="py-4 px-4">
+                                </x-table-cell>
+                                <x-table-cell>
                                     <span class="text-slate-700">
                                         {{ $order['quantity'] ?? 1 }} {{ ($order['quantity'] ?? 1) == 1 ? 'unidad' : 'unidades' }}
                                     </span>
-                                </td>
-                                <td class="py-4 px-4">
+                                </x-table-cell>
+                                <x-table-cell>
                                     <span class="font-medium text-slate-800">
                                         ${{ number_format($order['amount'], 2) }}
                                     </span>
-                                </td>
-                                <td class="py-4 px-4">
+                                </x-table-cell>
+                                <x-table-cell>
                                     @php
                                         $statusColors = [
                                             'pending' => 'bg-yellow-100 text-yellow-800',
@@ -89,13 +223,13 @@
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$order['status']] ?? 'bg-gray-100 text-gray-800' }}">
                                         {{ $statusLabels[$order['status']] ?? $order['status'] }}
                                     </span>
-                                </td>
-                                <td class="py-4 px-4">
+                                </x-table-cell>
+                                <x-table-cell>
                                     <span class="text-slate-700">
                                         {{ \Carbon\Carbon::parse($order['created_at'])->format('d/m/Y H:i') }}
                                     </span>
-                                </td>
-                                <td class="py-4 px-4">
+                                </x-table-cell>
+                                <x-table-cell>
                                     @if($order['estimated_finish_at'])
                                         <div>
                                             <span class="text-slate-700 font-medium">
@@ -117,75 +251,82 @@
                                     @else
                                         <span class="text-slate-400">-</span>
                                     @endif
-                                </td>
-                                <td class="py-4 px-4">
+                                </x-table-cell>
+                                <x-table-cell align="center">
                                     <div class="flex justify-center space-x-2">
-                                        <button wire:click="showOrder({{ $order['id'] }})" 
-                                                class="text-blue-600 hover:text-blue-800 transition-colors" 
-                                                title="Ver detalles">
+                                        <x-action-button 
+                                            color="blue"
+                                            tooltip="Ver detalles"
+                                            wire:click="showOrder({{ $order['id'] }})"
+                                        >
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
                                                 <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
                                             </svg>
-                                        </button>
+                                        </x-action-button>
 
                                         @if($canModify)
                                             @if($order['status'] === 'pending')
-                                                <button wire:click="approveOrder({{ $order['id'] }})" 
-                                                        class="text-green-600 hover:text-green-800 transition-colors" 
-                                                        title="Aprobar orden">
+                                                <x-action-button 
+                                                    color="green"
+                                                    tooltip="Aprobar orden"
+                                                    wire:click="approveOrder({{ $order['id'] }})"
+                                                >
                                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                                     </svg>
-                                                </button>
+                                                </x-action-button>
                                             @endif
 
                                             @if($order['status'] === 'approved')
-                                                <button wire:click="startProduction({{ $order['id'] }})" 
-                                                        class="text-purple-600 hover:text-purple-800 transition-colors" 
-                                                        title="Iniciar producción">
+                                                <x-action-button 
+                                                    color="purple"
+                                                    tooltip="Iniciar producción"
+                                                    wire:click="startProduction({{ $order['id'] }})"
+                                                >
                                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
                                                     </svg>
-                                                </button>
+                                                </x-action-button>
                                             @endif
 
                                             @if($order['status'] === 'in_production')
-                                                <button wire:click="completeOrder({{ $order['id'] }})" 
-                                                        class="text-green-600 hover:text-green-800 transition-colors" 
-                                                        title="Marcar como completada">
+                                                <x-action-button 
+                                                    color="green"
+                                                    tooltip="Marcar como completada"
+                                                    wire:click="completeOrder({{ $order['id'] }})"
+                                                >
                                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                                 </svg>
-                                            </button>
+                                            </x-action-button>
                                         @endif
 
                                         @if(in_array($order['status'], ['pending', 'approved']))
-                                            <button wire:click="cancelOrder({{ $order['id'] }})" 
-                                                    class="text-red-600 hover:text-red-800 transition-colors" 
-                                                    title="Cancelar orden"
-                                                    onclick="return confirm('¿Estás seguro de cancelar esta orden?')">
+                                            <x-action-button 
+                                                color="red"
+                                                tooltip="Cancelar orden"
+                                                wire:click="cancelOrder({{ $order['id'] }})"
+                                                onclick="return confirm('¿Estás seguro de cancelar esta orden?')"
+                                            >
                                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                                                 </svg>
-                                            </button>
+                                            </x-action-button>
                                         @endif
                                         @endif
                                     </div>
-                                </td>
+                                </x-table-cell>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-8 text-slate-500">
+                                <td colspan="9" class="text-center py-8 text-slate-500">
                                     No hay órdenes registradas
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    </x-table-container>
 
     <!-- Modal de Detalles de Orden -->
     @if($showOrderModal && $selectedOrder)
@@ -587,6 +728,517 @@
                                 class="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg transition-all"
                             >
                                 ▶ Iniciar Producción
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    
+    <!-- Modal de Confirmación: Aprobar Orden -->
+    @if($showApproveConfirmModal && $pendingActionOrder)
+        <div class="fixed inset-0 z-50 overflow-y-auto" style="z-index: 1250;">
+            <div class="flex items-center justify-center min-h-screen px-4 text-center">
+                <div class="fixed inset-0 transition-opacity bg-black/50 backdrop-blur-sm" wire:click="closeApproveConfirmModal"></div>
+                
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto text-left align-middle transition-all transform relative">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4 rounded-t-2xl">
+                        <!-- Barra de carga -->
+                        <div wire:loading wire:target="confirmApproveOrder" class="absolute top-0 left-0 right-0 h-1 bg-white/30 overflow-hidden rounded-t-2xl">
+                            <div class="h-full bg-white animate-pulse" style="width: 100%; animation: shimmer 1.5s infinite;"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-white">Confirmar Aprobación</h3>
+                                    <p class="text-sm text-white/80">Verificar antes de aprobar la orden</p>
+                                </div>
+                            </div>
+                            <button type="button" wire:click="closeApproveConfirmModal" class="text-white/80 hover:text-white transition-colors">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Contenido -->
+                    <div class="px-6 py-6">
+                        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+                            <p class="text-sm text-green-800 mb-2">
+                                <strong>✓ ¿Está seguro de aprobar esta orden?</strong>
+                            </p>
+                            <p class="text-xs text-green-700">
+                                Al aprobar la orden se enviará una notificación al cliente con los datos bancarios para realizar el pago.
+                            </p>
+                        </div>
+
+                        <!-- Detalles de la Orden -->
+                        <div class="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-5 border border-gray-200">
+                            <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                                </svg>
+                                Detalles de la Orden
+                            </h4>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Número de Orden</p>
+                                    <p class="font-bold text-gray-800">#{{ $pendingActionOrder['id'] }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Cliente</p>
+                                    <p class="font-semibold text-gray-800">{{ $pendingActionOrder['client'] ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-span-2">
+                                    <p class="text-xs text-gray-500 mb-2">Productos</p>
+                                    <div class="space-y-1">
+                                        @if(isset($pendingActionOrder['items']) && count($pendingActionOrder['items']) > 0)
+                                            @foreach($pendingActionOrder['items'] as $item)
+                                                <div class="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+                                                    <span class="font-medium text-gray-800">{{ $item['product_name'] }}</span>
+                                                    <span class="text-sm text-gray-600">x{{ $item['quantity'] }}</span>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <p class="text-sm text-gray-600">{{ $pendingActionOrder['product_name'] ?? 'N/A' }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Total</p>
+                                    <p class="font-bold text-green-600 text-lg">${{ number_format($pendingActionOrder['amount'], 2) }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="mt-6 flex space-x-3">
+                            <button 
+                                type="button"
+                                wire:click="closeApproveConfirmModal"
+                                wire:loading.attr="disabled"
+                                wire:target="confirmApproveOrder"
+                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                type="button"
+                                wire:click="confirmApproveOrder"
+                                wire:loading.attr="disabled"
+                                wire:target="confirmApproveOrder"
+                                class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                            >
+                                <span wire:loading.remove wire:target="confirmApproveOrder">✓ Aprobar Orden</span>
+                                <span wire:loading wire:target="confirmApproveOrder" class="flex items-center">
+                                    <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Procesando...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Modal de Confirmación: Cancelar Orden -->
+    @if($showCancelConfirmModal && $pendingActionOrder)
+        <div class="fixed inset-0 z-50 overflow-y-auto" style="z-index: 1250;">
+            <div class="flex items-center justify-center min-h-screen px-4 text-center">
+                <div class="fixed inset-0 transition-opacity bg-black/50 backdrop-blur-sm" wire:click="closeCancelConfirmModal"></div>
+                
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto text-left align-middle transition-all transform relative">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-red-500 to-rose-600 px-6 py-4 rounded-t-2xl">
+                        <!-- Barra de carga -->
+                        <div wire:loading wire:target="confirmCancelOrder" class="absolute top-0 left-0 right-0 h-1 bg-white/30 overflow-hidden rounded-t-2xl">
+                            <div class="h-full bg-white animate-pulse" style="width: 100%; animation: shimmer 1.5s infinite;"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-white">Confirmar Cancelación</h3>
+                                    <p class="text-sm text-white/80">Esta acción no se puede deshacer</p>
+                                </div>
+                            </div>
+                            <button type="button" wire:click="closeCancelConfirmModal" class="text-white/80 hover:text-white transition-colors">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Contenido -->
+                    <div class="px-6 py-6">
+                        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                            <p class="text-sm text-red-800 mb-2">
+                                <strong>⚠️ ¿Está seguro de cancelar esta orden?</strong>
+                            </p>
+                            <p class="text-xs text-red-700">
+                                Esta acción es irreversible. La orden cambiará a estado "Cancelada" y no podrá ser procesada. Si la orden está en producción, los materiales no serán devueltos al inventario automáticamente.
+                            </p>
+                        </div>
+
+                        <!-- Detalles de la Orden -->
+                        <div class="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-5 border border-gray-200">
+                            <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                                </svg>
+                                Detalles de la Orden
+                            </h4>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Número de Orden</p>
+                                    <p class="font-bold text-gray-800">#{{ $pendingActionOrder['id'] }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Estado Actual</p>
+                                    <p class="font-semibold">
+                                        @php
+                                            $statusColors = [
+                                                'pending' => 'text-yellow-600',
+                                                'approved' => 'text-blue-600',
+                                                'in_production' => 'text-purple-600',
+                                                'completed' => 'text-green-600',
+                                                'cancelled' => 'text-red-600'
+                                            ];
+                                            $statusLabels = [
+                                                'pending' => 'Pendiente',
+                                                'approved' => 'Aprobada',
+                                                'in_production' => 'En Producción',
+                                                'completed' => 'Completada',
+                                                'cancelled' => 'Cancelada'
+                                            ];
+                                        @endphp
+                                        <span class="{{ $statusColors[$pendingActionOrder['status']] ?? 'text-gray-600' }}">
+                                            {{ $statusLabels[$pendingActionOrder['status']] ?? $pendingActionOrder['status'] }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Cliente</p>
+                                    <p class="font-semibold text-gray-800">{{ $pendingActionOrder['client'] ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-span-2">
+                                    <p class="text-xs text-gray-500 mb-2">Productos</p>
+                                    <div class="space-y-1">
+                                        @if(isset($pendingActionOrder['items']) && count($pendingActionOrder['items']) > 0)
+                                            @foreach($pendingActionOrder['items'] as $item)
+                                                <div class="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+                                                    <span class="font-medium text-gray-800">{{ $item['product_name'] }}</span>
+                                                    <span class="text-sm text-gray-600">x{{ $item['quantity'] }}</span>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <p class="text-sm text-gray-600">{{ $pendingActionOrder['product_name'] ?? 'N/A' }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Total</p>
+                                    <p class="font-bold text-gray-800 text-lg">${{ number_format($pendingActionOrder['amount'], 2) }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="mt-6 flex space-x-3">
+                            <button 
+                                type="button"
+                                wire:click="closeCancelConfirmModal"
+                                wire:loading.attr="disabled"
+                                wire:target="confirmCancelOrder"
+                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Volver
+                            </button>
+                            <button 
+                                type="button"
+                                wire:click="confirmCancelOrder"
+                                wire:loading.attr="disabled"
+                                wire:target="confirmCancelOrder"
+                                class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                            >
+                                <span wire:loading.remove wire:target="confirmCancelOrder">✗ Cancelar Orden</span>
+                                <span wire:loading wire:target="confirmCancelOrder" class="flex items-center">
+                                    <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Procesando...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Modal de Confirmación: Completar Orden -->
+    @if($showCompleteConfirmModal && $pendingActionOrder)
+        <div class="fixed inset-0 z-50 overflow-y-auto" style="z-index: 1250;">
+            <div class="flex items-center justify-center min-h-screen px-4 text-center">
+                <div class="fixed inset-0 transition-opacity bg-black/50 backdrop-blur-sm" wire:click="closeCompleteConfirmModal"></div>
+                
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto text-left align-middle transition-all transform relative">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4 rounded-t-2xl">
+                        <!-- Barra de carga -->
+                        <div wire:loading wire:target="confirmCompleteOrder" class="absolute top-0 left-0 right-0 h-1 bg-white/30 overflow-hidden rounded-t-2xl">
+                            <div class="h-full bg-white animate-pulse" style="width: 100%; animation: shimmer 1.5s infinite;"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-white">Confirmar Completación</h3>
+                                    <p class="text-sm text-white/80">Verificar antes de marcar como completada</p>
+                                </div>
+                            </div>
+                            <button type="button" wire:click="closeCompleteConfirmModal" class="text-white/80 hover:text-white transition-colors">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Contenido -->
+                    <div class="px-6 py-6">
+                        <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                            <p class="text-sm text-blue-800 mb-2">
+                                <strong>🎉 ¿Está seguro de completar esta orden?</strong>
+                            </p>
+                            <p class="text-xs text-blue-700">
+                                Al marcar la orden como completada, indicará que el producto ha sido finalizado y entregado al cliente. Esta acción cambiará el estado de la orden a "Completada".
+                            </p>
+                        </div>
+
+                        <!-- Detalles de la Orden -->
+                        <div class="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-5 border border-gray-200">
+                            <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                                </svg>
+                                Detalles de la Orden
+                            </h4>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Número de Orden</p>
+                                    <p class="font-bold text-gray-800">#{{ $pendingActionOrder['id'] }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Cliente</p>
+                                    <p class="font-semibold text-gray-800">{{ $pendingActionOrder['client'] ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-span-2">
+                                    <p class="text-xs text-gray-500 mb-2">Productos</p>
+                                    <div class="space-y-1">
+                                        @if(isset($pendingActionOrder['items']) && count($pendingActionOrder['items']) > 0)
+                                            @foreach($pendingActionOrder['items'] as $item)
+                                                <div class="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+                                                    <span class="font-medium text-gray-800">{{ $item['product_name'] }}</span>
+                                                    <span class="text-sm text-gray-600">x{{ $item['quantity'] }}</span>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <p class="text-sm text-gray-600">{{ $pendingActionOrder['product_name'] ?? 'N/A' }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Total</p>
+                                    <p class="font-bold text-blue-600 text-lg">${{ number_format($pendingActionOrder['amount'], 2) }}</p>
+                                </div>
+                                @if(isset($pendingActionOrder['estimated_finish_at']) && $pendingActionOrder['estimated_finish_at'])
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Fecha Estimada</p>
+                                    <p class="font-semibold text-gray-800">{{ \Carbon\Carbon::parse($pendingActionOrder['estimated_finish_at'])->format('d/m/Y') }}</p>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="mt-6 flex space-x-3">
+                            <button 
+                                type="button"
+                                wire:click="closeCompleteConfirmModal"
+                                wire:loading.attr="disabled"
+                                wire:target="confirmCompleteOrder"
+                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                type="button"
+                                wire:click="confirmCompleteOrder"
+                                wire:loading.attr="disabled"
+                                wire:target="confirmCompleteOrder"
+                                class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                            >
+                                <span wire:loading.remove wire:target="confirmCompleteOrder">✓ Completar Orden</span>
+                                <span wire:loading wire:target="confirmCompleteOrder" class="flex items-center">
+                                    <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Procesando...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Modal de Stock Insuficiente -->
+    @if($showInsufficientStockModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto" style="z-index: 1200;">
+            <div class="flex items-center justify-center min-h-screen px-4 text-center">
+                <div class="fixed inset-0 transition-opacity bg-black/50 backdrop-blur-sm" wire:click="closeInsufficientStockModal"></div>
+                
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-auto text-left align-middle transition-all transform relative">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-red-600 to-orange-600 px-6 py-4 rounded-t-2xl">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-white">Stock Insuficiente</h3>
+                                    <p class="text-sm text-white/80">No hay suficientes materiales para iniciar la producción</p>
+                                </div>
+                            </div>
+                            <button type="button" wire:click="closeInsufficientStockModal" class="text-white/80 hover:text-white transition-colors">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Contenido -->
+                    <div class="px-6 py-6">
+                        <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <p class="text-sm text-red-800">
+                                <strong>⚠️ Stock Insuficiente:</strong> Los siguientes materiales no tienen suficiente inventario (incluyendo retazos disponibles). Debes realizar una compra antes de iniciar la producción.
+                            </p>
+                        </div>
+
+                        <div class="space-y-3">
+                            @foreach($insufficientMaterials as $item)
+                                <div class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-4">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <h4 class="font-bold text-gray-800 text-lg mb-3">{{ $item['material']->name }}</h4>
+                                            
+                                            <!-- Información principal -->
+                                            <div class="grid grid-cols-3 gap-4 mb-3">
+                                                <div class="bg-white rounded-lg p-3 border border-red-200">
+                                                    <p class="text-xs text-gray-600 mb-1">Necesario</p>
+                                                    <p class="font-bold text-red-700 text-lg">{{ number_format($item['needed'], 2) }}</p>
+                                                    <p class="text-xs text-gray-500">{{ $item['material']->unit_measure }}</p>
+                                                </div>
+                                                <div class="bg-white rounded-lg p-3 border border-gray-200">
+                                                    <p class="text-xs text-gray-600 mb-1">Disponible</p>
+                                                    <p class="font-bold text-gray-800 text-lg">{{ number_format($item['available'], 2) }}</p>
+                                                    <p class="text-xs text-gray-500">{{ $item['material']->unit_measure }}</p>
+                                                </div>
+                                                <div class="bg-white rounded-lg p-3 border border-red-300">
+                                                    <p class="text-xs text-gray-600 mb-1">Faltante</p>
+                                                    <p class="font-bold text-red-600 text-lg">{{ number_format($item['missing'], 2) }}</p>
+                                                    <p class="text-xs text-gray-500">{{ $item['material']->unit_measure }}</p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Desglose de inventario (si es por pieza) -->
+                                            @if($item['material']->is_by_piece)
+                                                @php
+                                                    $stockPieces = $item['material']->stock_quantity;
+                                                    $remaindersTotal = $item['material']->remainders()->where('status', 'available')->sum('remaining_length');
+                                                @endphp
+                                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                                    <p class="text-xs font-semibold text-blue-900 mb-2">📦 Desglose de inventario:</p>
+                                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                                        <div class="flex justify-between">
+                                                            <span class="text-gray-600">Piezas completas:</span>
+                                                            <span class="font-semibold text-gray-800">{{ $stockPieces }} × {{ number_format($item['material']->piece_size, 2) }}{{ $item['material']->unit_measure }}</span>
+                                                        </div>
+                                                        <div class="flex justify-between">
+                                                            <span class="text-gray-600">Retazos disponibles:</span>
+                                                            <span class="font-semibold text-gray-800">{{ number_format($remaindersTotal, 2) }}{{ $item['material']->unit_measure }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        
+                                        <div class="ml-4 flex-shrink-0">
+                                            <div class="w-16 h-16 bg-red-200 rounded-full flex items-center justify-center">
+                                                <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="mt-6 flex space-x-3">
+                            <button 
+                                type="button"
+                                wire:click="closeInsufficientStockModal"
+                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors"
+                            >
+                                Cerrar
+                            </button>
+                            <button 
+                                type="button"
+                                onclick="window.location.href='/admin/inventory'"
+                                class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg transition-all"
+                            >
+                                📦 Ir a Inventario
                             </button>
                         </div>
                     </div>

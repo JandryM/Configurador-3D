@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('slug')->unique(); // Slug único para URLs amigables
             $table->text('description');
             $table->decimal('price', 10, 2)->nullable(); // Nullable para productos personalizables
             $table->enum('product_type', ['gallery', 'customizable'])->default('gallery');

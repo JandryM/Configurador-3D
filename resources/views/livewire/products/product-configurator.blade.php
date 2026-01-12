@@ -1,263 +1,517 @@
-<div class="w-full px-2 sm:px-4 lg:px-8 py-8 bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 text-slate-800 pt-24 min-h-screen">
-        <!-- Título -->
-        <div class="mb-8">
-            <div class="flex items-start gap-6">
-                <div class="flex-1">
-                    <h1 class="text-4xl md:text-5xl font-bold mb-4">
-                        <span class="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Configurador 3D</span> - {{ $product->name }}
-                    </h1>
-                    <p class="text-slate-600 text-lg mt-2">Personaliza tu producto y ve los cambios en tiempo real</p>
-                    <div class="mt-3 flex items-center gap-4 text-sm">
-                        <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 font-medium border border-blue-200/50">
-                            {{ $product->category?->name ?? 'Sin categoría' }}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" 
+     x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val))"
+     :class="darkMode ? 'dark' : ''"
+     class="w-full h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 dark:from-gray-950 dark:via-slate-950 dark:to-slate-900 px-3 sm:px-4 md:px-5 lg:px-6 py-3 pt-16 sm:pt-20 md:pt-20 lg:pt-20 overflow-hidden transition-colors duration-300">
+        
 
         <!-- Mensajes -->
         @if (session()->has('message'))
-            <div class="mb-6 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/50 p-4 shadow-lg backdrop-blur-sm">
-                <p class="text-sm font-medium text-green-700">{{ session('message') }}</p>
+            <div class="mb-2 rounded-xl bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/30 dark:to-green-900/30 border-2 border-emerald-300 dark:border-emerald-700 p-2 sm:p-3 shadow-lg max-w-7xl mx-auto">
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <p class="text-xs sm:text-sm font-semibold text-emerald-800 dark:text-emerald-200">{{ session('message') }}</p>
+                </div>
             </div>
         @endif
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Visor 3D -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Información del Producto -->
-                <div class="bg-slate-50/80 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/50 p-6 transition-all duration-300 hover:shadow-2xl">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-4">{{ $product->name }}</h2>
-                    <div class="flex items-center gap-4">
-                        <div class="flex-1">
-                            <p class="text-slate-600 leading-relaxed mt-1">{{ Str::limit($product->description, 120) }}</p>
-                            <div class="mt-4 flex items-center gap-2">
-                                <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">${{ number_format($calculatedPrice, 2) }}</span>
-                                <span class="text-sm text-slate-500">precio calculado por materiales</span>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-3 md:gap-4 max-w-[1920px] mx-auto h-[calc(100vh-5rem)] sm:h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)]">
+            <!-- Panel Izquierdo: Configuración -->
+            <div class="lg:col-span-3 space-y-2 sm:space-y-2.5 md:space-y-3 h-full overflow-y-auto" style="scrollbar-width: thin; scrollbar-color: rgba(59,130,246,0.3) transparent;">
+
+                <!-- Dimensiones -->
+                <div class="bg-white/90 dark:bg-slate-900/95 backdrop-blur-sm rounded-lg md:rounded-xl shadow-md md:shadow-lg border-2 border-blue-100/50 dark:border-slate-800/50 p-2.5 sm:p-3 md:p-4">
+                    <div class="flex items-center mb-2 sm:mb-3">
+                        <div class="p-1.5 sm:p-2 mr-2 flex items-center justify-center">
+                            <!-- Ícono de regla/medidas con efecto brillante -->
+                            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <defs>
+                                    <filter id="glow-dimensions" x="-40%" y="-40%" width="180%" height="180%">
+                                        <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                                        <feMerge>
+                                            <feMergeNode in="coloredBlur"/>
+                                            <feMergeNode in="SourceGraphic"/>
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+                                <g filter="url(#glow-dimensions)">
+                                    <!-- Regla horizontal -->
+                                    <rect x="5" y="10" width="14" height="4" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <!-- Marcas de medida -->
+                                    <line x1="7" y1="10" x2="7" y2="14" stroke="currentColor" stroke-width="1"/>
+                                    <line x1="9" y1="10" x2="9" y2="14" stroke="currentColor" stroke-width="1"/>
+                                    <line x1="11" y1="10" x2="11" y2="14" stroke="currentColor" stroke-width="1"/>
+                                    <line x1="13" y1="10" x2="13" y2="14" stroke="currentColor" stroke-width="1"/>
+                                    <line x1="15" y1="10" x2="15" y2="14" stroke="currentColor" stroke-width="1"/>
+                                    <line x1="17" y1="10" x2="17" y2="14" stroke="currentColor" stroke-width="1"/>
+                                </g>
+                            </svg>
+                        </div>
+                        <h3 class="text-sm sm:text-base md:text-lg font-bold text-slate-800 dark:text-slate-100">Dimensiones</h3>
+                    </div>
+                    
+                    @foreach(['height' => 'Alto', 'width' => 'Ancho', 'depth' => 'Profundidad'] as $param => $label)
+                        @if($param === 'depth' && in_array($productType, ['window', 'mesh', 'door'])) @continue @endif
+                        @if(isset($parameterLimits[$param]))
+                        <div class="mb-2 sm:mb-3">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">{{ $label }}</label>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="relative group">
+                                        <input 
+                                            type="number"
+                                            x-data
+                                            x-on:blur="
+                                                if ($el.value !== '') {
+                                                    let v = parseFloat($el.value);
+                                                    if (!isNaN(v)) {
+                                                        $el.value = v.toFixed(3);
+                                                        $dispatch('input', $el.value);
+                                                    }
+                                                }
+                                            "
+                                            x-on:input="
+                                                if ($el.value.includes('.')) {
+                                                    let [int, dec] = $el.value.split('.');
+                                                    if (dec && dec.length > 3) {
+                                                        $el.value = int + '.' + dec.slice(0,3);
+                                                        $dispatch('input', $el.value);
+                                                    }
+                                                }
+                                            "
+                                            wire:model.blur="parameters.{{ $param }}"
+                                            min="{{ $parameterLimits[$param]['min'] }}"
+                                            max="{{ $parameterLimits[$param]['max'] }}"
+                                            step="0.001"
+                                            pattern="^\\d+(\\.\\d{1,3})?$"
+                                            class="w-16 sm:w-20 px-2 py-1.5 pr-6 border-2 border-blue-200/50 dark:border-blue-700/50 bg-gradient-to-br from-white to-blue-50 dark:from-slate-800 dark:to-slate-700 dark:text-white rounded-lg text-xs sm:text-sm text-right font-semibold focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                                        
+                                        <!-- Flechas personalizadas -->
+                                        <div class="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                            <button type="button" 
+                                                    class="w-4 h-3 flex items-center justify-center hover:bg-blue-500/20 rounded-t transition-colors"
+                                                    tabindex="-1"
+                                                    onclick="let input = this.parentElement.previousElementSibling; let currentValue = parseFloat(input.value) || 0; let newValue = (currentValue + 0.01).toFixed(3); if (parseFloat(newValue) <= parseFloat(input.max)) { input.value = newValue; input.dispatchEvent(new Event('input', { bubbles: true })); input.blur(); }">
+                                                <svg class="w-3 h-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 20 20">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 12l5-5 5 5"/>
+                                                </svg>
+                                            </button>
+                                            <button type="button" 
+                                                    class="w-4 h-3 flex items-center justify-center hover:bg-blue-500/20 rounded-b transition-colors"
+                                                    tabindex="-1"
+                                                    onclick="let input = this.parentElement.previousElementSibling; let currentValue = parseFloat(input.value) || 0; let newValue = (currentValue - 0.01).toFixed(3); if (parseFloat(newValue) >= parseFloat(input.min)) { input.value = newValue; input.dispatchEvent(new Event('input', { bubbles: true })); input.blur(); }">
+                                                <svg class="w-3 h-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 20 20">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 8l-5 5-5-5"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">cm</span>
+                                </div>
                             </div>
+                            <div class="relative group">
+                                <input type="range" wire:model.live="parameters.{{ $param }}"
+                                    min="{{ $parameterLimits[$param]['min'] }}" max="{{ $parameterLimits[$param]['max'] }}" step="0.001"
+                                    class="w-full h-1.5 sm:h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                                    Desplazate para modificar medidas
+                                </span>
+                            </div>
+                        </div>
+                        @endif
+                    @endforeach
+                </div>
+
+                <!-- Aluminio -->
+                <div class="bg-white/90 dark:bg-slate-900/95 backdrop-blur-sm rounded-lg md:rounded-xl shadow-md md:shadow-lg border-2 border-blue-100/50 dark:border-slate-800/50 p-2.5 sm:p-3 md:p-4 hover:shadow-xl transition-all duration-300">
+                    <div class="flex items-center mb-2 sm:mb-3">
+                        <div class="p-1.5 sm:p-2 mr-2 flex items-center justify-center">
+                            <!-- Ícono de perfil de aluminio con efecto brillante -->
+                            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <defs>
+                                    <filter id="glow-aluminum" x="-40%" y="-40%" width="180%" height="180%">
+                                        <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                                        <feMerge>
+                                            <feMergeNode in="coloredBlur"/>
+                                            <feMergeNode in="SourceGraphic"/>
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+                                <g filter="url(#glow-aluminum)">
+                                    <!-- Perfil de aluminio: forma de "L" y detalles internos -->
+                                    <rect x="5" y="5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <polyline points="7,17 7,7 17,7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                                    <line x1="7" y1="12" x2="17" y2="12" stroke="currentColor" stroke-width="1"/>
+                                    <line x1="12" y1="7" x2="12" y2="17" stroke="currentColor" stroke-width="1"/>
+                                </g>
+                            </svg>
+                        </div>
+                        <h3 class="text-sm sm:text-base md:text-lg font-bold text-slate-800 dark:text-slate-100">Aluminio</h3>
+                    </div>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5 sm:gap-2 md:gap-3">
+                        @foreach($availableColors as $colorName => $color)
+                            @if(!str_contains(strtolower($colorName), 'glass') && !str_contains(strtolower($colorName), 'vidrio'))
+                            <div class="relative group">
+                                <button type="button"
+                                        wire:click="updateParameter('color', '{{ $colorName }}')"
+                                        class="w-12 h-12 sm:w-14 sm:h-14 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-full border-2 sm:border-3 transition-all duration-300 hover:scale-110 hover:shadow-lg {{ $parameters['color'] === $colorName ? 'border-blue-600 ring-2 sm:ring-4 ring-blue-200 shadow-xl' : 'border-slate-300 hover:border-slate-400' }}"
+                                        aria-label="{{ $color->color_name }}" tabindex="0">
+                                    <div class="w-full h-full rounded-full"
+                                        style="background-image: url('{{ asset(
+                                            (str_ends_with($color->texture_path, '/aluminum/black/')
+                                                ? 'textures/aluminum/black/custom-picker.jpg'
+                                                : (str_ends_with($color->texture_path, '/aluminum/bronze/')
+                                                    ? 'textures/aluminum/bronze/custom-picker.jpg'
+                                                    : (str_ends_with($color->texture_path, '/aluminum/white/')
+                                                        ? 'textures/aluminum/white/custom-picker.jpg'
+                                                        : (str_ends_with($color->texture_path, '/aluminum/natural/')
+                                                            ? 'textures/aluminum/natural/custom-picker.jpg'
+                                                            : (str_ends_with($color->texture_path, '/aluminum/woody/')
+                                                                ? 'textures/aluminum/woody/custom-picker.jpg'
+                                                                : $color->texture_path)))))
+                                        ) }}'); background-size: cover; background-position: center;"></div>
+                                </button>
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                                    @php
+                                        $colorNameDisplay = $color->color_name;
+                                        $translations = [
+                                            'Natural' => 'Natural',
+                                            'White' => 'Blanco',
+                                            'Woody' => 'Madera',
+                                            'Black Anodized' => 'Negro Anodizado',
+                                            ];
+                                    @endphp
+                                    {{ $translations[$colorNameDisplay] ?? $colorNameDisplay }}
+                                </span>
+                            </div>
+                            @endif
+                        @endforeach
+                    </div>
+                    <div class="mt-2 sm:mt-3 text-center">
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <span class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            @php
+                                $colorName = $availableColors[$parameters['color']]->color_name ?? $parameters['color'];
+                                $translations = [
+                                    'Natural' => 'Natural',
+                                    'White' => 'Blanco',
+                                    'Black Anodized' => 'Negro Anodizado',
+                                    'Woody' => 'Madera',
+                                    'Bronze' => 'Bronze',
+                                    'Silver' => 'Plateado',
+                                    'Gold' => 'Dorado',
+                                    'Transparent Glass' => 'Vidrio Transparente',
+                                    'Tinted Glass' => 'Vidrio Tintado',
+                                    'Frosted Glass' => 'Vidrio Esmerilado',
+                                ];
+                                echo $translations[$colorName] ?? $colorName;
+                            @endphp
+                            </span>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Configurador 3D -->
-                <div class="bg-slate-50/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-4 transition-all duration-300 hover:shadow-2xl w-fit mx-auto">
-                    <h2 class="text-xl font-bold text-slate-800 mb-3 text-center">Vista 3D Interactiva</h2>
-                    
-                    <div wire:ignore id="parametric-3d-viewer" class="w-96 h-96 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-2xl border-2 border-slate-300/50 relative overflow-hidden shadow-inner">
+                <!-- Estructura (Vidrio) -->
+                @if($productType !== 'mesh' && count(array_filter(array_keys($availableColors->toArray()), fn($k) => str_contains(strtolower($k), 'glass') || str_contains(strtolower($k), 'vidrio'))) > 0)
+                <div class="bg-white/90 dark:bg-slate-900/95 backdrop-blur-sm rounded-lg md:rounded-xl shadow-md md:shadow-lg border-2 border-cyan-100/50 dark:border-slate-800/50 p-2.5 sm:p-3 md:p-4 hover:shadow-xl transition-all duration-300">
+                    <div class="flex items-center mb-2 sm:mb-3">
+                        <div class="p-1.5 sm:p-2 mr-2 flex items-center justify-center">
+                            <!-- Ícono de vidrio roto con efecto brillante -->
+                            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <defs>
+                                    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+                                        <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                                        <feMerge>
+                                            <feMergeNode in="coloredBlur"/>
+                                            <feMergeNode in="SourceGraphic"/>
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+                                <g filter="url(#glow)">
+                                    <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <!-- Fracturas -->
+                                    <polyline points="7,7 12,10 17,7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                                    <polyline points="7,17 12,14 17,17" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                                    <polyline points="7,7 8,12 12,10 16,12 17,7" stroke="currentColor" stroke-width="1" fill="none"/>
+                                    <line x1="12" y1="10" x2="12" y2="14" stroke="currentColor" stroke-width="1"/>
+                                </g>
+                            </svg>
+                        </div>
+                        <h3 class="text-sm sm:text-base md:text-lg font-bold text-slate-800 dark:text-slate-100">Vidrio</h3>
                     </div>
-                    <div class="mt-3 flex justify-center space-x-3">
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5 sm:gap-2 md:gap-3">
+                        @foreach($availableColors as $colorName => $color)
+                            @if(str_contains(strtolower($colorName), 'glass') || str_contains(strtolower($colorName), 'vidrio'))
+                            <div class="relative group">
+                                <button type="button"
+                                        wire:click="updateParameter('glassColor', '{{ $colorName }}')"
+                                        class="w-12 h-12 sm:w-14 sm:h-14 md:w-11 md:h-11 lg:w-12 lg:h-12 border-2 sm:border-3 transition-all duration-300 hover:scale-110 hover:shadow-lg rounded-lg {{ $parameters['glassColor'] === $colorName ? 'border-cyan-600 ring-2 sm:ring-4 ring-cyan-200 shadow-xl' : 'border-slate-300 hover:border-slate-400' }}"
+                                        aria-label="{{ $color->color_name }}" tabindex="0">
+                                    <div class="w-full h-full"
+                                        style="background-image: url('{{ asset(
+                                            (str_ends_with($color->texture_path, '/glass/transparent/')
+                                                ? 'textures/glass/transparent/custom-picker.jpg'
+                                                : (str_ends_with($color->texture_path, '/glass/reflective_blue/')
+                                                    ? 'textures/glass/reflective_blue/custom-picker.jpg'
+                                                    : (str_ends_with($color->texture_path, '/glass/reflective_gray_dark/')
+                                                        ? 'textures/glass/reflective_gray_dark/custom-picker.jpg'
+                                                        : $color->texture_path)))
+                                        ) }}'); background-size: cover; background-position: center;"></div>
+                                </button>
+                                @php
+                                    $glassTranslations = [
+                                        'Transparent Glass' => 'Transparente',
+                                        'Reflective Blue Sky Glass' => 'Azul Cielo Reflectivo',
+                                        'Reflective Gray Dark Glass' => 'Gris Oscuro Reflectivo',
+                                    ];
+                                    $glassColorName = $color->color_name;
+                                @endphp
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                                    {{ $glassTranslations[$glassColorName] ?? $glassColorName }}
+                                </span>
+                            </div>
+                            @endif
+                        @endforeach
+                    </div>
+                    <div class="mt-2 sm:mt-3 text-center">
+                        <div class="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/30 dark:to-blue-900/30 py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg border border-cyan-200 dark:border-cyan-800">
+                            <span class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            @php
+                                $glassColorName = $availableColors[$parameters['glassColor']]->color_name ?? $parameters['glassColor'];
+                                $glassTranslations = [
+                                    'Transparent Glass' => 'Transparente',
+                                    'Reflective Blue Sky Glass' => 'Azul Cielo Reflectivo',
+                                    'Reflective Gray Dark Glass' => 'Gris Oscuro Reflectivo',
+                                ];
+                                echo $glassTranslations[$glassColorName] ?? $glassColorName;
+                            @endphp
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            </div>
+
+            <!-- Panel Central: Visor 3D -->
+            <div class="lg:col-span-6 flex flex-col bg-white/90 dark:bg-slate-900/95 backdrop-blur-sm rounded-lg md:rounded-xl shadow-md md:shadow-lg border-2 border-slate-200/50 dark:border-slate-800/50 p-2 sm:p-3 md:p-4 h-full overflow-hidden">
+                <div class="flex flex-col items-center w-full h-full">
+                    <div wire:ignore id="parametric-3d-viewer" class="w-full flex-1 bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 dark:from-gray-950 dark:via-slate-950 dark:to-slate-900 rounded-lg relative overflow-hidden">
+                    </div>
+                    
+                    <div class="mt-2 sm:mt-3 flex flex-wrap justify-center gap-2 sm:gap-3">
+                        <div class="relative group">
                         <button type="button" 
                                 onclick="resetParametricView()"
-                                class="px-3 py-2 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-slate-200"
-                                title="Resetear vista">
-                            🔄 Resetear Vista
+                                class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 text-slate-700 font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-slate-300"
+                                >
+                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            <span class="hidden xs:inline sm:inline">Resetear</span>
                         </button>
+                        <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                            Restaurar vista 3D
+                        </span>
+                        </div>
+                        <div class= "relative group">
                         <button type="button" 
                                 onclick="takeParametricScreenshot()"
-                                class="px-3 py-2 text-sm bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg border border-blue-500/20"
-                                title="Tomar captura">
-                            📸 Capturar Imagen
+                                class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                                >
+                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span class="hidden xs:inline sm:inline">Capturar</span>
                         </button>
+                        <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                            Descargar imagen PNG
+                        </span>
+                        </div>
                     </div>
 
-                    <div class="mt-3 p-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-100/50 shadow-inner">
-                        <div class="grid grid-cols-2 gap-3 text-sm">
-                            <div class="text-center">
-                                <span class="block font-semibold text-slate-700 mb-1">Ancho</span>
-                                <span class="text-blue-600 font-bold text-base">{{ number_format($parameters['width'], 3) }}m</span>
-                            </div>
-                            <div class="text-center">
-                                <span class="block font-semibold text-slate-700 mb-1">Alto</span>
-                                <span class="text-cyan-600 font-bold text-base">{{ number_format($parameters['height'], 3) }}m</span>
-                            </div>
-                            <div class="text-center">
-                                <span class="block font-semibold text-slate-700 mb-1">Área</span>
-                                <span class="text-emerald-600 font-bold text-base">{{ number_format($parameters['width'] * $parameters['height'], 3) }}m²</span>
-                            </div>
-                            <div class="text-center">
-                                <span class="block font-semibold text-slate-700 mb-1">Precio</span>
-                                <span class="text-slate-800 font-bold text-base">${{ number_format($calculatedPrice, 2) }}</span>
-                            </div>
+                    <div class="mt-2 sm:mt-3 text-center">
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg border border-blue-200 dark:border-blue-800 inline-block">
+                            <p class="text-xs sm:text-sm md:text-base font-bold text-slate-800 dark:text-slate-100">{{ $product->name }}</p>
                         </div>
                     </div>
                 </div>
-
             </div>
 
-        <div class="space-y-4">
-            <div class="bg-white/80 rounded-2xl shadow-lg border border-slate-200 p-4">
-                <h3 class="text-lg font-bold text-slate-800 mb-3">🔢 Cantidad de Unidades</h3>
-                
-                <div class="flex items-center gap-3">
-                    <button type="button" 
-                            wire:click="$set('quantity', {{ max(1, $quantity - 1) }})"
-                            class="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-bold transition-all duration-200 hover:scale-105 shadow-md">
-                        -
-                    </button>
-                    
-                    <input type="number" 
-                           wire:model.live="quantity"
-                           min="1" 
-                           step="1"
-                           class="flex-1 px-4 py-2 text-center text-xl font-bold border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
-                    
-                    <button type="button" 
-                            wire:click="$set('quantity', {{ $quantity + 1 }})"
-                            class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-bold transition-all duration-200 hover:scale-105 shadow-md">
-                        +
-                    </button>
-                </div>
-                
-                <p class="text-sm text-slate-600 mt-2 text-center">
-                    Precio por unidad: <span class="font-semibold text-blue-600">${{ number_format($calculatedPrice / max(1, $quantity), 2) }}</span>
-                </p>
-            </div>
+            <!-- Panel Derecho: Resumen -->
+            <div class="lg:col-span-3 h-full overflow-y-auto" style="scrollbar-width: thin; scrollbar-color: rgba(59,130,246,0.3) transparent;">
 
-            <div class="bg-white/80 rounded-2xl shadow-lg border border-slate-200 p-4">
-                <h3 class="text-lg font-bold text-slate-800 mb-3">📏 Dimensiones</h3>
-                
-                @foreach(['width' => 'Ancho', 'height' => 'Alto', 'depth' => 'Profundidad'] as $param => $label)
-                    @if($param === 'depth' && $productType === 'window') @continue @endif
-                    @if(isset($parameterLimits[$param]))
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">
-                            {{ $label }}: <span class="text-blue-600">{{ number_format($parameters[$param], 2) }}m</span>
-                        </label>
-                        <div class="flex items-center gap-2">
-                            <input type="range" wire:model.live="parameters.{{ $param }}"
-                                   min="{{ $parameterLimits[$param]['min'] }}" max="{{ $parameterLimits[$param]['max'] }}" step="0.001"
-                                   class="w-full h-2 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-lg slider-thumb">
-                            <input type="number" wire:model.blur="parameters.{{ $param }}"
-                                   min="{{ $parameterLimits[$param]['min'] }}" max="{{ $parameterLimits[$param]['max'] }}" step="0.001"
-                                   class="w-20 px-2 py-1 border border-slate-300 rounded-lg text-sm">
+                <!-- Resumen de Proforma -->
+                <div class="bg-white/90 dark:bg-slate-900/95 backdrop-blur-sm rounded-lg md:rounded-xl shadow-md md:shadow-lg border-2 border-blue-100/50 dark:border-slate-800/50 p-2.5 sm:p-3 md:p-4">
+                    <div class="flex items-center mb-2 sm:mb-3">
+                        <div class="p-1.5 sm:p-2 mr-2 flex items-center justify-center">
+                            <!-- Ícono de documento/lista con efecto brillante -->
+                            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <defs>
+                                    <filter id="glow-summary" x="-40%" y="-40%" width="180%" height="180%">
+                                        <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                                        <feMerge>
+                                            <feMergeNode in="coloredBlur"/>
+                                            <feMergeNode in="SourceGraphic"/>
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+                                <g filter="url(#glow-summary)">
+                                    <!-- Documento -->
+                                    <rect x="6" y="5" width="12" height="14" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <!-- Líneas de resumen -->
+                                    <line x1="8" y1="9" x2="16" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                                    <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+                                    <line x1="8" y1="15" x2="13" y2="15" stroke="currentColor" stroke-width="1.5"/>
+                                </g>
+                            </svg>
                         </div>
-                        <div class="flex justify-between text-xs text-slate-500 mt-1">
-                            <span>Min: {{ $parameterLimits[$param]['min'] }}m</span>
-                            <span>Max: {{ $parameterLimits[$param]['max'] }}m</span>
+                        <h3 class="text-sm sm:text-base md:text-lg font-bold text-slate-800 dark:text-slate-100">Resumen</h3>
+                    </div>
+                    
+                    <div class="mb-2 sm:mb-3 pb-2 sm:pb-3 border-b-2 border-slate-200 dark:border-slate-700">
+                        <div class="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg md:rounded-xl p-3 sm:p-4 text-center shadow-lg">
+                            <p class="text-xs text-blue-100 mb-1 font-medium">Precio Total</p>
+                            <p class="text-xl sm:text-2xl md:text-3xl font-black text-white">${{ number_format($calculatedPrice, 2) }}</p>
                         </div>
                     </div>
-                    @endif
-                @endforeach
-            </div>
 
-            <div class="bg-slate-50/80 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/50 p-6 transition-all duration-300 hover:shadow-2xl">
-                    <h3 class="text-xl font-bold text-slate-800 mb-4">🎨 Colores Disponibles</h3>
-                    
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-3">Color del Aluminio</label>
-                            
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                @foreach($availableColors as $colorName => $color)
-                                    @if(!str_contains(strtolower($colorName), 'glass') && !str_contains(strtolower($colorName), 'vidrio'))
-                                    <div class="relative">
-                                        <input type="radio" 
-                                               wire:change="updateParameter('color', '{{ $colorName }}')"
-                                               name="color_selection" 
-                                               value="{{ $colorName }}"
-                                               id="color_{{ $loop->index }}"
-                                               class="sr-only peer"
-                                               @if($parameters['color'] === $colorName) checked @endif>
-                                        
-                                        <label for="color_{{ $loop->index }}" 
-                             class="flex items-center p-4 bg-white rounded-lg border-2 cursor-pointer transition-all
-                                 hover:border-blue-300 hover:shadow-md
-                                 peer-checked:border-blue-500 peer-checked:bg-blue-50 text-black">
-                                            
-                                            <div class="w-12 h-12 rounded-md border-2 border-gray-200 mr-4 shadow-inner
-                                                        @if($colorName === 'Natural') bg-gradient-to-br from-gray-200 to-gray-300
-                                                        @elseif($colorName === 'White') bg-gradient-to-br from-white to-gray-100
-                                                        @elseif($colorName === 'Black Anodized') bg-gradient-to-br from-gray-800 to-black
-                                                        @elseif($colorName === 'Woody') bg-gradient-to-br from-yellow-100 to-yellow-200
-                                                        @elseif($colorName === 'Bronze') bg-gradient-to-br from-yellow-600 to-yellow-800
-                                                        @else bg-gradient-to-br from-gray-300 to-gray-400 @endif">
-                                            </div>
-                                            
-                                            <div class="flex-1">
-                                                <div class="font-medium text-black">{{ $color->color_name }}</div>
-                                                <div class="text-sm text-black">
-                                                    Aluminio {{ strtolower($color->color_name) }}
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="ml-2 opacity-0 peer-checked:opacity-100 transition-opacity">
-                                                <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                                </svg>
-                                            </div>
-                                        </label>
-                                    </div>
-                                    @endif
-                                @endforeach
-                            </div>
+                    <div class="space-y-2 sm:space-y-2.5 mb-2 sm:mb-3">
+                        <!-- Dimensiones -->
+                        <div class="flex justify-between items-center p-2 sm:p-2.5 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-700/50 dark:to-blue-900/30 rounded-lg border border-blue-100 dark:border-blue-800">
+                            <span class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Dimensiones:</span>
+                            <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">{{ number_format($parameters['height'], 3) }}m × {{ number_format($parameters['width'], 3) }}m</span>
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-3">Color del Vidrio</label>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                @foreach($availableColors as $colorName => $color)
-                                    @if(str_contains(strtolower($colorName), 'glass') || str_contains(strtolower($colorName), 'vidrio'))
-                                    <div class="relative">
-                                        <input type="radio"
-                                               wire:change="updateParameter('glassColor', '{{ $colorName }}')"
-                                               name="glass_color_selection"
-                                               value="{{ $colorName }}"
-                                               id="glass_color_{{ $loop->index }}"
-                                               class="sr-only peer"
-                                               @if($parameters['glassColor'] === $colorName) checked @endif>
-                                        <label for="glass_color_{{ $loop->index }}"
-                             class="flex items-center p-4 bg-white rounded-lg border-2 cursor-pointer transition-all
-                                 hover:border-blue-300 hover:shadow-md
-                                 peer-checked:border-blue-500 peer-checked:bg-blue-50 text-black">
-                                            <div class="w-12 h-12 rounded-md border-2 border-gray-200 mr-4 shadow-inner bg-gradient-to-br from-blue-100 to-blue-300"></div>
-                                            <div class="flex-1">
-                                                <div class="font-medium text-black">{{ $color->color_name }}</div>
-                                                <div class="text-sm text-black">Vidrio {{ strtolower($color->color_name) }}</div>
-                                            </div>
-                                            <div class="ml-2 opacity-0 peer-checked:opacity-100 transition-opacity">
-                                                <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                                </svg>
-                                            </div>
-                                        </label>
-                                    </div>
-                                    @endif
-                                @endforeach
+
+                        <!-- Área -->
+                        <div class="flex justify-between items-center p-2 sm:p-2.5 bg-gradient-to-r from-slate-50 to-cyan-50 dark:from-slate-700/50 dark:to-cyan-900/30 rounded-lg border border-cyan-100 dark:border-cyan-800">
+                            <span class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Área total:</span>
+                            <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">{{ number_format($parameters['width'] * $parameters['height'], 3) }}m²</span>
+                        </div>
+
+                        <!-- Color -->
+                        <div class="flex justify-between items-center p-2 sm:p-2.5 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <span class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Color Aluminio:</span>
+                            <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">
+                                @php
+                                    $colorName = $availableColors[$parameters['color']]->color_name ?? $parameters['color'];
+                                    $translations = [
+                                        'Natural' => 'Natural',
+                                        'White' => 'Blanco',
+                                        'Black Anodized' => 'Negro Anodizado',
+                                        'Woody' => 'Madera',
+                                        'Bronze' => 'Bronze',
+                                        'Silver' => 'Plateado',
+                                        'Gold' => 'Dorado',
+                                    ];
+                                    echo $translations[$colorName] ?? $colorName;
+                                @endphp
+                            </span>
+                        </div>
+
+                        <!-- Color Vidrio -->
+                        @if($productType !== 'mesh' && isset($parameters['glassColor']) && isset($availableColors[$parameters['glassColor']]))
+                        <div class="flex justify-between items-center p-2 sm:p-2.5 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-lg border border-cyan-200 dark:border-cyan-800">
+                            <span class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Color Vidrio:</span>
+                            <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">
+                                @php
+                                    $glassColorName = $availableColors[$parameters['glassColor']]->color_name;
+                                    $glassTranslations = [
+                                        'Transparent Glass' => 'Transparente',
+                                        'Reflective Blue Sky Glass' => 'Azul Cielo Reflectivo',
+                                        'Reflective Gray Dark Glass' => 'Gris Oscuro Reflectivo',
+                                    ];
+                                    echo $glassTranslations[$glassColorName] ?? $glassColorName;
+                                @endphp
+                            </span>
+                        </div>
+                        @endif
+
+                        <!-- Precio Unitario -->
+                        <div class="flex justify-between items-center p-2 sm:p-2.5 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/30 dark:to-green-900/30 rounded-lg border-2 border-emerald-200 dark:border-emerald-800">
+                            <span class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Precio unitario:</span>
+                            <span class="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400">${{ number_format($calculatedPrice / max(1, $quantity), 2) }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Cantidad -->
+                    <div class="mb-2 sm:mb-3 pb-2 sm:pb-3 border-b-2 border-slate-200 dark:border-slate-700">
+                        <label class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 mb-2 block text-center">Cantidad</label>
+                        <div class="bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-700/50 dark:to-blue-900/30 p-2 sm:p-3 rounded-lg border-2 border-blue-200 dark:border-blue-800">
+                            <div class="flex items-center justify-center gap-2 sm:gap-3">
+                                <div class="relative group">
+                                <button type="button"
+                                        wire:click="$set('quantity', {{ max(1, $quantity - 1) }})"
+                                        class="w-9 h-9 sm:w-11 sm:h-11 bg-gradient-to-br from-slate-400 to-slate-600 hover:from-slate-500 hover:to-slate-700 text-white rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 border-2 border-slate-300/50 dark:border-slate-600/50">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4"/>
+                                    </svg>
+                                </button>
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">-1</span>
+                                </div>
+                                <div class="px-4 py-1.5 bg-white dark:bg-slate-800 rounded-lg border-2 border-blue-300 dark:border-blue-700 shadow-inner">
+                                    <span class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">{{ $quantity }}</span>
+                                </div>      
+                                <div class= "relative group">
+                                <button type="button"
+                                        wire:click="$set('quantity', {{ $quantity + 1 }})"
+                                        class="w-9 h-9 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 border-2 border-blue-300/50 dark:border-cyan-500/50">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                </button>
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">+1</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="bg-gradient-to-br from-slate-50 to-blue-50 backdrop-blur-sm rounded-3xl shadow-xl border border-slate-200/50 p-6 transition-all duration-300 hover:shadow-2xl">
-                    <h3 class="text-xl font-bold text-slate-800 mb-4">💰 Precio Estimado</h3>
-                    
-                    <div class="mb-4 p-3 bg-white/50 rounded-xl">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-sm text-slate-600">Cantidad:</span>
-                            <span class="text-lg font-bold text-slate-800">{{ $quantity }} {{ $quantity == 1 ? 'unidad' : 'unidades' }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-slate-600">Precio unitario:</span>
-                            <span class="text-lg font-semibold text-blue-600">${{ number_format($calculatedPrice / max(1, $quantity), 2) }}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
-                        ${{ number_format($calculatedPrice, 2) }}
-                    </div>
-                    <p class="text-sm text-slate-500 mb-6">Precio total</p>
-
-                    <div class="space-y-3">
+                    <div class="space-y-2 sm:space-y-2.5">
                         @if(Auth::check())
-                            <button type="button"
-                                    wire:click="$set('showProformaModal', true)"
-                                    class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-2xl border border-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                                    @if(empty($calculatedPrice) || $calculatedPrice == 0) disabled aria-disabled="true" @endif>
-                                📋 Visualizar Proforma
-                            </button>
+                            @if(isset($userProfileComplete) && !$userProfileComplete)
+                                <div class="w-full bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 text-amber-800 font-semibold py-2 sm:py-2.5 px-2.5 sm:px-3 rounded-lg text-center shadow-lg">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span class="text-xs sm:text-sm">Completa tus datos</span>
+                                </div>
+                            @endif
+                            <div class="relative group">
+                                <button type="button"
+                                        wire:click="$set('showProformaModal', true)"
+                                        class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-xs sm:text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed border border-blue-500/20"
+                                        @if(empty($calculatedPrice) || $calculatedPrice == 0 || (isset($userProfileComplete) && !$userProfileComplete)) disabled aria-disabled="true" @endif>
+                                    <!-- Ícono de documento/lista con efecto brillante -->
+                                    <svg class="w-5 h-5 sm:w-6 sm:h-6 inline-block mr-1.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <defs>
+                                            <filter id="glow-summary-btn" x="-40%" y="-40%" width="180%" height="180%">
+                                                <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                                                <feMerge>
+                                                    <feMergeNode in="coloredBlur"/>
+                                                    <feMergeNode in="SourceGraphic"/>
+                                                </feMerge>
+                                            </filter>
+                                        </defs>
+                                        <g filter="url(#glow-summary-btn)">
+                                            <rect x="6" y="5" width="12" height="14" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                            <line x1="8" y1="9" x2="16" y2="9" stroke="currentColor" stroke-width="1.5"/>
+                                            <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+                                            <line x1="8" y1="15" x2="13" y2="15" stroke="currentColor" stroke-width="1.5"/>
+                                        </g>
+                                    </svg>
+                                    <span>VISUALIZAR PROFORMA</span>
+                                </button>
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                                    Ver detalles de la proforma
+                                </span>
+                            </div>
                         @else
-                            <div class="w-full bg-gradient-to-r from-yellow-100 to-amber-100 border border-yellow-300/50 text-yellow-800 font-semibold py-3 px-4 rounded-xl text-center shadow-md">
-                                ⚠️ Debes iniciar sesión para agregar a la proforma.
+                            <div class="w-full bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 text-amber-800 font-semibold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-center shadow-lg">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-xs sm:text-sm">Inicia sesión para continuar</span>
                             </div>
                         @endif
                     </div>
@@ -265,6 +519,7 @@
             </div>
         </div>
         
+        <!-- Modales -->
         <div x-data="{ show: @entangle('showProformaModal') }" x-show="show" x-transition x-cloak class="fixed inset-0 z-50">
             <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
             <div class="flex items-center justify-center min-h-screen px-4">
@@ -273,12 +528,25 @@
                     @if(Auth::check())
                         <div class="bg-black/70 backdrop-blur-md rounded-2xl shadow-2xl w-full p-6 md:p-8 relative text-white overflow-hidden">
                             @if (session()->has('message'))
-                                <div x-data="{ show: true }" x-show="show" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-40">
-                                    <div class="bg-black/70 backdrop-blur-md rounded-2xl shadow-2xl max-w-sm w-full p-6 relative border-2 border-green-500">
-                                        <button type="button" @click="show = false" class="absolute top-2 right-2 text-gray-400 hover:text-white text-2xl">&times;</button>
+                                <div x-data="{ show: true }" 
+                                     x-init="setTimeout(() => show = false, 2000)" 
+                                     x-show="show" 
+                                     x-transition:enter="transition ease-out duration-300" 
+                                     x-transition:enter-start="opacity-0 scale-90" 
+                                     x-transition:enter-end="opacity-100 scale-100" 
+                                     x-transition:leave="transition ease-in duration-300" 
+                                     x-transition:leave-start="opacity-100 scale-100" 
+                                     x-transition:leave-end="opacity-0 scale-90" 
+                                     class="fixed inset-0 z-[100] flex items-center justify-center">
+                                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+                                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-8 relative mx-4 border-2 border-green-500">
+                                        <button type="button" @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl font-bold">&times;</button>
                                         <div class="flex flex-col items-center">
-                                            <svg class="w-16 h-16 text-green-400 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 12l2 2l4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                            <h3 class="text-xl font-bold text-white mb-2">
+                                            <svg class="w-16 h-16 text-green-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                                                <path d="M8 12l2 2l4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2 text-center">
                                                 @if(str_contains(session('message'), 'Orden creada'))
                                                     ¡Orden creada exitosamente!
                                                 @elseif(str_contains(session('message'), 'agregada'))
@@ -287,7 +555,7 @@
                                                     ¡Operación exitosa!
                                                 @endif
                                             </h3>
-                                            <p class="text-white/80 text-center">{{ session('message') }}</p>
+                                            <p class="text-gray-600 dark:text-gray-300 text-center">{{ session('message') }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -318,7 +586,7 @@
                                                wire:model.live="quantity"
                                                min="1" 
                                                step="1"
-                                               class="flex-1 px-4 py-2 text-center text-lg font-bold border-2 border-white/20 bg-black/30 text-white rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200/50">
+                                               class="flex-1 px-4 py-2 text-center text-lg font-bold border-2 border-white/20 bg-black/30 text-white rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200/50 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all duration-200">
                                         
                                         <button type="button" 
                                                 wire:click="$set('quantity', {{ $quantity + 1 }})"
@@ -410,7 +678,7 @@
                                         
                                         @if($currentProformaId)
                                             <button type="button" 
-                                                    wire:click="orderProforma" 
+                                                    @click="$wire.set('showOrderConfirmModal', true)" 
                                                     class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
                                                 🚀 Ordenar Proforma
                                             </button>
@@ -425,16 +693,23 @@
                                 @else
                                     <!-- Botones principales para nueva configuración -->
                                     <div class="flex flex-col sm:flex-row justify-end gap-3">
+                                        @if(isset($userProfileComplete) && !$userProfileComplete)
+                                            <div class="w-full bg-gradient-to-r from-yellow-100 to-amber-100 border border-yellow-300/50 text-yellow-800 font-semibold py-2 px-4 rounded-xl text-center shadow-md mb-2">
+                                                ⚠️ Debes completar tus datos personales para guardar una proforma.
+                                            </div>
+                                        @endif
                                         <button type="button" 
-                                                wire:click="crearNuevaProforma" 
-                                                class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                                @click="$wire.set('showCreateConfirmModal', true)" 
+                                                class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                                                @if(empty($calculatedPrice) || $calculatedPrice == 0 || (isset($userProfileComplete) && !$userProfileComplete)) disabled aria-disabled="true" @endif>
                                             ➕ Crear Nueva Proforma
                                         </button>
                                         
                                         @if(count($availableProformas) > 0)
                                         <button type="button" 
                                                 wire:click="openProformaSelectorModal" 
-                                                class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                                class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                                                @if(isset($userProfileComplete) && !$userProfileComplete) disabled aria-disabled="true" @endif>
                                             📋 Agregar a Proforma Existente
                                         </button>
                                         @endif
@@ -515,25 +790,71 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de Advertencia de Costos -->
     @if($showCostUpdateWarning)
-<div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border-2 border-amber-400 relative">
-        <button type="button" wire:click="cancelarActualizarCostosYAgregar" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
-        <div class="flex flex-col items-center">
-            <svg class="w-16 h-16 text-amber-400 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <h3 class="text-xl font-bold text-amber-700 mb-2 text-center">¡Atención! Costos desactualizados</h3>
-            <p class="text-gray-700 text-center mb-4">Si agregas este producto a la proforma seleccionada, <span class="font-semibold text-amber-700">los precios de los productos existentes se actualizarán a los costos actuales</span> y la fecha de expiración se renovará.<br>¿Deseas continuar?</p>
-            <div class="flex gap-4 mt-4">
-                <button type="button" wire:click="cancelarActualizarCostosYAgregar" class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-semibold">Cancelar</button>
-                <button type="button" wire:click="confirmarActualizarCostosYAgregar" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg font-semibold shadow-lg">Actualizar y Agregar</button>
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border-2 border-amber-400 relative">
+            <button type="button" wire:click="cancelarActualizarCostosYAgregar" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+            <div class="flex flex-col items-center">
+                <svg class="w-16 h-16 text-amber-400 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h3 class="text-xl font-bold text-amber-700 mb-2 text-center">¡Atención! Costos desactualizados</h3>
+                <p class="text-gray-700 text-center mb-4">Si agregas este producto a la proforma seleccionada, <span class="font-semibold text-amber-700">los precios de los productos existentes se actualizarán a los costos actuales</span> y la fecha de expiración se renovará.<br>¿Deseas continuar?</p>
+                <div class="flex gap-4 mt-4">
+                    <button type="button" wire:click="cancelarActualizarCostosYAgregar" class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-semibold">Cancelar</button>
+                    <button type="button" wire:click="confirmarActualizarCostosYAgregar" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg font-semibold shadow-lg">Actualizar y Agregar</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-@endif
+    @endif
+
+    <!-- Modal de Confirmación para Crear Nueva Proforma -->
+    <div x-data="{ show: @entangle('showCreateConfirmModal') }" x-show="show" x-transition x-cloak class="fixed inset-0 z-[100]">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+                <button type="button" @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl font-bold">&times;</button>
+                <div class="flex flex-col items-center">
+                    <svg class="w-16 h-16 text-cyan-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2 text-center">¿Crear nueva proforma?</h3>
+                    <p class="text-gray-600 dark:text-gray-300 text-center mb-6">Se creará una nueva proforma con la configuración actual. ¿Deseas continuar?</p>
+                    <div class="flex gap-4 w-full">
+                        <button type="button" @click="show = false" class="flex-1 px-5 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 text-gray-800 dark:text-white rounded-lg font-semibold transition-all">Cancelar</button>
+                        <button type="button" wire:click="crearNuevaProforma" @click="show = false" class="flex-1 px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-lg font-semibold shadow-lg transition-all">Confirmar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación para Ordenar Proforma -->
+    <div x-data="{ show: @entangle('showOrderConfirmModal') }" x-show="show" x-transition x-cloak class="fixed inset-0 z-[100]">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+                <button type="button" @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl font-bold">&times;</button>
+                <div class="flex flex-col items-center">
+                    <svg class="w-16 h-16 text-amber-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2 text-center">¿Ordenar proforma?</h3>
+                    <p class="text-gray-600 dark:text-gray-300 text-center mb-6">Se creará una orden con esta proforma. Esta acción no se puede deshacer. ¿Deseas continuar?</p>
+                    <div class="flex gap-4 w-full">
+                        <button type="button" @click="show = false" class="flex-1 px-5 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 text-gray-800 dark:text-white rounded-lg font-semibold transition-all">Cancelar</button>
+                        <button type="button" wire:click="orderProforma" @click="show = false" class="flex-1 px-5 py-2.5 bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg font-semibold shadow-lg transition-all">Confirmar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @script
@@ -541,6 +862,7 @@
     let parametricViewer = null;
     let initAttempts = 0;
     const maxAttempts = 10;
+    let initialProductParams = null; // Guardar parámetros iniciales
 
     function startViewer() {
         initParametricViewer();
@@ -582,6 +904,9 @@
         initialParams.texturePath = colorTexturePath;
         initialParams.frameColor = initialParams.frameColor || 0xC0C0C0;
         initialParams.glassColor = initialParams.glassColor || '#E0F6FF';
+
+        // Guardar una copia de los parámetros iniciales
+        initialProductParams = JSON.parse(JSON.stringify(initialParams));
 
         try {
             updateViewerStatus('Generando modelo 3D...');
@@ -629,9 +954,51 @@
         }
     }, 1000);
 
-    window.resetParametricView = function() {
+    // Función para actualizar el fondo del visor 3D según el modo oscuro
+    function updateViewer3DBackground(isDark) {
+        if (parametricViewer && parametricViewer.scene) {
+            // Usar el mismo color que dark:via-slate-950 (#0f172a) y light:from-slate-50 (#f8fafc)
+            const bgColor = isDark ? 0x0f172a : 0xf8fafc;
+            parametricViewer.scene.background = new THREE.Color(bgColor);
+            if (parametricViewer.renderer) {
+                parametricViewer.renderer.setClearColor(bgColor);
+            }
+        }
+    }
+
+    // Observar cambios en el modo oscuro
+    const darkModeObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                const isDark = document.documentElement.classList.contains('dark');
+                updateViewer3DBackground(isDark);
+            }
+        });
+    });
+
+    // Iniciar observador cuando el visor esté listo
+    setTimeout(() => {
         if (parametricViewer) {
+            darkModeObserver.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+            // Establecer el fondo inicial
+            const isDark = document.documentElement.classList.contains('dark');
+            updateViewer3DBackground(isDark);
+        }
+    }, 2000);
+
+    window.resetParametricView = function() {
+        if (parametricViewer && initialProductParams) {
+            // Resetear la cámara
             parametricViewer.resetZoom();
+            
+            // Resetear los parámetros del producto en el visor 3D
+            parametricViewer.updateParameters(initialProductParams);
+            
+            // Resetear los parámetros en Livewire
+            @this.set('parameters', initialProductParams);
         }
     };
 

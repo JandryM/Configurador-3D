@@ -38,44 +38,7 @@ class CategoryMaterialColorSeeder extends Seeder
         $aluminumColors = Color::whereIn('color_name', ['Natural', 'White', 'Black Anodized', 'Woody', 'Bronze'])->get();
         $glassColors = Color::whereIn('color_name', ['Transparent Glass', 'Reflective Blue Sky Glass', 'Reflective Gray Dark Glass'])->get();
 
-        // Assign aluminum materials to all categories (can be used in windows, doors, etc.)
-        $allCategories = [$windowsCategory, $doorsCategory, $glassCategory, $slidingCategory, $securityCategory];
-        
-        foreach ($allCategories as $category) {
-            if ($category) {
-                // Attach aluminum materials
-                foreach ($aluminumMaterials as $material) {
-                    $category->materials()->attach($material->id);
-                }
-                
-                // Attach hardware and sealing materials
-                foreach ($hardwareMaterials as $material) {
-                    $category->materials()->attach($material->id);
-                }
-                
-                foreach ($sealingMaterials as $material) {
-                    $category->materials()->attach($material->id);
-                }
-                
-                // Attach aluminum colors
-                foreach ($aluminumColors as $color) {
-                    $category->colors()->attach($color->id);
-                }
-            }
-        }
-
-        // Glass materials and colors for specific categories
-        $glassCategories = [$windowsCategory, $doorsCategory, $glassCategory, $slidingCategory];
-        foreach ($glassCategories as $category) {
-            if ($category) {
-                foreach ($glassMaterials as $material) {
-                    $category->materials()->attach($material->id);
-                }
-                
-                foreach ($glassColors as $color) {
-                    $category->colors()->attach($color->id);
-                }
-            }
-        }
+        // Note: Material-Category relationships are now handled through Product-Material relationships
+        // Materials are linked to products, and products belong to categories
     }
 }

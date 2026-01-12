@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class BankAccountForm extends Component
 {
+    public $showModal = false;
     public $bank_name;
     public $account_number;
     public $account_type;
@@ -15,7 +16,21 @@ class BankAccountForm extends Component
     public $holder_name;
     public $phone;
 
-    public function mount()
+    protected $listeners = ['openBankAccountModal' => 'openModal'];
+
+    public function openModal()
+    {
+        $this->loadAccountData();
+        $this->showModal = true;
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->reset(['bank_name', 'account_number', 'account_type', 'identification', 'holder_name']);
+    }
+
+    public function loadAccountData()
     {
         $owner = Auth::user();
         $account = BankAccount::where('user_id', $owner->id)->first();
@@ -25,10 +40,8 @@ class BankAccountForm extends Component
             $this->account_type = $account->account_type;
             $this->identification = $account->identification;
             $this->holder_name = $account->holder_name;
-            $this->phone = $owner->phone;
-        } else {
-            $this->phone = $owner->phone;
         }
+        $this->phone = $owner->phone;
     }
 
     public function save()
@@ -37,6 +50,7 @@ class BankAccountForm extends Component
         if ($owner->role !== 'owner') {
             abort(403);
         }
+        
         $this->validate([
             'bank_name' => 'required|string|max:255',
             'account_number' => 'required|string|max:255',
@@ -44,6 +58,7 @@ class BankAccountForm extends Component
             'identification' => 'nullable|string|max:255',
             'holder_name' => 'required|string|max:255',
         ]);
+        
         BankAccount::updateOrCreate(
             ['user_id' => $owner->id],
             [
@@ -55,11 +70,15 @@ class BankAccountForm extends Component
                 'phone' => $this->phone,
             ]
         );
+        
         session()->flash('message', 'Cuenta bancaria actualizada correctamente.');
+        $this->dispatch('bankAccountUpdated');
+        $this->dispatch('cuenta-bancaria-actualizada');
+        $this->closeModal();
     }
 
     public function render()
     {
-        return view('livewire.owner.bank-account-form')->layout('partials.sidebar');
+        return view('livewire.owner.bank-account-form');
     }
 }

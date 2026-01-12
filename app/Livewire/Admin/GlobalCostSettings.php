@@ -217,6 +217,9 @@ class GlobalCostSettings extends Component
         $this->isEditingExisting = false;
         $this->loadCurrentSetting();
         $this->initializeDates();
+        
+        // Notificar al dashboard sobre la actualización
+        $this->dispatch('costos-actualizados');
     }
 
     private function performCreate()
@@ -243,6 +246,9 @@ class GlobalCostSettings extends Component
         session()->flash('message', 'Configuración de costos guardada exitosamente.');
         $this->loadCurrentSetting();
         $this->initializeDates();
+        
+        // Notificar al dashboard sobre la creación
+        $this->dispatch('costos-actualizados');
     }
 
     public function render()

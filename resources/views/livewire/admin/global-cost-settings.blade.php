@@ -1,31 +1,25 @@
 <div>
     <!-- Encabezado de la sección -->
-    <div class="fade-in mb-8">
-        <div class="glass-card rounded-2xl shadow-xl p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-slate-800">Configuración de Costos Indirectos</h1>
-                        <p class="text-slate-600">Administra el porcentaje de costos indirectos aplicado a todos los productos</p>
-                    </div>
-                </div>
-                <div class="flex space-x-3">
-                    <a href="{{ route('admin.product-cost-settings') }}" class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 py-2 rounded-lg transition flex items-center space-x-2 shadow-lg">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span>Costos por Producto</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-page-header 
+        title="Configuración de Costos Indirectos"
+        description="Administra el porcentaje de costos indirectos aplicado a todos los productos"
+        gradient="from-orange-400 to-red-500"
+        :show-button="true"
+        button-text="Costos por Producto"
+        button-link="{{ route('admin.product-cost-settings') }}"
+    >
+        <x-slot name="icon">
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"></path>
+            </svg>
+        </x-slot>
+        <x-slot name="buttonIcon">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+            </svg>
+        </x-slot>
+    </x-page-header>
 
     {{-- Mensajes de éxito/error --}}
     @if (session()->has('message'))
@@ -70,52 +64,52 @@
                 @endif
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="bg-white">
-                    <label class="block text-sm font-medium text-slate-600 mb-1 bg-white">Porcentaje de Costos Indirectos</label>
-                    <div class="text-3xl font-bold text-blue-600 bg-white">{{ $currentSetting->indirect_cost_percentage }}%</div>
+                <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Porcentaje de Costos Indirectos</label>
+                    <div class="text-3xl font-bold text-blue-600">{{ $currentSetting->indirect_cost_percentage }}%</div>
                 </div>
-                <div class="bg-white">
-                    <label class="block text-sm font-medium text-slate-600 mb-1 bg-white">Válido Desde</label>
-                    <div class="text-lg font-semibold text-slate-800 bg-white">
+                <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Válido Desde</label>
+                    <div class="text-lg font-semibold text-slate-800">
                         {{ $currentSetting->valid_from ? $currentSetting->valid_from->format('d/m/Y') : 'Sin límite' }}
                     </div>
                 </div>
-                <div class="bg-white">
-                    <label class="block text-sm font-medium text-slate-600 mb-1 bg-white">Válido Hasta</label>
-                    <div class="text-lg font-semibold text-slate-800 bg-white">
+                <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Válido Hasta</label>
+                    <div class="text-lg font-semibold text-slate-800">
                         {{ $currentSetting->valid_until ? $currentSetting->valid_until->format('d/m/Y') : 'Sin límite' }}
                     </div>
                     @if($currentSetting->valid_until)
-                        <div class="text-sm text-slate-500 mt-1 bg-white">
+                        <div class="text-sm text-slate-500 mt-1">
                             @if($currentSetting->isExpired())
-                                <span class="text-red-600 bg-white">⚠️ Expirada</span>
+                                <span class="text-red-600">⚠️ Expirada</span>
                                 @if($role === 'seller')
-                                    <div class="mt-2 text-xs text-red-700 font-semibold bg-white">
+                                    <div class="mt-2 text-xs text-red-700 font-semibold">
                                         Por favor, contacta a un administrador para que actualice la configuración.
                                     </div>
                                 @endif
                             @elseif($currentSetting->isExpiringSoon())
-                                <span class="text-yellow-600 bg-white">⚠️ Expira pronto</span>
+                                <span class="text-yellow-600">⚠️ Expira pronto</span>
                             @else
-                                <span class="text-green-600 bg-white">✓ Vigente</span>
+                                <span class="text-green-600">✓ Vigente</span>
                             @endif
                         </div>
                     @endif
                 </div>
                 @if($role !== 'seller' && $currentSetting->canBeEdited())
-                    <div class="bg-white">
-                        <label class="block text-sm font-medium text-slate-600 mb-1 bg-white">Intentos de Edición</label>
-                        <div class="text-lg font-semibold text-slate-800 bg-white">
+                    <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Intentos de Edición</label>
+                        <div class="text-lg font-semibold text-slate-800">
                             {{ $currentSetting->edit_attempts }}/2
                         </div>
-                        <div class="text-xs text-slate-500 mt-1 bg-white">
+                        <div class="text-xs text-slate-500 mt-1">
                             @php
                                 $timeLeft = $currentSetting->getTimeUntilEditWindowCloses();
                             @endphp
                             @if($timeLeft)
-                                <span class="text-green-600 bg-white">✓ Quedan {{ $timeLeft }}</span>
+                                <span class="text-green-600">✓ Quedan {{ $timeLeft }}</span>
                             @else
-                                <span class="text-green-600 bg-white">✓ {{ 2 - $currentSetting->edit_attempts }} restantes</span>
+                                <span class="text-green-600">✓ {{ 2 - $currentSetting->edit_attempts }} restantes</span>
                             @endif
                         </div>
                     </div>
@@ -158,15 +152,15 @@
                 </div>
             </div>
 
-            <h3 class="text-lg font-semibold text-slate-800 mb-4 bg-white">
+            <h3 class="text-lg font-semibold text-slate-800 mb-4">
                 ✏️ Editar Configuración Actual
             </h3>
 
             <form wire:submit.prevent="save">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {{-- Porcentaje --}}
-                    <div class="md:col-span-2 bg-white">
-                        <label class="block text-sm font-medium text-slate-700 mb-2 bg-white">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">
                             Porcentaje de Costos Indirectos *
                         </label>
                         <div class="relative">
@@ -176,26 +170,26 @@
                                 step="0.01"
                                 min="0"
                                 max="100"
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
+                                class="w-full px-4 py-2 border border-slate-200/50 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-slate-900"
                                 placeholder="Ej: 15.00"
                                 required
                             >
                             <span class="absolute right-3 top-2 text-slate-500 bg-transparent">%</span>
                         </div>
                         @error('indirect_cost_percentage') 
-                            <span class="text-red-500 text-sm bg-white">{{ $message }}</span> 
+                            <span class="text-red-500 text-sm">{{ $message }}</span> 
                         @enderror
                     </div>
 
                     {{-- Duración --}}
-                    <div class="md:col-span-2 bg-white">
-                        <label class="block text-sm font-medium text-slate-700 mb-2 bg-white">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">
                             Duración de Vigencia
                         </label>
                         <div class="flex items-center space-x-2">
                             <select 
                                 wire:model.live="duration_months"
-                                class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
+                                class="flex-1 px-4 py-2 border border-slate-200/50 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-slate-900"
                                 @if($custom_duration) disabled @endif
                             >
                                 <option value="0.5" class="bg-white text-slate-900">15 días</option>
@@ -214,7 +208,7 @@
                                 {{ $custom_duration ? '🔓' : '🔒' }}
                             </button>
                         </div>
-                        <p class="text-xs text-slate-500 mt-1 bg-white">
+                        <p class="text-xs text-slate-500 mt-1">
                             @if($custom_duration)
                                 Modo personalizado: edita las fechas manualmente
                             @else
@@ -226,39 +220,39 @@
                     {{-- Información de fechas --}}
                     <div class="md:col-span-2 bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="bg-blue-50">
-                                <label class="block text-sm font-medium text-slate-700 mb-1 bg-blue-50">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">
                                     📅 Válido Desde
                                 </label>
                                 @if($custom_duration)
                                     <input 
                                         type="date" 
                                         wire:model.live="valid_from"
-                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
+                                        class="w-full px-4 py-2 border border-slate-200/50 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-slate-900"
                                     >
                                 @else
-                                    <div class="text-lg font-semibold text-slate-800 bg-blue-50">
+                                    <div class="text-lg font-semibold text-slate-800">
                                         {{ \Carbon\Carbon::parse($valid_from)->format('d/m/Y') }}
                                     </div>
-                                    <p class="text-xs text-slate-500 bg-blue-50">Fecha actual</p>
+                                    <p class="text-xs text-slate-500">Fecha actual</p>
                                 @endif
                             </div>
                             
-                            <div class="bg-blue-50">
-                                <label class="block text-sm font-medium text-slate-700 mb-1 bg-blue-50">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">
                                     📅 Válido Hasta
                                 </label>
                                 @if($custom_duration)
                                     <input 
                                         type="date" 
                                         wire:model="valid_until"
-                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
+                                        class="w-full px-4 py-2 border border-slate-200/50 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-slate-900"
                                     >
                                 @else
-                                    <div class="text-lg font-semibold text-slate-800 bg-blue-50">
+                                    <div class="text-lg font-semibold text-slate-800">
                                         {{ \Carbon\Carbon::parse($valid_until)->format('d/m/Y') }}
                                     </div>
-                                    <p class="text-xs text-slate-500 bg-blue-50">
+                                    <p class="text-xs text-slate-500">
                                         @php
                                             $from = \Carbon\Carbon::parse($valid_from);
                                             $to = \Carbon\Carbon::parse($valid_until);
@@ -273,7 +267,7 @@
                 </div>
 
                 {{-- Botones --}}
-                <div class="mt-6 flex justify-end space-x-3 bg-white">
+                <div class="mt-6 flex justify-end space-x-3">
                     <button 
                         type="button"
                         wire:click="cancelEdit"
@@ -283,7 +277,7 @@
                     </button>
                     <button 
                         type="submit"
-                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition"
+                        class="px-6 py-2 bg-gradient-to-r from-orange-600 to-red-700 hover:from-orange-700 hover:to-red-800 text-white font-semibold rounded-lg shadow-lg transition-all"
                     >
                         💾 Actualizar Configuración
                     </button>
@@ -321,15 +315,15 @@
                 </div>
             @endif
 
-            <h3 class="text-lg font-semibold text-slate-800 mb-4 bg-white">
+            <h3 class="text-lg font-semibold text-slate-800 mb-4">
                 {{ $currentSetting ? 'Crear Nueva Configuración' : 'Configuración de Costos' }}
             </h3>
 
             <form wire:submit.prevent="save">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Porcentaje --}}
-                <div class="md:col-span-2 bg-white">
-                    <label class="block text-sm font-medium text-slate-700 mb-2 bg-white">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
                         Porcentaje de Costos Indirectos *
                     </label>
                     <div class="relative">
@@ -339,26 +333,26 @@
                             step="0.01"
                             min="0"
                             max="100"
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
+                            class="w-full px-4 py-2 border border-slate-200/50 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-slate-900"
                             placeholder="Ej: 15.00"
                             required
                         >
                         <span class="absolute right-3 top-2 text-slate-500 bg-transparent">%</span>
                     </div>
                     @error('indirect_cost_percentage') 
-                        <span class="text-red-500 text-sm bg-white">{{ $message }}</span> 
+                        <span class="text-red-500 text-sm">{{ $message }}</span> 
                     @enderror
                 </div>
 
                 {{-- Duración --}}
-                <div class="md:col-span-2 bg-white">
-                    <label class="block text-sm font-medium text-slate-700 mb-2 bg-white">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
                         Duración de Vigencia
                     </label>
                     <div class="flex items-center space-x-2">
                         <select 
                             wire:model.live="duration_months"
-                            class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
+                            class="flex-1 px-4 py-2 border border-slate-200/50 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-slate-900"
                             @if($custom_duration) disabled @endif
                         >
                             <option value="0.5" class="bg-white text-slate-900">15 días</option>
@@ -377,7 +371,7 @@
                             {{ $custom_duration ? '🔓' : '🔒' }}
                         </button>
                     </div>
-                    <p class="text-xs text-slate-500 mt-1 bg-white">
+                    <p class="text-xs text-slate-500 mt-1">
                         @if($custom_duration)
                             Modo personalizado: edita las fechas manualmente
                         @else
@@ -389,39 +383,39 @@
                 {{-- Información de fechas --}}
                 <div class="md:col-span-2 bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-blue-50">
-                            <label class="block text-sm font-medium text-slate-700 mb-1 bg-blue-50">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">
                                 📅 Válido Desde
                             </label>
                             @if($custom_duration)
                                 <input 
                                     type="date" 
                                     wire:model.live="valid_from"
-                                    class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
+                                    class="w-full px-4 py-2 border border-slate-200/50 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-slate-900"
                                 >
                             @else
-                                <div class="text-lg font-semibold text-slate-800 bg-blue-50">
+                                <div class="text-lg font-semibold text-slate-800">
                                     {{ \Carbon\Carbon::parse($valid_from)->format('d/m/Y') }}
                                 </div>
-                                <p class="text-xs text-slate-500 bg-blue-50">Hoy</p>
+                                <p class="text-xs text-slate-500">Hoy</p>
                             @endif
                         </div>
                         
-                        <div class="bg-blue-50">
-                            <label class="block text-sm font-medium text-slate-700 mb-1 bg-blue-50">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">
                                 📅 Válido Hasta
                             </label>
                             @if($custom_duration)
                                 <input 
                                     type="date" 
                                     wire:model="valid_until"
-                                    class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900"
+                                    class="w-full px-4 py-2 border border-slate-200/50 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-slate-900"
                                 >
                             @else
-                                <div class="text-lg font-semibold text-slate-800 bg-blue-50">
+                                <div class="text-lg font-semibold text-slate-800">
                                     {{ \Carbon\Carbon::parse($valid_until)->format('d/m/Y') }}
                                 </div>
-                                <p class="text-xs text-slate-500 bg-blue-50">
+                                <p class="text-xs text-slate-500">
                                     @php
                                         $from = \Carbon\Carbon::parse($valid_from);
                                         $to = \Carbon\Carbon::parse($valid_until);
@@ -436,10 +430,10 @@
             </div>
 
             {{-- Botones --}}
-            <div class="mt-6 flex justify-end space-x-3 bg-white">
+            <div class="mt-6 flex justify-end space-x-3">
                 <button 
                     type="submit"
-                    class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition"
+                    class="px-6 py-2 bg-gradient-to-r from-orange-600 to-red-700 hover:from-orange-700 hover:to-red-800 text-white font-semibold rounded-lg shadow-lg transition-all"
                 >
                     💾 Guardar Configuración
                 </button>
@@ -523,7 +517,7 @@
                     
                     <!-- Contenido -->
                     <div class="px-6 py-6">
-                        <p class="text-slate-600 mb-4 bg-white">
+                        <p class="text-slate-600 mb-4">
                             @if($pendingAction === 'update')
                                 Estás a punto de <strong class="text-slate-900">actualizar</strong> la configuración de costos indirectos al <strong class="text-slate-900">{{ $indirect_cost_percentage }}%</strong>.
                             @else
@@ -532,16 +526,16 @@
                         </p>
 
                         <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 rounded-lg">
-                            <p class="text-sm text-blue-700 bg-blue-50">
+                            <p class="text-sm text-blue-700">
                                 <strong class="text-blue-900">⚠️ Importante:</strong> Este cambio afectará el cálculo de precios de todos los productos.
                             </p>
                         </div>
 
-                        <p class="text-sm text-slate-600 mb-6 bg-white">
+                        <p class="text-sm text-slate-600 mb-6">
                             ¿Estás seguro de que deseas continuar?
                         </p>
 
-                        <div class="flex space-x-3 bg-white">
+                        <div class="flex space-x-3">
                             <button 
                                 wire:click="closeConfirmModal"
                                 class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors"

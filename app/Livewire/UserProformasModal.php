@@ -14,6 +14,47 @@ class UserProformasModal extends Component
     public $selectedProforma = null;
     public $showProformaModal = false;
     public $selectedProformaId = null;
+    public $paginaProformas = 1;
+    public $proformasPorPagina = 5;
+    public $totalProformas = 0;
+    public $selectedProformas = [];
+    public $selectAll = false;
+    public $confirmOrderId = null;
+
+    public function setConfirmOrderId($id)
+    {
+        $this->confirmOrderId = $id;
+    }
+
+    public function getIsAllSelectedProperty()
+    {
+        $availableIds = collect($this->proformas)
+            ->filter(fn($p) => !$p['is_ordered'])
+            ->pluck('id')
+            ->toArray();
+        
+        return count($availableIds) > 0 && count($this->selectedProformas) === count($availableIds);
+    }
+
+    public function updatedSelectAll($value)
+    {
+        if ($value) {
+            // Seleccionar todas las disponibles
+            $this->selectedProformas = collect($this->proformas)
+                ->filter(fn($p) => !$p['is_ordered'])
+                ->pluck('id')
+                ->toArray();
+        } else {
+            // Deseleccionar todas
+            $this->selectedProformas = [];
+        }
+    }
+
+    public function updatedSelectedProformas()
+    {
+        // Sincronizar selectAll con el estado de selectedProformas
+        $this->selectAll = $this->isAllSelected;
+    }
 
     protected $listeners = ['openProformasModal'];
 
@@ -31,21 +72,31 @@ class UserProformasModal extends Component
     public function loadProformas()
     {
         $this->proformas = [];
-        
         if (!Auth::check()) {
             return;
         }
 
+        $this->totalProformas = DB::table('proformas')
+            ->where('user_id', Auth::id())
+            ->where('is_active', true)
+            ->count();
+
+        $offset = ($this->paginaProformas - 1) * $this->proformasPorPagina;
+
         $proformasData = DB::table('proformas')
             ->where('user_id', Auth::id())
+            ->where('is_active', true)
             ->orderBy('created_at', 'desc')
+            ->offset($offset)
+            ->limit($this->proformasPorPagina)
             ->get();
-            
+
         $this->proformas = $proformasData->map(function ($proforma) {
-            // Obtener todos los ítems de esta proforma
+            // Obtener solo los ítems activos de esta proforma
             $items = DB::table('proforma_items')
                 ->join('products', 'proforma_items.product_id', '=', 'products.id')
                 ->where('proforma_items.proforma_id', $proforma->id)
+                ->where('proforma_items.is_active', true)
                 ->select(
                     'proforma_items.*',
                     'products.name as product_name',
@@ -88,6 +139,80 @@ class UserProformasModal extends Component
         })->toArray();
     }
 
+            /**
+         * Eliminar (desactivar) un ítem de configuración de una proforma
+         */
+        public function deleteProformaItem($itemId)
+        {
+            if (!Auth::check()) {
+                session()->flash('error', 'Debes iniciar sesión para eliminar configuraciones.');
+                return;
+            }
+
+            $item = DB::table('proforma_items')->where('id', $itemId)->first();
+            if (!$item) {
+                session()->flash('error', 'Configuración no encontrada.');
+                return;
+            }
+
+            // Verificar que la proforma pertenezca al usuario
+            $proforma = DB::table('proformas')->where('id', $item->proforma_id)->first();
+            if (!$proforma || $proforma->user_id !== Auth::id()) {
+                session()->flash('error', 'No tienes permiso para eliminar esta configuración.');
+                return;
+            }
+
+            // Solo permitir si la proforma no está ordenada ni expirada
+            if ($proforma->is_ordered || $proforma->is_expired) {
+                session()->flash('error', 'No se puede eliminar configuraciones de una proforma ordenada o expirada.');
+                return;
+            }
+
+            DB::table('proforma_items')->where('id', $itemId)->update(['is_active' => false, 'updated_at' => now()]);
+            // Actualizar el total de la proforma después de eliminar el ítem
+            $this->updateProformaTotalPrice($proforma->id);
+
+            // Si ya no quedan ítems activos, marcar la proforma como inactiva y cerrar el modal de detalles
+            $activeItemsCount = DB::table('proforma_items')
+                ->where('proforma_id', $proforma->id)
+                ->where('is_active', true)
+                ->count();
+            if ($activeItemsCount === 0) {
+                DB::table('proformas')
+                    ->where('id', $proforma->id)
+                    ->update(['is_active' => false, 'updated_at' => now()]);
+                session()->flash('success', 'La proforma ha sido eliminada porque no quedan configuraciones.');
+                $this->closeProformaModal();
+            } else {
+                session()->flash('success', 'Configuración eliminada exitosamente.');
+                // Si está viendo el modal de la proforma, actualizar la selección
+                if ($this->showProformaModal && $this->selectedProformaId == $proforma->id) {
+                    $this->showProforma($proforma->id);
+                }
+            }
+
+            // Recargar proformas para reflejar el cambio
+            $this->loadProformas();
+        }
+
+                /**
+             * Actualizar el precio total de una proforma sumando solo los ítems activos
+             */
+    private function updateProformaTotalPrice($proformaId)
+    {
+        $totalPrice = DB::table('proforma_items')
+            ->where('proforma_id', $proformaId)
+            ->where('is_active', true)
+            ->sum('price');
+
+            DB::table('proformas')
+                ->where('id', $proformaId)
+                ->update([
+                    'total_price' => $totalPrice,
+                    'updated_at' => now()
+                ]);
+    }
+
     public function showProforma($proformaId)
     {
         $proforma = collect($this->proformas)->firstWhere('id', $proformaId);
@@ -110,6 +235,32 @@ class UserProformasModal extends Component
     {
         $this->showModal = false;
         $this->closeProformaModal();
+        $this->confirmOrderId = null;
+    }
+
+    public function actualizarProformas($pagina = null)
+    {
+        if ($pagina !== null) {
+            $this->paginaProformas = $pagina;
+        }
+        $this->loadProformas();
+    }
+
+    public function anteriorPaginaProformas()
+    {
+        if ($this->paginaProformas > 1) {
+            $this->paginaProformas--;
+            $this->loadProformas();
+        }
+    }
+
+    public function siguientePaginaProformas()
+    {
+        $totalPaginas = ceil($this->totalProformas / $this->proformasPorPagina);
+        if ($this->paginaProformas < $totalPaginas) {
+            $this->paginaProformas++;
+            $this->loadProformas();
+        }
     }
 
     /**
@@ -198,6 +349,32 @@ class UserProformasModal extends Component
         }, 'proforma_' . $number . '_' . now()->format('Y-m-d') . '.pdf');
     }
 
+    /**
+     * Verifica si la proforma está activa y tiene al menos un ítem activo
+     */
+    private function validateProformaForOrder($proformaId)
+    {
+        $proforma = DB::table('proformas')
+            ->where('id', $proformaId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$proforma) {
+            return 'Proforma no encontrada.';
+        }
+        if (!$proforma->is_active) {
+            return 'La proforma no existe. No se puede ordenar.';
+        }
+        $activeItemsCount = DB::table('proforma_items')
+            ->where('proforma_id', $proformaId)
+            ->where('is_active', true)
+            ->count();
+        if ($activeItemsCount === 0) {
+            return 'La proforma no tiene configuraciones activas. No se puede ordenar.';
+        }
+        return null;
+    }
+
     public function orderProforma($proformaId)
     {
         if (!Auth::check()) {
@@ -205,15 +382,16 @@ class UserProformasModal extends Component
             return;
         }
 
+        $validationError = $this->validateProformaForOrder($proformaId);
+        if ($validationError) {
+            session()->flash('error', $validationError);
+            return;
+        }
+
         $proforma = DB::table('proformas')
             ->where('id', $proformaId)
             ->where('user_id', Auth::id())
             ->first();
-
-        if (!$proforma) {
-            session()->flash('error', 'Proforma no encontrada.');
-            return;
-        }
 
         // Verificar si ya está ordenada
         $existingOrder = DB::table('orders')
@@ -240,7 +418,7 @@ class UserProformasModal extends Component
         // Generar número único de orden
         $lastOrderId = DB::table('orders')->max('id');
         $nextOrderNumber = 'ORD-' . str_pad(($lastOrderId + 1), 4, '0', STR_PAD_LEFT);
-        
+
         // Crear la orden asociada
         DB::table('orders')->insert([
             'proforma_id' => $proformaId,
@@ -251,17 +429,80 @@ class UserProformasModal extends Component
             'created_at' => now(),
             'updated_at' => now()
         ]);
-        
+
         // Marcar la proforma como ordenada
         DB::table('proformas')
             ->where('id', $proformaId)
             ->update(['is_ordered' => true, 'updated_at' => now()]);
-        
-        session()->flash('message', '¡Orden creada exitosamente con el número ' . $nextOrderNumber . '!');
+
+        // Remover de la selección si estaba seleccionada
+        if (in_array($proformaId, $this->selectedProformas)) {
+            $this->selectedProformas = array_values(array_diff($this->selectedProformas, [$proformaId]));
+        }
+
+        session()->flash('success', '¡Orden creada exitosamente con el número ' . $nextOrderNumber . '!');
+        // Cerrar modal de confirmación
+        $this->confirmOrderId = null;
         
         // Recargar proformas para actualizar el estado
         $this->loadProformas();
         $this->closeProformaModal();
+    }
+
+    public function toggleProformaSelection($proformaId)
+    {
+        if (in_array($proformaId, $this->selectedProformas)) {
+            $this->selectedProformas = array_values(array_diff($this->selectedProformas, [$proformaId]));
+        } else {
+            $this->selectedProformas[] = $proformaId;
+        }
+    }
+
+    public function clearSelection()
+    {
+        $this->selectedProformas = [];
+        $this->selectAll = false;
+    }
+
+
+
+    public function deleteSelectedProformas()
+    {
+        if (!Auth::check()) {
+            session()->flash('error', 'Debes iniciar sesión para eliminar proformas.');
+            return;
+        }
+
+        if (empty($this->selectedProformas)) {
+            session()->flash('error', 'No has seleccionado ninguna proforma para eliminar.');
+            return;
+        }
+
+        // Verificar que todas las proformas seleccionadas pertenecen al usuario y no están ordenadas
+        $proformasToDelete = DB::table('proformas')
+            ->whereIn('id', $this->selectedProformas)
+            ->where('user_id', Auth::id())
+            ->where('is_ordered', false)
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($proformasToDelete)) {
+            session()->flash('error', 'No se pueden eliminar las proformas seleccionadas.');
+            return;
+        }
+
+        // Soft delete: marcar como inactivas
+        $deletedCount = DB::table('proformas')
+            ->whereIn('id', $proformasToDelete)
+            ->update(['is_active' => false, 'updated_at' => now()]);
+        
+        session()->flash('success', $deletedCount . ' ' . ($deletedCount == 1 ? 'proforma eliminada' : 'proformas eliminadas') . ' exitosamente.');
+        
+        // Limpiar selección
+        $this->selectedProformas = [];
+        
+        // Recargar proformas
+        $this->loadProformas();
     }
 
     public function render()
