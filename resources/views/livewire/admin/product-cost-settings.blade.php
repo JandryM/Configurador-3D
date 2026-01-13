@@ -2,7 +2,7 @@
     <!-- Encabezado de la sección -->
     <x-page-header 
         title="Configuración de Costos por Producto"
-        description="Administra los porcentajes de costos directos, desperdicio y margen de ganancia para cada producto"
+        description="Administra los porcentajes de mano de obra directa, factor de merma y margen de utilidad para cada producto"
         gradient="from-cyan-600 to-teal-700"
         :show-button="true"
         button-text="Costos Globales"
@@ -83,15 +83,15 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
-                    <label class="block text-sm font-medium text-slate-600 mb-1">Costos Directos</label>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Mano de Obra Directa</label>
                     <div class="text-3xl font-bold text-blue-600">{{ $currentSetting->direct_cost_percentage }}%</div>
                 </div>
                 <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
-                    <label class="block text-sm font-medium text-slate-600 mb-1">Desperdicio</label>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Factor de Merma</label>
                     <div class="text-3xl font-bold text-yellow-600">{{ $currentSetting->waste_percentage }}%</div>
                 </div>
                 <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
-                    <label class="block text-sm font-medium text-slate-600 mb-1">Margen de Ganancia</label>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Margen de Utilidad</label>
                     <div class="text-3xl font-bold text-green-600">{{ $currentSetting->profit_margin_percentage }}%</div>
                 </div>
                 <div class="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
@@ -142,7 +142,7 @@
                     {{-- Costos Directos --}}
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">
-                            Costos Directos (%) *
+                            Mano de Obra Directa (%) *
                         </label>
                         <div class="relative">
                             <input 
@@ -160,13 +160,13 @@
                         @error('direct_cost_percentage') 
                             <span class="text-red-500 text-sm">{{ $message }}</span> 
                         @enderror
-                        <p class="text-xs text-slate-500 mt-1">Porcentaje de costos directos del producto</p>
+                        <p class="text-xs text-slate-500 mt-1">Porcentaje estimado para cubrir el costo del personal operativo</p>
                     </div>
 
                     {{-- Desperdicio --}}
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">
-                            Desperdicio (%) *
+                            Factor de Merma (%) *
                         </label>
                         <div class="relative">
                             <input 
@@ -184,13 +184,13 @@
                         @error('waste_percentage') 
                             <span class="text-red-500 text-sm">{{ $message }}</span> 
                         @enderror
-                        <p class="text-xs text-slate-500 mt-1">Porcentaje adicional por desperdicio</p>
+                        <p class="text-xs text-slate-500 mt-1">Porcentaje técnico de pérdida de material (retazos)</p>
                     </div>
 
                     {{-- Margen de Ganancia --}}
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">
-                            Margen de Ganancia (%) *
+                            Margen de Utilidad (%) *
                         </label>
                         <div class="relative">
                             <input 
@@ -208,7 +208,7 @@
                         @error('profit_margin_percentage') 
                             <span class="text-red-500 text-sm">{{ $message }}</span> 
                         @enderror
-                        <p class="text-xs text-slate-500 mt-1">Margen de ganancia sobre el costo total</p>
+                        <p class="text-xs text-slate-500 mt-1">Porcentaje de utilidad deseada sobre el costo de producción</p>
                     </div>
 
                     {{-- Notas --}}
@@ -275,13 +275,13 @@
                                 Fecha
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                                Costos Directos
+                                Mano de Obra
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                                Desperdicio
+                                Merma
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                                Margen
+                                Utilidad
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                 Creado por
@@ -358,15 +358,15 @@
                         <div class="bg-slate-50 rounded-lg p-4 mb-4">
                             <ul class="text-sm text-slate-700 space-y-2 bg-slate-50">
                                 <li class="bg-slate-50 flex justify-between">
-                                    <span class="text-slate-600">Costos Directos:</span>
+                                    <span class="text-slate-600">Mano de Obra Directa:</span>
                                     <strong class="text-slate-900">{{ $direct_cost_percentage }}%</strong>
                                 </li>
                                 <li class="bg-slate-50 flex justify-between">
-                                    <span class="text-slate-600">Desperdicio:</span>
+                                    <span class="text-slate-600">Factor de Merma:</span>
                                     <strong class="text-slate-900">{{ $waste_percentage }}%</strong>
                                 </li>
                                 <li class="bg-slate-50 flex justify-between">
-                                    <span class="text-slate-600">Margen de Ganancia:</span>
+                                    <span class="text-slate-600">Margen de Utilidad:</span>
                                     <strong class="text-slate-900">{{ $profit_margin_percentage }}%</strong>
                                 </li>
                             </ul>
