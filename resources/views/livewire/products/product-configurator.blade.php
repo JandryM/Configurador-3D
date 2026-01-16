@@ -107,7 +107,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <span class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">cm</span>
+                                    <span class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">m</span>
                                 </div>
                             </div>
                             <div class="relative group">
@@ -155,7 +155,7 @@
                             <div class="relative group">
                                 <button type="button"
                                         wire:click="updateParameter('color', '{{ $colorName }}')"
-                                        class="w-12 h-12 sm:w-14 sm:h-14 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-full border-2 sm:border-3 transition-all duration-300 hover:scale-110 hover:shadow-lg {{ $parameters['color'] === $colorName ? 'border-blue-600 ring-2 sm:ring-4 ring-blue-200 shadow-xl' : 'border-slate-300 hover:border-slate-400' }}"
+                                        class="w-12 h-12 sm:w-14 sm:h-14 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-full border-2 sm:border-3 transition-all duration-300 hover:scale-110 hover:shadow-lg {{ $parameters['color'] === $colorName ? 'border-blue-600 ring-2 sm:ring-4 ring-blue-200 shadow-xl' : 'border-slate-300 hover:border-slate-400' }} cursor-pointer"
                                         aria-label="{{ $color->color_name }}" tabindex="0">
                                     <div class="w-full h-full rounded-full"
                                         style="background-image: url('{{ asset(
@@ -246,7 +246,7 @@
                             <div class="relative group">
                                 <button type="button"
                                         wire:click="updateParameter('glassColor', '{{ $colorName }}')"
-                                        class="w-12 h-12 sm:w-14 sm:h-14 md:w-11 md:h-11 lg:w-12 lg:h-12 border-2 sm:border-3 transition-all duration-300 hover:scale-110 hover:shadow-lg rounded-lg {{ $parameters['glassColor'] === $colorName ? 'border-cyan-600 ring-2 sm:ring-4 ring-cyan-200 shadow-xl' : 'border-slate-300 hover:border-slate-400' }}"
+                                        class="w-12 h-12 sm:w-14 sm:h-14 md:w-11 md:h-11 lg:w-12 lg:h-12 border-2 sm:border-3 transition-all duration-300 hover:scale-110 hover:shadow-lg rounded-lg {{ $parameters['glassColor'] === $colorName ? 'border-cyan-600 ring-2 sm:ring-4 ring-cyan-200 shadow-xl' : 'border-slate-300 hover:border-slate-400' }} cursor-pointer"
                                         aria-label="{{ $color->color_name }}" tabindex="0">
                                     <div class="w-full h-full"
                                         style="background-image: url('{{ asset(
@@ -303,7 +303,7 @@
                         <div class="relative group">
                         <button type="button" 
                                 onclick="resetParametricView()"
-                                class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 text-slate-700 font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-slate-300"
+                                class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 text-slate-700 font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-slate-300 cursor-pointer"
                                 >
                             <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -317,7 +317,7 @@
                         <div class= "relative group">
                         <button type="button" 
                                 onclick="takeParametricScreenshot()"
-                                class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                                class="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl cursor-pointer"
                                 >
                             <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
@@ -443,7 +443,7 @@
                                 <div class="relative group">
                                 <button type="button"
                                         wire:click="$set('quantity', {{ max(1, $quantity - 1) }})"
-                                        class="w-9 h-9 sm:w-11 sm:h-11 bg-gradient-to-br from-slate-400 to-slate-600 hover:from-slate-500 hover:to-slate-700 text-white rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 border-2 border-slate-300/50 dark:border-slate-600/50">
+                                        class="w-9 h-9 sm:w-11 sm:h-11 bg-gradient-to-br from-slate-400 to-slate-600 hover:from-slate-500 hover:to-slate-700 text-white rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 border-2 border-slate-300/50 dark:border-slate-600/50 cursor-pointer">
                                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4"/>
                                     </svg>
@@ -456,7 +456,7 @@
                                 <div class= "relative group">
                                 <button type="button"
                                         wire:click="$set('quantity', {{ $quantity + 1 }})"
-                                        class="w-9 h-9 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 border-2 border-blue-300/50 dark:border-cyan-500/50">
+                                        class="w-9 h-9 sm:w-11 sm:h-11 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 border-2 border-blue-300/50 dark:border-cyan-500/50 cursor-pointer">
                                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/>
                                     </svg>
@@ -480,7 +480,7 @@
                             <div class="relative group">
                                 <button type="button"
                                         wire:click="$set('showProformaModal', true)"
-                                        class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-xs sm:text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed border border-blue-500/20"
+                                        class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-xs sm:text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed border border-blue-500/20 cursor-pointer"
                                         @if(empty($calculatedPrice) || $calculatedPrice == 0 || (isset($userProfileComplete) && !$userProfileComplete)) disabled aria-disabled="true" @endif>
                                     <!-- Ícono de documento/lista con efecto brillante -->
                                     <svg class="w-5 h-5 sm:w-6 sm:h-6 inline-block mr-1.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -524,7 +524,7 @@
             <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="w-full max-w-2xl relative overflow-visible">
-                    <button @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-white text-3xl font-bold z-10">&times;</button>
+                    <button @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-white text-3xl font-bold z-10 cursor-pointer">&times;</button>
                     @if(Auth::check())
                         <div class="bg-black/70 backdrop-blur-md rounded-2xl shadow-2xl w-full p-6 md:p-8 relative text-white overflow-hidden">
                             @if (session()->has('message'))
@@ -578,7 +578,7 @@
                                     <div class="flex items-center gap-3">
                                         <button type="button" 
                                                 wire:click="$set('quantity', {{ max(1, $quantity - 1) }})"
-                                                class="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-bold transition-all duration-200 hover:scale-105 shadow-md">
+                                                class="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-bold transition-all duration-200 hover:scale-105 shadow-md cursor-pointer">
                                             -
                                         </button>
                                         
@@ -590,7 +590,7 @@
                                         
                                         <button type="button" 
                                                 wire:click="$set('quantity', {{ $quantity + 1 }})"
-                                                class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-bold transition-all duration-200 hover:scale-105 shadow-md">
+                                                class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-bold transition-all duration-200 hover:scale-105 shadow-md cursor-pointer">
                                             +
                                         </button>
                                     </div>
@@ -600,7 +600,7 @@
 
                                     <!-- Botón colapsable para notas -->
                                     <div class="mt-2 flex justify-end">
-                                        <button type="button" onclick="document.getElementById('notes-section').classList.toggle('hidden'); this.classList.toggle('opacity-70')" class="text-xs text-cyan-200 hover:text-cyan-100 px-2 py-1 rounded transition-opacity opacity-50 focus:outline-none">
+                                        <button type="button" onclick="document.getElementById('notes-section').classList.toggle('hidden'); this.classList.toggle('opacity-70')" class="text-xs text-cyan-200 hover:text-cyan-100 px-2 py-1 rounded transition-opacity opacity-50 focus:outline-none cursor-pointer">
                                             📝 Añadir notas opcionales
                                         </button>
                                     </div>
@@ -672,20 +672,20 @@
                                     <div class="flex flex-col sm:flex-row justify-end gap-3">
                                         <button type="button" 
                                                 wire:click="guardarProforma" 
-                                                class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                                class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl cursor-pointer">
                                             🔄 Actualizar Cantidad
                                         </button>
                                         
                                         @if($currentProformaId)
                                             <button type="button" 
                                                     @click="$wire.set('showOrderConfirmModal', true)" 
-                                                    class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                                    class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl cursor-pointer">
                                                 🚀 Ordenar Proforma
                                             </button>
                                             
                                             <button type="button" 
                                                     wire:click="downloadProformaPdf({{ $currentProformaId }})" 
-                                                    class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                                    class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl cursor-pointer">
                                                 📄 Descargar PDF
                                             </button>
                                         @endif
@@ -802,10 +802,18 @@
                     <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <h3 class="text-xl font-bold text-amber-700 mb-2 text-center">¡Atención! Costos desactualizados</h3>
-                <p class="text-gray-700 text-center mb-4">Si agregas este producto a la proforma seleccionada, <span class="font-semibold text-amber-700">los precios de los productos existentes se actualizarán a los costos actuales</span> y la fecha de expiración se renovará.<br>¿Deseas continuar?</p>
+                @if($pendingItemId)
+                <p class="text-gray-700 text-center mb-4">Los costos de producción han cambiado. Para actualizar esta configuración, <span class="font-semibold text-amber-700">se creará una nueva proforma con los precios actualizados</span> de todos los productos.<br>¿Deseas continuar?</p>
+                @else
+                <p class="text-gray-700 text-center mb-4">Si agregas este producto a la proforma seleccionada, <span class="font-semibold text-amber-700">se creará una nueva proforma con los precios actualizados</span> de todos los productos.<br>¿Deseas continuar?</p>
+                @endif
                 <div class="flex gap-4 mt-4">
                     <button type="button" wire:click="cancelarActualizarCostosYAgregar" class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-semibold">Cancelar</button>
-                    <button type="button" wire:click="confirmarActualizarCostosYAgregar" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg font-semibold shadow-lg">Actualizar y Agregar</button>
+                    @if($pendingItemId)
+                    <button type="button" wire:click="confirmarActualizarItemConNuevosCostos" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg font-semibold shadow-lg">Crear Nueva Proforma</button>
+                    @else
+                    <button type="button" wire:click="confirmarActualizarCostosYAgregar" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg font-semibold shadow-lg">Crear Nueva Proforma</button>
+                    @endif
                 </div>
             </div>
         </div>

@@ -278,7 +278,7 @@
                 <!-- Fondo oscuro -->
                 <div class="fixed inset-0 transition-opacity bg-black/30 backdrop-blur-[1px]" wire:click="closeModal"></div>
                 <!-- Panel del modal -->
-                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto text-left align-middle transition-all transform relative" style="max-height: 90vh; display: flex; flex-direction: column;">
+                <div class="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl mx-auto text-left align-middle transition-all transform relative border border-slate-700" style="max-height: 90vh; display: flex; flex-direction: column;">
                     <!-- Header -->
                     <div class="sticky top-0 bg-gradient-to-r from-pink-400 to-fuchsia-500 px-6 py-4 rounded-t-2xl flex justify-between items-center z-10">
                         <div class="flex items-center space-x-3">
@@ -292,13 +292,13 @@
                                 <p class="text-sm text-pink-100">Información completa de la cotización</p>
                             </div>
                         </div>
-                        <button type="button" wire:click="closeModal" class="p-2 text-white hover:bg-white/20 rounded-lg transition-colors duration-200">
+                        <button type="button" wire:click="closeModal" class="p-2 text-white hover:bg-white/20 rounded-lg transition-colors duration-200 cursor-pointer relative group">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                         </button>
                     </div>
                     <!-- Contenido -->
-                    <div class="overflow-y-auto px-6 py-4" style="flex: 1;">
+                    <div class="overflow-y-auto px-6 py-4 bg-slate-900 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 hover:scrollbar-thumb-slate-500" style="flex: 1; scrollbar-width: thin; scrollbar-color: #475569 #1e293b;">
                         @if(empty($selectedProforma['items']) || count($selectedProforma['items']) == 0)
                             <div class="text-center text-gray-400 py-8">No hay ítems en esta proforma.</div>
                         @else

@@ -12,6 +12,7 @@ class ProductConfigurator extends Component
     public $showCostUpdateWarning = false;
     public $proformaIdPendingCostUpdate = null;
     public $pendingConfiguration = null;
+    public $pendingItemId = null; // ID del ítem existente que se va a actualizar
     public $showProformaModal = false;
     public $currentProformaStatus = null; // 'new' o 'saved'
     public $currentProformaId = null;
@@ -213,6 +214,7 @@ class ProductConfigurator extends Component
         $user = auth()->user();
         $total_price = $proforma->total_price;
         $number = $proforma->number;
+        $created_at = $proforma->created_at;
         $expiration_date = $proforma->expiration_date;
         $is_expired = $proforma->is_expired;
         $isPdf = true;
@@ -223,6 +225,7 @@ class ProductConfigurator extends Component
             'user',
             'total_price',
             'number',
+            'created_at',
             'expiration_date',
             'is_expired',
             'isPdf'
@@ -298,6 +301,25 @@ class ProductConfigurator extends Component
     }
 
     /**
+     * Verificar si un ítem específico necesita actualización de costos
+     */
+    private function itemNeedsCostUpdate($item)
+    {
+        $config = json_decode($item->configuration, true);
+        $currentDirect = $this->getDirectCostPercentage();
+        $currentIndirect = $this->getIndirectCostPercentage();
+        $currentWaste = $this->getWastePercentage();
+        $currentProfit = $this->getProfitMarginPercentage();
+        
+        return (
+            ($config['directCost'] ?? null) != $currentDirect ||
+            ($config['indirectCost'] ?? null) != $currentIndirect ||
+            ($config['wastePercentage'] ?? null) != $currentWaste ||
+            ($config['profitMargin'] ?? null) != $currentProfit
+        );
+    }
+
+    /**
      * Confirmar actualización de costos y agregar el producto
      */
     public function confirmarActualizarCostosYAgregar()
@@ -306,22 +328,56 @@ class ProductConfigurator extends Component
             $this->showCostUpdateWarning = false;
             return;
         }
-        // Actualizar todos los ítems de la proforma con los costos actuales
-        $items = DB::table('proforma_items')->where('proforma_id', $this->proformaIdPendingCostUpdate)->get();
+        
+        // Obtener la proforma antigua
+        $oldProforma = DB::table('proformas')->where('id', $this->proformaIdPendingCostUpdate)->first();
+        
+        // Desactivar la proforma antigua
+        DB::table('proformas')->where('id', $this->proformaIdPendingCostUpdate)->update([
+            'is_active' => false,
+            'updated_at' => now()
+        ]);
+        
+        // Crear nueva proforma con número actualizado
+        $nextNumber = $this->generateNextProformaNumber();
+        $newProformaId = DB::table('proformas')->insertGetId([
+            'number' => $nextNumber,
+            'user_id' => auth()->id(),
+            'total_price' => 0,
+            'expiration_date' => now()->addDays(30),
+            'is_expired' => false,
+            'is_ordered' => false,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        
+        // Copiar todos los ítems existentes con los nuevos costos actualizados
+        $items = DB::table('proforma_items')
+            ->where('proforma_id', $this->proformaIdPendingCostUpdate)
+            ->where('is_active', true)
+            ->get();
+            
         foreach ($items as $item) {
             $config = json_decode($item->configuration, true);
             $config['directCost'] = $this->getDirectCostPercentage();
             $config['indirectCost'] = $this->getIndirectCostPercentage();
             $config['wastePercentage'] = $this->getWastePercentage();
             $config['profitMargin'] = $this->getProfitMarginPercentage();
+            
             // Recalcular precio y snapshot de costos
             $newPrice = $this->recalcularPrecioItem($item->product_id, $config, $item->quantity);
             $costSnapshot = $this->recalcularCostSnapshot($config, $item->quantity);
             
-            DB::table('proforma_items')->where('id', $item->id)->update([
+            // Insertar ítem en la nueva proforma
+            DB::table('proforma_items')->insert([
+                'proforma_id' => $newProformaId,
+                'product_id' => $item->product_id,
                 'configuration' => json_encode($config),
+                'quantity' => $item->quantity,
                 'price' => $newPrice,
-                // Actualizar snapshot de costos
+                'notes' => $item->notes,
+                'is_active' => true,
                 'material_cost' => $costSnapshot['material_cost'],
                 'direct_cost' => $costSnapshot['direct_cost'],
                 'indirect_cost' => $costSnapshot['indirect_cost'],
@@ -329,19 +385,18 @@ class ProductConfigurator extends Component
                 'profit_amount' => $costSnapshot['profit_amount'],
                 'total_cost' => $costSnapshot['total_cost'],
                 'profit_margin_percentage' => $costSnapshot['profit_margin_percentage'],
+                'created_at' => now(),
                 'updated_at' => now()
             ]);
         }
-        // Actualizar fecha de expiración de la proforma
-        DB::table('proformas')->where('id', $this->proformaIdPendingCostUpdate)->update([
-            'expiration_date' => now()->addDays(15),
-            'updated_at' => now()
-        ]);
-        // Agregar el nuevo producto/configuración
-        $this->createProformaItem($this->proformaIdPendingCostUpdate, $this->pendingConfiguration);
-        $this->updateProformaTotalPrice($this->proformaIdPendingCostUpdate);
-        $proforma = DB::table('proformas')->where('id', $this->proformaIdPendingCostUpdate)->first();
-        session()->flash('message', '¡Costos actualizados y configuración agregada a la proforma ' . ($proforma->number ?? '') . '!');
+        
+        // Agregar el nuevo producto/configuración a la nueva proforma
+        $this->createProformaItem($newProformaId, $this->pendingConfiguration);
+        $this->updateProformaTotalPrice($newProformaId);
+        
+        $newProforma = DB::table('proformas')->where('id', $newProformaId)->first();
+        session()->flash('message', '¡Nueva proforma ' . $newProforma->number . ' creada con costos actualizados!');
+        
         $this->showCostUpdateWarning = false;
         $this->proformaIdPendingCostUpdate = null;
         $this->pendingConfiguration = null;
@@ -359,6 +414,99 @@ class ProductConfigurator extends Component
         $this->showCostUpdateWarning = false;
         $this->proformaIdPendingCostUpdate = null;
         $this->pendingConfiguration = null;
+        $this->pendingItemId = null;
+    }
+
+    /**
+     * Confirmar actualización de ítem existente con nuevos costos
+     */
+    public function confirmarActualizarItemConNuevosCostos()
+    {
+        if (!$this->proformaIdPendingCostUpdate || !$this->pendingConfiguration || !$this->pendingItemId) {
+            $this->showCostUpdateWarning = false;
+            return;
+        }
+        
+        // Obtener la proforma antigua
+        $oldProforma = DB::table('proformas')->where('id', $this->proformaIdPendingCostUpdate)->first();
+        
+        // Desactivar la proforma antigua
+        DB::table('proformas')->where('id', $this->proformaIdPendingCostUpdate)->update([
+            'is_active' => false,
+            'updated_at' => now()
+        ]);
+        
+        // Crear nueva proforma con número actualizado
+        $nextNumber = $this->generateNextProformaNumber();
+        $newProformaId = DB::table('proformas')->insertGetId([
+            'number' => $nextNumber,
+            'user_id' => auth()->id(),
+            'total_price' => 0,
+            'expiration_date' => now()->addDays(30),
+            'is_expired' => false,
+            'is_ordered' => false,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        
+        // Copiar todos los ítems existentes con los nuevos costos actualizados
+        $items = DB::table('proforma_items')
+            ->where('proforma_id', $this->proformaIdPendingCostUpdate)
+            ->where('is_active', true)
+            ->get();
+            
+        foreach ($items as $item) {
+            $config = json_decode($item->configuration, true);
+            $config['directCost'] = $this->getDirectCostPercentage();
+            $config['indirectCost'] = $this->getIndirectCostPercentage();
+            $config['wastePercentage'] = $this->getWastePercentage();
+            $config['profitMargin'] = $this->getProfitMarginPercentage();
+            
+            // Si es el ítem que se está actualizando, usar la nueva configuración (cantidad actualizada)
+            if ($item->id == $this->pendingItemId) {
+                $config = $this->pendingConfiguration;
+                $quantity = $this->quantity;
+            } else {
+                $quantity = $item->quantity;
+            }
+            
+            // Recalcular precio y snapshot de costos
+            $newPrice = $this->recalcularPrecioItem($item->product_id, $config, $quantity);
+            $costSnapshot = $this->recalcularCostSnapshot($config, $quantity);
+            
+            // Insertar ítem en la nueva proforma
+            DB::table('proforma_items')->insert([
+                'proforma_id' => $newProformaId,
+                'product_id' => $item->product_id,
+                'configuration' => json_encode($config),
+                'quantity' => $quantity,
+                'price' => $newPrice,
+                'notes' => $item->notes,
+                'is_active' => true,
+                'material_cost' => $costSnapshot['material_cost'],
+                'direct_cost' => $costSnapshot['direct_cost'],
+                'indirect_cost' => $costSnapshot['indirect_cost'],
+                'waste_cost' => $costSnapshot['waste_cost'],
+                'profit_amount' => $costSnapshot['profit_amount'],
+                'total_cost' => $costSnapshot['total_cost'],
+                'profit_margin_percentage' => $costSnapshot['profit_margin_percentage'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+        
+        $this->updateProformaTotalPrice($newProformaId);
+        
+        $newProforma = DB::table('proformas')->where('id', $newProformaId)->first();
+        session()->flash('message', '¡Nueva proforma ' . $newProforma->number . ' creada con costos actualizados!');
+        
+        $this->showCostUpdateWarning = false;
+        $this->proformaIdPendingCostUpdate = null;
+        $this->pendingConfiguration = null;
+        $this->pendingItemId = null;
+        $this->checkCurrentConfigurationStatus();
+        $this->loadAvailableProformas();
     }
 
     /**
@@ -385,7 +533,9 @@ class ProductConfigurator extends Component
         $totalProductionCost = $totalCost + $directAmount + $indirectAmount + $wasteAmount;
         $profitAmount = $totalProductionCost * (($config['profitMargin'] ?? 0) / 100);
         $precisePrice = $totalProductionCost + $profitAmount;
-        return round($precisePrice * $quantity, 2);
+        // Multiplicar por cantidad y agregar IVA del 15%
+        $priceWithIVA = ($precisePrice * $quantity) * 1.15;
+        return round($priceWithIVA, 2);
     }
     
     /**
@@ -773,9 +923,12 @@ class ProductConfigurator extends Component
             $profitAmount = $totalProductionCost * ($profitMargin / 100);
 
             $precisePrice = $totalProductionCost + $profitAmount;
-            // Redondeo SOLO al final para el precio mostrado al usuario
             // Multiplicar por la cantidad
-            $this->calculatedPrice = round($precisePrice * $this->quantity, 2);
+            $priceWithQuantity = $precisePrice * $this->quantity;
+            // Agregar IVA del 15%
+            $priceWithIVA = $priceWithQuantity * 1.15;
+            // Redondeo SOLO al final para el precio mostrado al usuario
+            $this->calculatedPrice = round($priceWithIVA, 2);
         } catch (\Exception $e) {
             $this->calculatedPrice = $this->product->price ?? 0;
         }
@@ -1025,7 +1178,21 @@ class ProductConfigurator extends Component
             $matchingItem = $this->findMatchingItem($proforma->id);
 
             if ($matchingItem) {
-                // Actualizar ítem existente con nuevo snapshot de costos
+                // Verificar si los costos del ítem están desactualizados
+                if ($this->itemNeedsCostUpdate($matchingItem)) {
+                    // Mostrar advertencia de actualización de costos
+                    $this->showCostUpdateWarning = true;
+                    $this->proformaIdPendingCostUpdate = $proforma->id;
+                    $this->pendingConfiguration = $configuration;
+                    $this->pendingItemId = $matchingItem->id;
+                    
+                    if ($returnId) {
+                        return null;
+                    }
+                    return;
+                }
+                
+                // Si los costos están actualizados, actualizar el ítem normalmente
                 $costSnapshot = $this->calculateCostSnapshot();
                 
                 DB::table('proforma_items')
@@ -1086,7 +1253,7 @@ class ProductConfigurator extends Component
         // Si no existe y se solicita crear, crear una nueva
         if ($create) {
             $nextNumber = $this->generateNextProformaNumber();
-            $expirationDate = now()->addDays(15);
+            $expirationDate = now()->addDays(30);
 
             $proformaId = DB::table('proformas')->insertGetId([
                 'number' => $nextNumber,
@@ -1158,7 +1325,7 @@ class ProductConfigurator extends Component
 
             // Crear nueva proforma
             $nextNumber = $this->generateNextProformaNumber();
-            $expirationDate = now()->addDays(15);
+            $expirationDate = now()->addDays(30);
 
             $proformaId = DB::table('proformas')->insertGetId([
                 'number' => $nextNumber,

@@ -160,6 +160,15 @@ class OrdersTable extends Component
         $this->showOrderModal = false;
         $this->selectedOrder = null;
     }
+    
+    public function goToProforma($proformaId)
+    {
+        // Guardar el ID de la proforma en sesión
+        session()->put('open_proforma_id', $proformaId);
+        
+        // Redirigir a la vista de proformas
+        return redirect()->route('admin.proformas.index');
+    }
 
     public function updateOrderStatusQuick($orderId, $newStatus)
     {

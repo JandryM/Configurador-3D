@@ -23,6 +23,15 @@ class ProformasTable extends Component
     {
         // Inicializar paginación con 5 elementos por página
         $this->perPage = 5;
+        
+        // Verificar si hay una proforma que abrir desde sesión
+        if (session()->has('open_proforma_id')) {
+            $proformaId = session()->get('open_proforma_id');
+            session()->forget('open_proforma_id'); // Limpiar sesión inmediatamente
+            
+            // Abrir el modal de la proforma
+            $this->showProforma($proformaId);
+        }
     }
 
     private function getAllProformas()
@@ -172,8 +181,10 @@ class ProformasTable extends Component
         $items = $proforma['items'];
         $total_price = $proforma['total_price'];
         $number = $proforma['number'];
+        $created_at = $proforma['created_at'] ?? null;
         $expiration_date = $proforma['expiration_date'] ?? null;
         $is_expired = $proforma['is_expired'] ?? false;
+        $isPdf = true;
         
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('livewire.proformas.proforma-admin', compact(
@@ -181,8 +192,10 @@ class ProformasTable extends Component
             'user',
             'total_price',
             'number',
+            'created_at',
             'expiration_date',
-            'is_expired'
+            'is_expired',
+            'isPdf'
         ));
         
         return response()->streamDownload(function () use ($pdf) {

@@ -45,7 +45,7 @@
                         </div>
                     </div>
                     <div class= "relative group">
-                        <button type="button" wire:click="closeModal" class="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors duration-200">
+                        <button type="button" wire:click="closeModal" class="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors duration-200 cursor-pointer">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                             </svg>
@@ -154,7 +154,7 @@
                                                 <div class="flex gap-2 min-w-[260px] w-[260px]">
                                                     <div class="relative group">
                                                         <button wire:click="showProforma({{ $proforma['id'] }})" 
-                                                                class="px-4 text-xs font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-blue-600 to-cyan-700 hover:from-blue-700 hover:to-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl h-[38px] flex items-center justify-center">
+                                                                class="px-4 text-xs font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-blue-600 to-cyan-700 hover:from-blue-700 hover:to-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl h-[38px] flex items-center justify-center cursor-pointer">
                                                             Ver
                                                         </button>
                                                         <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
@@ -163,7 +163,7 @@
                                                     </div>
                                                     <div class="relative group">
                                                         <button wire:click="downloadProformaPdf({{ $proforma['id'] }})" 
-                                                                class="px-4 text-xs font-medium border border-green-600/40 rounded-lg text-white bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl h-[38px] flex items-center justify-center">
+                                                                class="px-4 text-xs font-medium border border-green-600/40 rounded-lg text-white bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl h-[38px] flex items-center justify-center cursor-pointer">
                                                             PDF
                                                         </button>
                                                         <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
@@ -174,7 +174,7 @@
                                                     <div class="relative group">
                                                         <button wire:click="setConfirmOrderId({{ $proforma['id'] }})"
                                                                 @if($confirmOrderId !== null) disabled @endif
-                                                                class="px-3 text-xs font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl border border-amber-600/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 font-semibold h-[38px] flex items-center justify-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
+                                                                class="px-3 text-xs font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl border border-amber-600/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 font-semibold h-[38px] flex items-center justify-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                                             Ordenar Proforma
                                                         </button>
                                                         <span class="absolute bottom-full right-0 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
@@ -211,7 +211,7 @@
                                 <div class="flex-1 flex justify-start gap-2">
                                         <div class="relative group">
                                             <button wire:click="anteriorPaginaProformas" @if($paginaProformas <= 1) disabled aria-disabled="true" @endif
-                                                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/20 bg-white/5 text-white/80 font-medium hover:bg-white/10 hover:text-white focus:outline-none focus:ring-1 focus:ring-cyan-400/30 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed text-xs backdrop-blur-sm"
+                                                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/20 bg-white/5 text-white/80 font-medium hover:bg-white/10 hover:text-white focus:outline-none focus:ring-1 focus:ring-cyan-400/30 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed text-xs backdrop-blur-sm cursor-pointer"
                                                 aria-label="Página anterior" tabindex="0">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                                                 <span class="hidden sm:inline"></span>
@@ -224,7 +224,7 @@
                                             <div class="relative group">
                                                 <button @click="confirmDelete = true"
                                                         :disabled="confirmDelete"
-                                                        class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium border border-red-600/40 rounded-lg text-white bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+                                                        class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium border border-red-600/40 rounded-lg text-white bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                                     </svg>
@@ -305,7 +305,7 @@
                                 <div class="flex-1 flex justify-end">
                                     <div class="relative group">
                                         <button wire:click="siguientePaginaProformas" @if($paginaProformas >= ceil($totalProformas / $proformasPorPagina)) disabled aria-disabled="true" @endif
-                                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/20 bg-white/5 text-white/80 font-medium hover:bg-white/10 hover:text-white focus:outline-none focus:ring-1 focus:ring-cyan-400/30 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed text-xs backdrop-blur-sm"
+                                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/20 bg-white/5 text-white/80 font-medium hover:bg-white/10 hover:text-white focus:outline-none focus:ring-1 focus:ring-cyan-400/30 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed text-xs backdrop-blur-sm cursor-pointer"
                                             aria-label="Página siguiente" tabindex="0">
                                             <span class="hidden sm:inline"></span>
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
@@ -398,7 +398,7 @@
             <div class="bg-black/70 backdrop-blur-md rounded-2xl shadow-2xl w-full max-w-2xl mx-auto text-left align-middle transition-all transform relative z-10 p-6 md:p-8 text-white" style="max-height: 90vh; display: flex; flex-direction: column;">
                 <!-- Botón cerrar -->
                  <div class= "relative group">
-                <button wire:click="closeProformaModal" class="absolute top-3 right-3 text-gray-400 hover:text-white text-3xl font-bold z-10">&times;</button>
+                <button wire:click="closeProformaModal" class="absolute top-3 right-3 text-gray-400 hover:text-white text-3xl font-bold z-10 cursor-pointer">&times;</button>
                     <span class="absolute bottom-full right-0 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                         Cerrar
                     </span>
@@ -491,7 +491,7 @@
                 <!-- Botones de acción -->
                 <div class="mt-6 pt-6 border-t border-white/20 flex justify-end gap-3">
                     <div class="relative group">
-                        <button wire:click="downloadProformaPdf({{ $selectedProformaId }})" class="px-4 py-2 text-sm font-medium border border-green-600/40 rounded-lg text-white bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                        <button wire:click="downloadProformaPdf({{ $selectedProformaId }})" class="px-4 py-2 text-sm font-medium border border-green-600/40 rounded-lg text-white bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl cursor-pointer">
                             Descargar PDF
                         </button>
                         <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">

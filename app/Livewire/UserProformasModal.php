@@ -330,6 +330,7 @@ class UserProformasModal extends Component
         $user = Auth::user();
         $total_price = $proforma->total_price;
         $number = $proforma->number;
+        $created_at = $proforma->created_at;
         $expiration_date = $proforma->expiration_date;
         $is_expired = $proforma->is_expired;
         $isPdf = true;
@@ -339,6 +340,7 @@ class UserProformasModal extends Component
             'user',
             'total_price',
             'number',
+            'created_at',
             'expiration_date',
             'is_expired',
             'isPdf'

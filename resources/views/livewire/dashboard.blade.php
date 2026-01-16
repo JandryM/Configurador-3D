@@ -46,7 +46,32 @@
                     </button>
                 @endif
                 
-                <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                <div class="relative" 
+                     x-data="{ 
+                         open: false, 
+                         isDraggingNotification: false,
+                         preventClickAway: false,
+                         init() {
+                             window.addEventListener('notification-drag-start', () => { 
+                                 this.isDraggingNotification = true;
+                                 this.preventClickAway = true;
+                             });
+                             window.addEventListener('notification-drag-end', () => { 
+                                 this.isDraggingNotification = false;
+                                 setTimeout(() => { this.preventClickAway = false; }, 300);
+                             });
+                             
+                             // Capturar mouseup/touchend global para finalizar arrastre
+                             const handleGlobalEnd = () => {
+                                 if (this.isDraggingNotification) {
+                                     window.dispatchEvent(new CustomEvent('notification-drag-end'));
+                                 }
+                             };
+                             window.addEventListener('mouseup', handleGlobalEnd);
+                             window.addEventListener('touchend', handleGlobalEnd);
+                         }
+                     }" 
+                     @click.away="if(!preventClickAway) { open = false; }">
                     <button @click="open = !open" class="relative bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl p-3 transition-all duration-200 hover:scale-105 cursor-pointer">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
@@ -207,10 +232,20 @@
                                         currentX: 0, 
                                         isDragging: false,
                                         showTooltip: false,
+                                        alertId: '{{ $alerta['id'] }}',
+                                        init() {
+                                            // Escuchar el evento global de finalización
+                                            window.addEventListener('notification-drag-end', () => {
+                                                if (this.isDragging) {
+                                                    this.finalizeDrag();
+                                                }
+                                            });
+                                        },
                                         startTouch(e) {
                                             this.showTooltip = false;
                                             this.startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
                                             this.isDragging = true;
+                                            window.dispatchEvent(new CustomEvent('notification-drag-start'));
                                             e.preventDefault();
                                         },
                                         moveTouch(e) {
@@ -220,9 +255,10 @@
                                             $el.style.transform = 'translateX(' + this.currentX + 'px)';
                                             $el.style.opacity = 1 - (this.currentX / 250);
                                         },
-                                        endTouch() {
+                                        finalizeDrag() {
+                                            if (!this.isDragging) return;
                                             if (this.currentX > 170) {
-                                                $wire.marcarAlertaVista('{{ $alerta['id'] }}');
+                                                $wire.marcarAlertaVista(this.alertId);
                                             } else {
                                                 $el.style.transform = 'translateX(0)';
                                                 $el.style.opacity = '1';
@@ -233,12 +269,10 @@
                                     }"
                                     @mousedown="startTouch($event)"
                                     @mousemove="moveTouch($event)"
-                                    @mouseup="endTouch()"
-                                    @mouseleave="if(isDragging) { endTouch(); } showTooltip = false;"
                                     @touchstart="startTouch($event)"
                                     @touchmove="moveTouch($event)"
-                                    @touchend="endTouch()"
                                     @mouseenter="if(!isDragging) { showTooltip = true; }"
+                                    @mouseleave="showTooltip = false;"
                                     style="transition: transform 0.3s ease, opacity 0.3s ease; touch-action: pan-y;"
                                     class="p-4 !border-b !border-slate-100 hover:bg-slate-50 transition-colors relative select-none cursor-pointer overflow-hidden">
                                     

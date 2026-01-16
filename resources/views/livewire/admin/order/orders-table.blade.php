@@ -307,7 +307,6 @@
                                                 color="red"
                                                 tooltip="Cancelar orden"
                                                 wire:click="cancelOrder({{ $order['id'] }})"
-                                                onclick="return confirm('¿Estás seguro de cancelar esta orden?')"
                                             >
                                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
@@ -334,22 +333,22 @@
             <div class="flex items-center justify-center min-h-screen px-4 text-center">
                 <div class="fixed inset-0 transition-opacity bg-black/30 backdrop-blur-[1px]" wire:click="closeModal"></div>
                 
-                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto text-left align-middle transition-all transform relative" style="max-height: 90vh; display: flex; flex-direction: column;">
+                <div class="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-4xl mx-auto text-left align-middle transition-all transform relative" style="max-height: 90vh; display: flex; flex-direction: column;">
                     <!-- Header -->
-                    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl flex justify-between items-center z-10">
+                    <div class="sticky top-0 bg-gradient-to-r from-indigo-400 to-purple-500 border-b border-slate-700 px-6 py-4 rounded-t-2xl flex justify-between items-center z-10">
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
                                 <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
                                     <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
                                 </svg>
                             </div>
                             <div>
-                                <h2 class="text-xl font-bold text-gray-800">Detalles de Orden: {{ $selectedOrder['number'] }}</h2>
-                                <p class="text-sm text-gray-600">Gestión completa de la orden</p>
+                                <h2 class="text-xl font-bold text-white">Detalles de Orden: {{ $selectedOrder['number'] }}</h2>
+                                <p class="text-sm text-white/90">Gestión completa de la orden</p>
                             </div>
                         </div>
-                        <button type="button" wire:click="closeModal" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200">
+                        <button type="button" wire:click="closeModal" class="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-colors duration-200 cursor-pointer">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                             </svg>
@@ -357,23 +356,23 @@
                     </div>
 
                     <!-- Contenido -->
-                    <div class="overflow-y-auto px-6 py-4" style="flex: 1;">
+                    <div class="overflow-y-auto px-6 py-4 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 hover:scrollbar-thumb-slate-500" style="flex: 1; scrollbar-width: thin;">
                         <!-- Información de la Orden -->
-                        <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                        <div class="mb-6 p-4 bg-slate-800 rounded-lg border border-slate-600">
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <p class="text-sm text-gray-600">Cliente</p>
-                                    <p class="font-medium text-gray-800">{{ $selectedOrder['client'] }}</p>
+                                    <p class="text-sm text-slate-400">Cliente</p>
+                                    <p class="font-medium text-slate-200">{{ $selectedOrder['client'] }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-600">Estado Actual</p>
+                                    <p class="text-sm text-slate-400">Estado Actual</p>
                                     @php
                                         $statusColors = [
-                                            'pending' => 'bg-yellow-100 text-yellow-800',
-                                            'approved' => 'bg-blue-100 text-blue-800',
-                                            'in_production' => 'bg-purple-100 text-purple-800',
-                                            'completed' => 'bg-green-100 text-green-800',
-                                            'cancelled' => 'bg-red-100 text-red-800',
+                                            'pending' => 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30',
+                                            'approved' => 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
+                                            'in_production' => 'bg-purple-500/20 text-purple-300 border border-purple-500/30',
+                                            'completed' => 'bg-green-500/20 text-green-300 border border-green-500/30',
+                                            'cancelled' => 'bg-red-500/20 text-red-300 border border-red-500/30',
                                         ];
                                         $statusLabels = [
                                             'pending' => 'Pendiente',
@@ -383,37 +382,50 @@
                                             'cancelled' => 'Cancelada',
                                         ];
                                     @endphp
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $statusColors[$selectedOrder['status']] ?? 'bg-gray-100 text-gray-800' }}">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $statusColors[$selectedOrder['status']] ?? 'bg-slate-500/20 text-slate-300 border border-slate-500/30' }}">
                                         {{ $statusLabels[$selectedOrder['status']] ?? $selectedOrder['status'] }}
                                     </span>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-600">Cantidad</p>
-                                    <p class="font-medium text-gray-800">{{ $selectedOrder['quantity'] ?? 1 }} {{ ($selectedOrder['quantity'] ?? 1) == 1 ? 'unidad' : 'unidades' }}</p>
+                                    <p class="text-sm text-slate-400">Cantidad</p>
+                                    <p class="font-medium text-slate-200">{{ $selectedOrder['quantity'] ?? 1 }} {{ ($selectedOrder['quantity'] ?? 1) == 1 ? 'unidad' : 'unidades' }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-600">Monto Total</p>
-                                    <p class="font-bold text-lg text-gray-800">${{ number_format($selectedOrder['amount'], 2) }}</p>
+                                    <p class="text-sm text-slate-400">Monto Total</p>
+                                    <p class="font-bold text-lg text-emerald-400">${{ number_format($selectedOrder['amount'], 2) }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-600">Fecha de Creación</p>
-                                    <p class="font-medium text-gray-800">{{ \Carbon\Carbon::parse($selectedOrder['created_at'])->format('d/m/Y H:i') }}</p>
+                                    <p class="text-sm text-slate-400">Fecha de Creación</p>
+                                    <p class="font-medium text-slate-200">{{ \Carbon\Carbon::parse($selectedOrder['created_at'])->format('d/m/Y H:i') }}</p>
                                 </div>
+                                @if(isset($selectedOrder['proforma_id']) && $selectedOrder['proforma_id'])
+                                    <div>
+                                        <p class="text-sm text-slate-400 mb-2">Proforma</p>
+                                        <button 
+                                            wire:click="goToProforma({{ $selectedOrder['proforma_id'] }})"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-500 text-slate-300 hover:text-slate-100 rounded-lg text-sm transition-all duration-200 cursor-pointer">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span>Ver Original</span>
+                                        </button>
+                                    </div>
+                                @endif
                                 @if($selectedOrder['status'] === 'in_production' && $selectedOrder['estimated_finish_at'])
                                     <div class="col-span-2">
-                                        <p class="text-sm text-gray-600">Fecha Estimada de Finalización</p>
-                                        <p class="font-medium text-purple-600">
+                                        <p class="text-sm text-slate-400">Fecha Estimada de Finalización</p>
+                                        <p class="font-medium text-purple-400">
                                             {{ \Carbon\Carbon::parse($selectedOrder['estimated_finish_at'])->format('d/m/Y') }}
                                         </p>
                                         @php
                                             $daysRemaining = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($selectedOrder['estimated_finish_at']), false);
                                         @endphp
                                         @if($daysRemaining > 0)
-                                            <p class="text-xs text-gray-500">Faltan {{ ceil($daysRemaining) }} día(s)</p>
+                                            <p class="text-xs text-slate-400">Faltan {{ ceil($daysRemaining) }} día(s)</p>
                                         @elseif($daysRemaining < 0)
-                                            <p class="text-xs text-red-500">Retrasado por {{ abs(floor($daysRemaining)) }} día(s)</p>
+                                            <p class="text-xs text-red-400">Retrasado por {{ abs(floor($daysRemaining)) }} día(s)</p>
                                         @else
-                                            <p class="text-xs text-green-500">Finaliza hoy</p>
+                                            <p class="text-xs text-green-400">Finaliza hoy</p>
                                         @endif
                                     </div>
                                 @endif
@@ -423,39 +435,37 @@
                         <!-- Acciones Rápidas -->
                         @if($canModify)
                             <div class="mb-6">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-3">Acciones de Gestión</h3>
+                                <h3 class="text-lg font-semibold text-slate-200 mb-3">Acciones de Gestión</h3>
                                 <div class="flex flex-wrap gap-3">
                                     @if($selectedOrder['status'] === 'pending')
                                         <button wire:click="approveOrder({{ $selectedOrder['id'] }})" 
-                                                class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg">
+                                                class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer">
                                             ✓ Aprobar Orden
                                         </button>
                                         <button wire:click="cancelOrder({{ $selectedOrder['id'] }})" 
-                                                onclick="return confirm('¿Estás seguro de cancelar esta orden?')"
-                                                class="px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg">
+                                                class="px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer">
                                             ✗ Cancelar Orden
                                         </button>
                                     @elseif($selectedOrder['status'] === 'approved')
                                         <button wire:click="startProduction({{ $selectedOrder['id'] }})" 
-                                                class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg">
+                                                class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer">
                                             ▶ Iniciar Producción
                                         </button>
                                         <button wire:click="cancelOrder({{ $selectedOrder['id'] }})" 
-                                                onclick="return confirm('¿Estás seguro de cancelar esta orden?')"
-                                                class="px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg">
+                                                class="px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer">
                                             ✗ Cancelar Orden
                                         </button>
                                     @elseif($selectedOrder['status'] === 'in_production')
                                         <button wire:click="completeOrder({{ $selectedOrder['id'] }})" 
-                                                class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg">
+                                                class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer">
                                             ✓ Marcar como Completada
                                         </button>
                                     @endif
                                 </div>
                             </div>
                         @else
-                            <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                <p class="text-sm text-yellow-800">
+                            <div class="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                                <p class="text-sm text-yellow-300">
                                     <strong>Modo Solo Lectura:</strong> No tienes permisos para modificar el estado de las órdenes. Solo puedes visualizar la información.
                                 </p>
                             </div>
@@ -464,34 +474,34 @@
                         <!-- Detalle de Productos de la Proforma -->
                         @if(isset($selectedOrder['items']) && is_array($selectedOrder['items']) && count($selectedOrder['items']) > 0)
                             <div class="mb-4">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Productos ({{ count($selectedOrder['items']) }})</h3>
+                                <h3 class="text-lg font-semibold text-slate-200 mb-2">Productos ({{ count($selectedOrder['items']) }})</h3>
                                 <div class="space-y-2">
                                     @foreach($selectedOrder['items'] as $index => $item)
-                                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md hover:border-indigo-300">
+                                        <div class="bg-slate-800 rounded-lg border border-slate-600 overflow-hidden transition-all duration-200 hover:shadow-md hover:border-slate-500">
                                             <!-- Header del producto (siempre visible) -->
                                             <button 
                                                 type="button"
                                                 onclick="document.getElementById('product-detail-{{ $index }}').classList.toggle('hidden'); document.getElementById('chevron-{{ $index }}').classList.toggle('rotate-180')"
-                                                class="w-full px-3 py-2 flex items-center justify-between hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-colors"
+                                                class="w-full px-3 py-2 flex items-center justify-between hover:bg-slate-700/50 transition-colors cursor-pointer"
                                             >
                                                 <div class="flex items-center space-x-2 flex-1 min-w-0">
-                                                    <div class="w-7 h-7 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-md flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                                                    <div class="w-7 h-7 bg-gradient-to-r from-pink-400 to-fuchsia-500 rounded-md flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
                                                         {{ $index + 1 }}
                                                     </div>
                                                     <div class="text-left flex-1 min-w-0">
-                                                        <p class="font-semibold text-gray-800 text-sm truncate">
+                                                        <p class="font-semibold text-slate-200 text-sm truncate">
                                                             {{ $item['product_name'] ?? ($item['product'] ? $item['product']->name : 'Producto eliminado') }}
                                                         </p>
-                                                        <p class="text-xs text-gray-600">
-                                                            <span class="font-medium text-indigo-600">{{ $item['quantity'] ?? 1 }}×</span> ${{ number_format($item['unit_price'] ?? $item['price'] ?? 0, 2) }}
+                                                        <p class="text-xs text-slate-400">
+                                                            <span class="font-medium text-fuchsia-400">{{ $item['quantity'] ?? 1 }}×</span> ${{ number_format($item['unit_price'] ?? $item['price'] ?? 0, 2) }}
                                                             <span class="mx-1">•</span>
-                                                            <span class="font-semibold text-gray-800">${{ number_format(($item['quantity'] ?? 1) * ($item['unit_price'] ?? $item['price'] ?? 0), 2) }}</span>
+                                                            <span class="font-semibold text-emerald-400">${{ number_format(($item['quantity'] ?? 1) * ($item['unit_price'] ?? $item['price'] ?? 0), 2) }}</span>
                                                         </p>
                                                     </div>
                                                 </div>
                                                 <svg 
                                                     id="chevron-{{ $index }}"
-                                                    class="w-5 h-5 text-gray-500 transition-transform duration-200 flex-shrink-0" 
+                                                    class="w-5 h-5 text-slate-400 transition-transform duration-200 flex-shrink-0" 
                                                     fill="currentColor" 
                                                     viewBox="0 0 20 20"
                                                 >
@@ -500,8 +510,8 @@
                                             </button>
 
                                             <!-- Detalle del producto (colapsable) -->
-                                            <div id="product-detail-{{ $index }}" class="hidden border-t border-gray-300">
-                                                <div class="px-3 py-2 bg-white">
+                                            <div id="product-detail-{{ $index }}" class="hidden border-t border-slate-600">
+                                                <div class="px-3 py-2 bg-slate-700/30">
                                                     @php
                                                         // Campos permitidos y sus traducciones
                                                         $allowedFields = [
@@ -518,13 +528,13 @@
                                                         ];
                                                     @endphp
                                                     @if(isset($item['configuration']['parameters']))
-                                                        <p class="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">Configuración</p>
+                                                        <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-1.5">Configuración</p>
                                                         <div class="grid grid-cols-3 gap-1.5 mb-2">
                                                             @foreach($allowedFields as $key => $label)
                                                                 @if(isset($item['configuration']['parameters'][$key]) && !is_array($item['configuration']['parameters'][$key]))
-                                                                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded px-2 py-1.5">
-                                                                        <p class="text-xs text-gray-600 leading-tight">{{ $label }}</p>
-                                                                        <p class="text-xs font-semibold text-gray-800 leading-tight mt-0.5">{{ $item['configuration']['parameters'][$key] }}</p>
+                                                                    <div class="bg-slate-700 border border-slate-600 rounded px-2 py-1.5">
+                                                                        <p class="text-xs text-slate-400 leading-tight">{{ $label }}</p>
+                                                                        <p class="text-xs font-semibold text-slate-200 leading-tight mt-0.5">{{ $item['configuration']['parameters'][$key] }}</p>
                                                                     </div>
                                                                 @endif
                                                             @endforeach
@@ -532,9 +542,9 @@
                                                     @endif
 
                                                     @if(isset($item['configuration']['parameters']['notes']) && !empty($item['configuration']['parameters']['notes']))
-                                                        <div class="bg-yellow-50 border border-yellow-200 rounded px-2 py-1.5">
-                                                            <p class="text-xs font-medium text-yellow-800 mb-0.5">📝 Notas</p>
-                                                            <p class="text-xs text-gray-700">{{ $item['configuration']['parameters']['notes'] }}</p>
+                                                        <div class="bg-yellow-500/10 border border-yellow-500/30 rounded px-2 py-1.5">
+                                                            <p class="text-xs font-medium text-yellow-300 mb-0.5">📝 Notas</p>
+                                                            <p class="text-xs text-slate-300">{{ $item['configuration']['parameters']['notes'] }}</p>
                                                         </div>
                                                     @endif
                                                 </div>
@@ -571,7 +581,7 @@
                                     <p class="text-sm text-white/80">Ingresa los días estimados</p>
                                 </div>
                             </div>
-                            <button type="button" wire:click="cancelEstimatedTimeModal" class="text-white/80 hover:text-white transition-colors">
+                            <button type="button" wire:click="cancelEstimatedTimeModal" class="text-white/80 hover:text-white transition-colors cursor-pointer p-2 rounded-lg">
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
@@ -595,7 +605,11 @@
                                 <button 
                                     type="button"
                                     wire:click="toggleCustomDate"
-                                    class="text-xs px-3 py-1 rounded-lg transition-colors {{ $customDate ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}"
+                                    class="text-xs px-3 py-1.5 rounded-lg border-2 shadow-md font-semibold transition-all duration-200 cursor-pointer
+                                        {{ $customDate 
+                                            ? 'bg-gradient-to-r from-purple-200 to-purple-100 border-purple-400 text-purple-800 hover:from-purple-300 hover:to-purple-200' 
+                                            : 'bg-gradient-to-r from-indigo-100 to-purple-100 border-purple-300 text-purple-700 hover:from-indigo-200 hover:to-purple-200' 
+                                        }}"
                                 >
                                     {{ $customDate ? '📅 Fecha personalizada' : '🔧 Personalizar fecha' }}
                                 </button>
@@ -607,7 +621,7 @@
                                     <button 
                                         type="button"
                                         wire:click="$set('estimatedDays', 3)"
-                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 3 ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white hover:border-slate-300' }}"
+                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 3 ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
                                     >
                                         <div class="text-center">
                                             <div class="text-2xl font-bold {{ $estimatedDays == 3 ? 'text-purple-600' : 'text-slate-700' }}">3</div>
@@ -618,7 +632,7 @@
                                     <button 
                                         type="button"
                                         wire:click="$set('estimatedDays', 7)"
-                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 7 ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white hover:border-slate-300' }}"
+                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 7 ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
                                     >
                                         <div class="text-center">
                                             <div class="text-2xl font-bold {{ $estimatedDays == 7 ? 'text-purple-600' : 'text-slate-700' }}">7</div>
@@ -629,7 +643,7 @@
                                     <button 
                                         type="button"
                                         wire:click="$set('estimatedDays', 14)"
-                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 14 ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white hover:border-slate-300' }}"
+                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 14 ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
                                     >
                                         <div class="text-center">
                                             <div class="text-2xl font-bold {{ $estimatedDays == 14 ? 'text-purple-600' : 'text-slate-700' }}">14</div>
@@ -640,7 +654,7 @@
                                     <button 
                                         type="button"
                                         wire:click="$set('estimatedDays', 21)"
-                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 21 ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white hover:border-slate-300' }}"
+                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 21 ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
                                     >
                                         <div class="text-center">
                                             <div class="text-2xl font-bold {{ $estimatedDays == 21 ? 'text-purple-600' : 'text-slate-700' }}">21</div>
@@ -651,7 +665,7 @@
                                     <button 
                                         type="button"
                                         wire:click="$set('estimatedDays', 30)"
-                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 30 ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white hover:border-slate-300' }}"
+                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 30 ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
                                     >
                                         <div class="text-center">
                                             <div class="text-2xl font-bold {{ $estimatedDays == 30 ? 'text-purple-600' : 'text-slate-700' }}">30</div>
@@ -662,7 +676,7 @@
                                     <button 
                                         type="button"
                                         wire:click="$set('estimatedDays', 60)"
-                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 60 ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white hover:border-slate-300' }}"
+                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 60 ? 'border-purple-500 bg-purple-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
                                     >
                                         <div class="text-center">
                                             <div class="text-2xl font-bold {{ $estimatedDays == 60 ? 'text-purple-600' : 'text-slate-700' }}">60</div>
@@ -718,14 +732,14 @@
                             <button 
                                 type="button"
                                 wire:click="cancelEstimatedTimeModal"
-                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors"
+                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors cursor-pointer"
                             >
                                 Cancelar
                             </button>
                             <button 
                                 type="button"
                                 wire:click="confirmStartProduction"
-                                class="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg transition-all"
+                                class="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg transition-all cursor-pointer"
                             >
                                 ▶ Iniciar Producción
                             </button>
@@ -763,7 +777,7 @@
                                     <p class="text-sm text-white/80">Verificar antes de aprobar la orden</p>
                                 </div>
                             </div>
-                            <button type="button" wire:click="closeApproveConfirmModal" class="text-white/80 hover:text-white transition-colors">
+                            <button type="button" wire:click="closeApproveConfirmModal" class="text-white/80 hover:text-white transition-colors cursor-pointer">
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
@@ -830,7 +844,7 @@
                                 wire:click="closeApproveConfirmModal"
                                 wire:loading.attr="disabled"
                                 wire:target="confirmApproveOrder"
-                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 Cancelar
                             </button>
@@ -839,7 +853,7 @@
                                 wire:click="confirmApproveOrder"
                                 wire:loading.attr="disabled"
                                 wire:target="confirmApproveOrder"
-                                class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                                class="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
                             >
                                 <span wire:loading.remove wire:target="confirmApproveOrder">✓ Aprobar Orden</span>
                                 <span wire:loading wire:target="confirmApproveOrder" class="flex items-center">
@@ -883,7 +897,7 @@
                                     <p class="text-sm text-white/80">Esta acción no se puede deshacer</p>
                                 </div>
                             </div>
-                            <button type="button" wire:click="closeCancelConfirmModal" class="text-white/80 hover:text-white transition-colors">
+                            <button type="button" wire:click="closeCancelConfirmModal" class="text-white/80 hover:text-white transition-colors cursor-pointer">
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
@@ -898,7 +912,7 @@
                                 <strong>⚠️ ¿Está seguro de cancelar esta orden?</strong>
                             </p>
                             <p class="text-xs text-red-700">
-                                Esta acción es irreversible. La orden cambiará a estado "Cancelada" y no podrá ser procesada. Si la orden está en producción, los materiales no serán devueltos al inventario automáticamente.
+                                Esta acción es irreversible. La orden cambiará a estado "Cancelada" y no podrá ser procesada.
                             </p>
                         </div>
 
@@ -974,7 +988,7 @@
                                 wire:click="closeCancelConfirmModal"
                                 wire:loading.attr="disabled"
                                 wire:target="confirmCancelOrder"
-                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 Volver
                             </button>
@@ -983,7 +997,7 @@
                                 wire:click="confirmCancelOrder"
                                 wire:loading.attr="disabled"
                                 wire:target="confirmCancelOrder"
-                                class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                                class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
                             >
                                 <span wire:loading.remove wire:target="confirmCancelOrder">✗ Cancelar Orden</span>
                                 <span wire:loading wire:target="confirmCancelOrder" class="flex items-center">
