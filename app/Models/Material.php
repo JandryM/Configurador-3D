@@ -271,12 +271,14 @@ class Material extends Model
                 // CASO 1: Tenemos un retazo que sirve
                 if ($bestFitRemainder->remaining_length == $quantityUsed) {
                     // Uso exacto: marcar retazo como usado completamente
-                    $bestFitRemainder->markAsUsed("Usado exactamente: {$quantityUsed}m");
+                    $unit = $this->unit_measure == 'metros_cuadrados' ? 'm²' : 'm';
+                    $bestFitRemainder->markAsUsed("Usado exactamente: {$quantityUsed}{$unit}");
                 } else {
                     // Sobra material: ACTUALIZAR el retazo existente con la nueva longitud
                     $leftover = $bestFitRemainder->remaining_length - $quantityUsed;
+                    $unit = $this->unit_measure == 'metros_cuadrados' ? 'm²' : 'm';
                     $bestFitRemainder->remaining_length = $leftover;
-                    $bestFitRemainder->notes = "Reducido de " . ($leftover + $quantityUsed) . "m a {$leftover}m (usado {$quantityUsed}m)";
+                    $bestFitRemainder->notes = "Reducido de " . ($leftover + $quantityUsed) . "{$unit} a {$leftover}{$unit} (usado {$quantityUsed}{$unit})";
                     $bestFitRemainder->save();
                 }
             } else {
@@ -288,13 +290,14 @@ class Material extends Model
 
                 // SIEMPRE crear un retazo para esta pieza, incluso si se usa completa
                 // Esto permite tener el árbol genealógico completo desde el inicio
+                $unit = $this->unit_measure == 'metros_cuadrados' ? 'm²' : 'm';
                 $newRemainder = MaterialRemainder::createRemainder(
                     $this->id,
                     $leftover > 0.01 ? $leftover : 0, // Si se usa toda la pieza, crear retazo con 0
                     $materialMovementId,
                     $leftover > 0.01 
-                        ? "Sobrante de pieza nueva ({$this->piece_size}m) después de usar {$quantityUsed}m"
-                        : "Pieza nueva ({$this->piece_size}m) usada completamente"
+                        ? "Sobrante de pieza nueva ({$this->piece_size}{$unit}) después de usar {$quantityUsed}{$unit}"
+                        : "Pieza nueva ({$this->piece_size}{$unit}) usada completamente"
                 );
                 
                 // Retornar el ID del retazo recién creado
@@ -302,7 +305,8 @@ class Material extends Model
                 
                 // Si se usó toda la pieza, marcar el retazo como usado inmediatamente
                 if ($leftover <= 0.01) {
-                    $newRemainder->markAsUsed("Pieza nueva usada completamente");
+                    $unit = $this->unit_measure == 'metros_cuadrados' ? 'm²' : 'm';
+                    $newRemainder->markAsUsed("Pieza nueva ({$this->piece_size}{$unit}) usada completamente");
                 }
             }
         } else {

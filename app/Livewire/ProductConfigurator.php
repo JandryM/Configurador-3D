@@ -108,6 +108,7 @@ class ProductConfigurator extends Component
                 ->where('is_active', true)
                 ->get();
 
+            $productType = $this->getProductType();
             foreach ($existingItems as $item) {
                 $itemConfig = json_decode($item->configuration, true);
                 $itemParams = $itemConfig['parameters'] ?? [];
@@ -116,8 +117,11 @@ class ProductConfigurator extends Component
                     ($itemParams['width'] ?? null) == ($this->parameters['width'] ?? null) &&
                     ($itemParams['height'] ?? null) == ($this->parameters['height'] ?? null) &&
                     ($itemParams['depth'] ?? null) == ($this->parameters['depth'] ?? null) &&
-                    ($itemParams['color'] ?? null) == ($this->parameters['color'] ?? null) &&
-                    ($itemParams['glassColor'] ?? null) == ($this->parameters['glassColor'] ?? null);
+                    ($itemParams['color'] ?? null) == ($this->parameters['color'] ?? null);
+                // Solo comparar glassColor si es window o door
+                if (in_array($productType, ['window', 'door'])) {
+                    $paramsMatch = $paramsMatch && (($itemParams['glassColor'] ?? null) == ($this->parameters['glassColor'] ?? null));
+                }
                 if ($paramsMatch) {
                     // Encontramos la configuración en esta proforma
                     $this->currentProformaStatus = 'saved';
@@ -677,7 +681,7 @@ class ProductConfigurator extends Component
             'width' => ['min' => 2, 'max' => 3, 'step' => 0.001],  // tres decimales 
             'height' => ['min' => 2, 'max' => 3, 'step' => 0.001],  // tres decimales 
             'depth' => ['min' => 0.03, 'max' => 0.1, 'step' => 0.001],
-            'frameWidth' => ['min' => 0.05, 'max' => 0.15, 'step' => 0.001]
+            'frameWidth' => ['min' => 0.06, 'max' => 0.15, 'step' => 0.001]
         ],
         'mesh' => [
             'width' => ['min' => 0.8, 'max' => 3, 'step' => 0.001],
@@ -1030,9 +1034,15 @@ class ProductConfigurator extends Component
      */
     private function buildConfiguration()
     {
+        $parameters = $this->parameters;
+        $productType = $this->getProductType();
+        // Solo incluir glassColor si es ventana o puerta
+        if (!in_array($productType, ['window', 'door'])) {
+            unset($parameters['glassColor']);
+        }
         return [
             'product_id' => $this->product->id,
-            'parameters' => $this->parameters,
+            'parameters' => $parameters,
             'quantity' => $this->quantity,
             'calculated_price' => $this->calculatedPrice,
             'material_costs' => $this->materialCosts,
@@ -1133,6 +1143,7 @@ class ProductConfigurator extends Component
             ->where('is_active', true)
             ->get();
 
+        $productType = $this->getProductType();
         foreach ($existingItems as $item) {
             $itemConfig = json_decode($item->configuration, true);
             $itemParams = $itemConfig['parameters'] ?? [];
@@ -1140,8 +1151,11 @@ class ProductConfigurator extends Component
                 ($itemParams['width'] ?? null) == ($this->parameters['width'] ?? null) &&
                 ($itemParams['height'] ?? null) == ($this->parameters['height'] ?? null) &&
                 ($itemParams['depth'] ?? null) == ($this->parameters['depth'] ?? null) &&
-                ($itemParams['color'] ?? null) == ($this->parameters['color'] ?? null) &&
-                ($itemParams['glassColor'] ?? null) == ($this->parameters['glassColor'] ?? null);
+                ($itemParams['color'] ?? null) == ($this->parameters['color'] ?? null);
+            // Solo comparar glassColor si es window o door
+            if (in_array($productType, ['window', 'door'])) {
+                $paramsMatch = $paramsMatch && (($itemParams['glassColor'] ?? null) == ($this->parameters['glassColor'] ?? null));
+            }
             if ($paramsMatch) {
                 return $item;
             }

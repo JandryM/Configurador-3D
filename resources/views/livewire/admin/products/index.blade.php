@@ -336,7 +336,7 @@
                         @endif
                     </div>
                     <div class="flex gap-3">
-                        <button type="button" @click="showCreateProductModal = false; showEditProductModal = false" wire:click="closeCreateProductModal" class="flex-1 px-4 py-3 bg-slate-700 text-slate-200 rounded-xl hover:bg-slate-600 font-medium transition-all border border-slate-600">Cancelar</button>
+                        <button type="button" @click="showCreateProductModal = false; showEditProductModal = false" wire:click="closeCreateProductModal" class="flex-1 px-4 py-3 bg-slate-700 text-slate-200 rounded-xl hover:bg-slate-600 font-medium transition-all border border-slate-600 cursor-pointer">Cancelar</button>
                         <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:shadow-lg font-medium transition-all">
                             <span x-show="showEditProductModal">Guardar Cambios</span>
                             <span x-show="showCreateProductModal">Guardar Producto</span>

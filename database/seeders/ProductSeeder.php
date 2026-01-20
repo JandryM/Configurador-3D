@@ -85,7 +85,7 @@ class ProductSeeder extends Seeder
                 'base_dimensions' => [
                     'width' => 2,
                     'height' => 2.5,
-                    'frameWidth' => 0.01,
+                    'frameWidth' => 0.06,
                     'hojas' => 2
                     ],
                 'base_cost' => 0.00,
@@ -143,7 +143,7 @@ class ProductSeeder extends Seeder
                     ],
                     [
                         'name' => 'Malla Fibra de Vidrio',
-                        'formula' => '{width} * {height}',
+                        'formula' => '({width} - {frameWidth}*2) * ({height} - {frameWidth}*2)'
                         // Superficie de malla antimosquitos
                     ],
                     [

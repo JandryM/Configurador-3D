@@ -290,12 +290,152 @@
         @endif
     </div>
 
+    <!-- Fórmulas de cálculo por producto (solo para materiales existentes) -->
+    @if($materialId)
+        @php
+            $productFormulas = DB::table('product_material')
+                ->join('products', 'product_material.product_id', '=', 'products.id')
+                ->where('product_material.material_id', $materialId)
+                ->whereNotNull('product_material.calculation_formula')
+                ->where('product_material.calculation_formula', '!=', '')
+                ->select('products.name as product_name', 'product_material.calculation_formula')
+                ->get();
+        @endphp
+        
+        @if($productFormulas->count() > 0)
+            <div class="border-t border-slate-600 pt-3">
+                <div class="bg-gradient-to-r from-blue-900/30 to-cyan-900/30 rounded-lg p-3 border border-blue-700">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                        <h3 class="text-sm font-semibold text-white">Fórmulas de Cálculo en Productos</h3>
+                    </div>
+                    <p class="text-xs text-blue-300 mb-2">Este material se calcula con las siguientes fórmulas en cada producto:</p>
+                    <div class="space-y-2">
+                        @foreach($productFormulas as $index => $formula)
+                            <div class="bg-slate-700/50 rounded-lg p-2 border border-slate-600" x-data="{ 
+                                open: false, 
+                                width: 2, 
+                                height: 2, 
+                                frameWidth: 0.05,
+                                result: null,
+                                calculate() {
+                                    const formula = '{{ addslashes($formula->calculation_formula) }}';
+                                    try {
+                                        const replacedFormula = formula
+                                            .replace(/\{width\}/g, this.width)
+                                            .replace(/\{height\}/g, this.height)
+                                            .replace(/\{frameWidth\}/g, this.frameWidth)
+                                            .replace(/\{area\}/g, this.width * this.height)
+                                            .replace(/\{perimeter\}/g, 2 * (parseFloat(this.width) + parseFloat(this.height)))
+                                            .replace(/\{volume\}/g, this.width * this.height * 1);
+                                        this.result = eval(replacedFormula);
+                                    } catch(e) {
+                                        this.result = 'Error en el cálculo';
+                                    }
+                                }
+                            }">
+                                <p class="text-xs font-medium text-blue-300 mb-1">{{ $formula->product_name }}</p>
+                                <code class="text-xs text-slate-200 bg-slate-800 px-2 py-1 rounded font-mono block break-all">
+                                    {{ $formula->calculation_formula }}
+                                </code>
+                                
+                                <!-- Botón colapsable discreto -->
+                                <button 
+                                    type="button"
+                                    @click="open = !open; if(open && !result) calculate()"
+                                    class="mt-2 text-xs text-slate-400 hover:text-slate-300 flex items-center gap-1 transition-colors cursor-pointer"
+                                >
+                                    <svg class="w-3 h-3 transition-transform" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                    <span>Calcular con valores personalizados</span>
+                                </button>
+                                
+                                <!-- Panel colapsable -->
+                                <div 
+                                    x-show="open" 
+                                    x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 transform scale-95"
+                                    x-transition:enter-end="opacity-100 transform scale-100"
+                                    x-transition:leave="transition ease-in duration-150"
+                                    x-transition:leave-start="opacity-100 transform scale-100"
+                                    x-transition:leave-end="opacity-0 transform scale-95"
+                                    class="mt-2 bg-slate-800/50 rounded p-2 border border-slate-600"
+                                    style="display: none;"
+                                >
+                                    <div class="grid grid-cols-3 gap-2 mb-2">
+                                        <div>
+                                            <label class="text-xs text-slate-300 block mb-1">Ancho (m)</label>
+                                            <input 
+                                                type="number" 
+                                                x-model="width" 
+                                                @input="calculate()"
+                                                step="0.01"
+                                                min="0"
+                                                class="w-full px-2 py-1 text-xs bg-slate-700 text-white border border-slate-600 rounded focus:ring-1 focus:ring-blue-500"
+                                            >
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-slate-300 block mb-1">Alto (m)</label>
+                                            <input 
+                                                type="number" 
+                                                x-model="height" 
+                                                @input="calculate()"
+                                                step="0.01"
+                                                min="0"
+                                                class="w-full px-2 py-1 text-xs bg-slate-700 text-white border border-slate-600 rounded focus:ring-1 focus:ring-blue-500"
+                                            >
+                                        </div>
+                                        <div>
+                                            <label class="text-xs text-slate-300 block mb-1">Marco (m)</label>
+                                            <input 
+                                                type="number" 
+                                                x-model="frameWidth" 
+                                                @input="calculate()"
+                                                step="0.001"
+                                                min="0"
+                                                class="w-full px-2 py-1 text-xs bg-slate-700 text-white border border-slate-600 rounded focus:ring-1 focus:ring-blue-500"
+                                            >
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Resultado -->
+                                    <div class="bg-green-900/30 rounded p-2 border border-green-700">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                            </svg>
+                                            <span class="text-xs font-medium text-green-300">Resultado del cálculo:</span>
+                                        </div>
+                                        <div class="ml-5 space-y-1">
+                                            <div class="text-xs text-slate-300">
+                                                <span class="text-slate-400">Fórmula evaluada:</span>
+                                                <code class="block text-green-400 bg-slate-800 px-2 py-1 rounded mt-0.5 font-mono text-xs break-all" x-text="'{{ $formula->calculation_formula }}'.replace(/\{width\}/g, width).replace(/\{height\}/g, height).replace(/\{frameWidth\}/g, frameWidth).replace(/\{area\}/g, (width * height).toFixed(3)).replace(/\{perimeter\}/g, (2 * (parseFloat(width) + parseFloat(height))).toFixed(3))"></code>
+                                            </div>
+                                            <div class="text-xs">
+                                                <span class="text-slate-400">Cantidad necesaria:</span>
+                                                <span class="text-lg font-bold text-green-400 ml-1" x-text="result !== null ? parseFloat(result).toFixed(3) : '---'"></span>
+                                                <span class="text-slate-400 ml-1">{{ $unit_measure == 'metros_cuadrados' ? 'm²' : ($unit_measure == 'unidad' ? 'unidades' : 'm') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endif
+
     <!-- Botones -->
     <div class="flex justify-end space-x-2 pt-3 border-t border-slate-600">
-        <button type="button" wire:click="$dispatch('closeModal')" 
-                class="px-3 py-1.5 border border-slate-600 rounded text-sm font-medium text-slate-200 bg-slate-700 hover:bg-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+        <!-- <button type="button" wire:click="$dispatch('closeModal')" 
+                class="px-3 py-1.5 border border-slate-600 rounded text-sm font-medium text-slate-200 bg-slate-700 hover:bg-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer">
             Cancelar
-        </button>
+        </button> -->
         <button type="submit" 
                 class="px-3 py-1.5 border border-transparent rounded shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50">
             {{ $materialId ? 'Actualizar' : 'Crear' }} Material
