@@ -9,14 +9,12 @@ class Color extends Model
 {
     protected $fillable = [
         'color_name',
-        'percentage_increment',
         'texture_path',
         'is_active',
         'sort_order'
     ];
 
     protected $casts = [
-        'percentage_increment' => 'decimal:2',
         'is_active' => 'boolean',
         'sort_order' => 'integer'
     ];

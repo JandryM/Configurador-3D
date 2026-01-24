@@ -22,7 +22,6 @@ class Material extends Model
         'calculated_area',
         'stock_quantity',
         'min_stock_alert',
-        'last_purchase_date',
         'last_used_date',
         'is_active'
     ];
@@ -39,7 +38,6 @@ class Material extends Model
         'category_id' => 'integer',
         'stock_quantity' => 'integer',
         'min_stock_alert' => 'decimal:3',
-        'last_purchase_date' => 'datetime',
         'last_used_date' => 'datetime',
         'is_active' => 'boolean',
     ];
@@ -125,14 +123,6 @@ class Material extends Model
     }
 
     /**
-     * Obtiene el área total disponible
-     */
-    public function getTotalAreaAttribute(): float
-    {
-        return $this->calculated_area ?? 0;
-    }
-
-    /**
      * Calcula el costo REAL para una cantidad específica usada
      * (No cobra pieza completa, solo lo que se usa)
      */
@@ -162,39 +152,6 @@ class Material extends Model
 
         $totalQuantity = $usedQuantity * (1 + ($wastePercentage / 100));
         return ceil($totalQuantity / $this->piece_size);
-    }
-
-    /**
-     * Calcula el costo de compra total (piezas completas)
-     * (Para control de inventario y compras)
-     */
-    public function calculatePurchaseCost(float $usedQuantity, float $wastePercentage = 0): float
-    {
-        if (!$this->is_by_piece) {
-            return $this->calculateCost($usedQuantity, $wastePercentage);
-        }
-
-        $piecesNeeded = $this->calculatePiecesNeeded($usedQuantity, $wastePercentage);
-        return $piecesNeeded * $this->piece_price;
-    }
-
-    /**
-     * Get colors available for a specific category
-     */
-    public function getColorsForCategory(string $category): BelongsToMany
-    {
-        return $this->colors()->wherePivot('category', $category);
-    }
-
-    /**
-     * Calculate cost with color increment
-     */
-    public function calculateCostWithColor(float $usedQuantity, Color $color, float $wastePercentage = 0): float
-    {
-        $baseCost = $this->calculateCost($usedQuantity, $wastePercentage);
-        $increment = $color->percentage_increment;
-
-        return $baseCost * (1 + ($increment / 100));
     }
 
     // ==================== MÉTODOS DE INVENTARIO ====================
@@ -335,7 +292,6 @@ class Material extends Model
             $this->stock_quantity += $quantityAdded;
         }
 
-        $this->last_purchase_date = now();
         $this->save();
     }
 
@@ -352,50 +308,10 @@ class Material extends Model
     }
 
     /**
-     * Obtiene el porcentaje de stock restante respecto al mínimo
-     */
-    public function getStockPercentageAttribute(): float
-    {
-        if ($this->min_stock_alert <= 0) {
-            return 100; // Sin alerta configurada, asumimos 100%
-        }
-
-        return ($this->total_available / $this->min_stock_alert) * 100;
-    }
-
-    /**
-     * Scope para materiales con stock bajo
-     * Nota: Usa el atributo total_available que ya incluye retazos
-     */
-    public function scopeLowStock($query)
-    {
-        // Filtrar en PHP porque total_available es un atributo calculado
-        return $query->where('is_active', true)
-            ->where('min_stock_alert', '>', 0)
-            ->get()
-            ->filter(function ($material) {
-                return $material->total_available <= $material->min_stock_alert;
-            });
-    }
-
-    /**
      * Scope para obtener materiales activos
      */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
-    }
-
-    /**
-     * Scope para obtener materiales sin stock
-     * Verifica que no haya piezas completas ni retazos disponibles
-     */
-    public function scopeOutOfStock($query)
-    {
-        return $query->where('is_active', true)
-            ->where('stock_quantity', 0)
-            ->whereDoesntHave('remainders', function ($q) {
-                $q->where('status', 'available');
-            });
     }
 }

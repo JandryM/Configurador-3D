@@ -19,9 +19,8 @@ return new class extends Migration
             $table->decimal('min_stock_alert', 10, 3)->default(0)->after('stock_quantity');
             
             // Fechas de control
-            $table->timestamp('last_purchase_date')->nullable()->after('min_stock_alert');
-            $table->timestamp('last_used_date')->nullable()->after('last_purchase_date');
-            
+            $table->timestamp('last_used_date')->nullable()->after('min_stock_alert');
+
             // Control de estado activo/inactivo
             $table->boolean('is_active')->default(true)->after('last_used_date');
         });
@@ -36,7 +35,6 @@ return new class extends Migration
             $table->dropColumn([
                 'stock_quantity',
                 'min_stock_alert',
-                'last_purchase_date',
                 'last_used_date',
                 'is_active'
             ]);

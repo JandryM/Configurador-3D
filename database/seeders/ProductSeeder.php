@@ -24,6 +24,7 @@ class ProductSeeder extends Seeder
                 'email_verified_at' => now(),
                 'profile_completed_at' => now(),
                 'is_active' => true,
+                'oauth_provider' => 'local',
             ]);
         }
 
@@ -51,17 +52,6 @@ class ProductSeeder extends Seeder
                 'base_cost' => 0.00,
                 'allows_customization' => true,
                 'is_gallery_visible' => false,
-                'has_3d_model' => true,
-                'model_scale' => 1.0,
-                'model_3d_settings' => [
-                    'backgroundColor' => '#f0f0f0',
-                    'enableControls' => true,
-                    'showWireframe' => false,
-                    'enableShadows' => true,
-                    'showGrid' => false,
-                    'ambientLightIntensity' => 0.6,
-                    'directionalLightIntensity' => 0.8,
-                ],
                 'materials' => [
                     ['name' => 'Riel Superior/Inferior Ventana', 'formula' => '{width} * 2'],
                     ['name' => 'Jamba Lateral Ventana', 'formula' => '{height} * 2'],
@@ -91,17 +81,6 @@ class ProductSeeder extends Seeder
                 'base_cost' => 0.00,
                 'allows_customization' => true,
                 'is_gallery_visible' => false,
-                'has_3d_model' => true,
-                'model_scale' => 1.0,
-                'model_3d_settings' => [
-                'backgroundColor' => '#f0f0f0',
-                'enableControls' => true,
-                'showWireframe' => false,
-                'enableShadows' => true,
-                'showGrid' => false,
-                'ambientLightIntensity' => 0.6,
-                'directionalLightIntensity' => 0.8,
-                    ],
                 'materials' => [
                     ['name' => 'Riel Superior Portón', 'formula' => '{width}'],
                     ['name' => 'Riel Inferior Portón', 'formula' => '{width}'],
@@ -133,8 +112,6 @@ class ProductSeeder extends Seeder
                 'base_cost' => 0.00,
                 'allows_customization' => true,
                 'is_gallery_visible' => false,
-                'has_3d_model' => false,
-                'model_scale' => 1.0,
                 'materials' => [
                     [
                         'name' => 'Perfil Aluminio Malla',
@@ -174,9 +151,6 @@ class ProductSeeder extends Seeder
                 'allows_customization' => $productData['allows_customization'],
                 'is_gallery_visible' => $productData['is_gallery_visible'],
                 'image' => $productData['image'] ?? null,
-                'has_3d_model' => $productData['has_3d_model'] ?? false,
-                'model_scale' => $productData['model_scale'] ?? 1.0,
-                'model_3d_settings' => $productData['model_3d_settings'] ?? null,
                 'user_id' => $adminUser->id,
             ]);
 

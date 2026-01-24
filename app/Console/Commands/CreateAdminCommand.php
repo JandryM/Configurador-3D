@@ -90,6 +90,7 @@ class CreateAdminCommand extends Command
                 'city' => $city,
                 'role' => User::ROLE_ADMIN,
                 'email_verified_at' => now(), // Verificar email automáticamente
+                'oauth_provider' => 'local',
             ]);
 
             $this->info('✅ Admin user created successfully!');

@@ -26,6 +26,7 @@ class AdminUserSeeder extends Seeder
                 'city' => env('ADMIN_CITY', 'Guayaquil'),
                 'role' => User::ROLE_ADMIN,
                 'email_verified_at' => now(),
+                'oauth_provider' => 'local',
             ]
         );
 
@@ -42,6 +43,7 @@ class AdminUserSeeder extends Seeder
                 'city' => 'Quito',
                 'role' => User::ROLE_OWNER,
                 'email_verified_at' => now(),
+                'oauth_provider' => 'local',
             ]
         );
 
@@ -58,6 +60,7 @@ class AdminUserSeeder extends Seeder
                 'city' => 'Cuenca',
                 'role' => User::ROLE_SELLER,
                 'email_verified_at' => now(),
+                'oauth_provider' => 'local',
             ]
         );
 
@@ -74,6 +77,7 @@ class AdminUserSeeder extends Seeder
                 'city' => 'Manta',
                 'role' => User::ROLE_CLIENT,
                 'email_verified_at' => now(),
+                'oauth_provider' => 'local',
             ]
         );
     }

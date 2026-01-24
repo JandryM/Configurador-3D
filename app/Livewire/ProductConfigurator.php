@@ -643,7 +643,7 @@ class ProductConfigurator extends Component
             'proforma_id' => $proformaId,
             'number' => $nextOrderNumber,
             'status' => 'pending',
-            'product_created_at' => now(),
+            'product_created_at' => null,
             'estimated_finish_at' => null,
             'created_at' => now(),
             'updated_at' => now()

@@ -61,7 +61,6 @@ Route::middleware(['auth', 'verified', 'account.active', 'admin.seller'])->prefi
     Route::middleware(['admin.owner'])->group(function () {
         Route::post('/products', \App\Livewire\Admin\Products\ProductCreate::class)->name('products.store');
         Route::get('/products/{product}/edit', \App\Livewire\Admin\Products\ProductEdit::class)->name('products.edit');
-        Route::get('/products/{product}/3d-model', \App\Livewire\Admin\Products\Product3DManager::class)->name('products.3d-model');
     });
     
     // Gestión de usuarios

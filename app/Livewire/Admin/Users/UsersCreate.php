@@ -60,6 +60,7 @@ class UsersCreate extends Component
             'password' => Hash::make($this->password),
             'role' => $this->role,
             'email_verified_at' => now(),
+            'oauth_provider' => 'local',
         ]);
         $this->reset(['name', 'email', 'password', 'role']);
         $this->showConfirmModal = false;

@@ -55,6 +55,7 @@ new class extends Component {
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $validated['oauth_provider'] = 'local';
 
         event(new Registered(($user = User::create($validated))));
 

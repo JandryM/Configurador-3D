@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('colors', function (Blueprint $table) {
             $table->id();
             $table->string('color_name', 100)->unique();
-            $table->decimal('percentage_increment', 5, 2)->default(0.00)->comment('Price increment percentage');
             $table->string('texture_path', 255)->nullable()->comment('Path to 3D texture files');
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
