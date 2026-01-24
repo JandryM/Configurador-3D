@@ -12,7 +12,7 @@ class UsersCreate extends Component
     public string $name = '';
     public string $email = '';
     public string $password = '';
-    public string $role = 'seller';
+    public string $role = 'owner';
     public bool $showConfirmModal = false;
 
     public function save()
@@ -21,7 +21,7 @@ class UsersCreate extends Component
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:owner,seller',
+            'role' => 'required|in:owner',
         ], [
             'name.required' => 'El nombre es obligatorio.',
             'name.string' => 'El nombre debe ser una cadena de texto.',

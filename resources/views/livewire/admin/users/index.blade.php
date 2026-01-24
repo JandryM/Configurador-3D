@@ -128,7 +128,6 @@
                         <option value="all" class="py-2">✨ Todos</option>
                         <option value="admin" class="py-2">👑 Administrador</option>
                         <option value="owner" class="py-2">🏢 Propietario</option>
-                        <option value="seller" class="py-2">💼 Vendedor</option>
                         <option value="client" class="py-2">👤 Cliente</option>
                     </select>
                 </div>
@@ -225,13 +224,6 @@
                                             </svg>
                                             Propietario
                                         </span>
-                                    @elseif($user->isSeller())
-                                        <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                                            </svg>
-                                            Vendedor
-                                        </span>
                                     @else
                                         <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
                                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -283,6 +275,20 @@
                 </x-table-cell>
                 <x-table-cell align="center">
                                     <div class="flex justify-center space-x-2">
+                                        @if(auth()->user()->isAdmin() && $user->id !== auth()->id())
+                                            <!-- Cambiar Rol (solo admin) -->
+                                            <x-action-button 
+                                                color="blue"
+                                                tooltip="Cambiar rol del usuario"
+                                                wire:click="openChangeRoleModal({{ $user->id }})"
+                                            >
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                                                    <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"></path>
+                                                </svg>
+                                            </x-action-button>
+                                        @endif
+                                        
                                         @if(!$user->isAdmin() || (\App\Models\User::where('role', 'admin')->count() > 1))
                                             <!-- Suspender/Reactivar -->
                                             @if($user->isSuspended())
@@ -616,6 +622,113 @@
                 x-transition:leave-start="opacity-100 transform scale-100"
                 x-transition:leave-end="opacity-0 transform scale-95">
                 @livewire('admin.users.users-create')
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal de cambio de rol --}}
+    @if ($showChangeRoleModal && $selectedUser)
+        <div class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50"
+            x-data
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0">
+            <div class="!bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative z-[80]"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 transform scale-95"
+                x-transition:enter-end="opacity-100 transform scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 transform scale-100"
+                x-transition:leave-end="opacity-0 transform scale-95">
+                
+                <!-- Icono del modal -->
+                <div class="flex items-center justify-center mb-4">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center !bg-gradient-to-br !from-blue-100 !to-indigo-100">
+                        <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                            <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Título -->
+                <h3 class="text-xl font-bold text-slate-800 text-center mb-2" style="color: #1e293b !important;">
+                    Cambiar Rol de Usuario
+                </h3>
+
+                <!-- Información del usuario -->
+                <div class="!bg-gradient-to-br !from-slate-50 !to-blue-50 rounded-xl p-4 mb-6 space-y-2">
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0">
+                            <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs font-medium !text-slate-500 uppercase tracking-wide">Usuario</p>
+                            <p class="text-sm font-semibold !text-slate-800">{{ $selectedUser->name }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center mr-3 flex-shrink-0">
+                            <svg class="w-4 h-4 text-cyan-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs font-medium !text-slate-500 uppercase tracking-wide">Email</p>
+                            <p class="text-sm font-semibold !text-slate-800 break-all">{{ $selectedUser->email }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center mr-3 flex-shrink-0">
+                            <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                                <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs font-medium !text-slate-500 uppercase tracking-wide">Rol Actual</p>
+                            <p class="text-sm font-semibold !text-slate-800">
+                                @if($selectedUser->isAdmin())
+                                    👑 Administrador
+                                @elseif($selectedUser->isOwner())
+                                    🏢 Propietario
+                                @else
+                                    👤 Cliente
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario -->
+                <form wire:submit.prevent="changeRole">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium !text-slate-700 mb-2">Nuevo Rol</label>
+                        <select class="w-full px-3 py-2 !border !border-slate-300 rounded-lg !bg-white !text-slate-800" wire:model="newRole" required>
+                            <option value="">Seleccionar rol...</option>
+                            <option value="admin">👑 Administrador</option>
+                            <option value="owner">🏢 Propietario</option>
+                            <option value="client">👤 Cliente</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                        <p class="text-xs text-yellow-800">
+                            ⚠️ <strong>Advertencia:</strong> Cambiar el rol modificará los permisos y accesos del usuario en el sistema.
+                        </p>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="button" class="flex-1 px-4 py-3 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 font-medium transition-all" wire:click="closeChangeRoleModal">Cancelar</button>
+                        <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:shadow-lg font-medium transition-all">Cambiar Rol</button>
+                    </div>
+                </form>
             </div>
         </div>
     @endif

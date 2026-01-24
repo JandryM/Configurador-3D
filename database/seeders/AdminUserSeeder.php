@@ -47,23 +47,6 @@ class AdminUserSeeder extends Seeder
             ]
         );
 
-        // Crear usuario vendedor
-        User::firstOrCreate(
-            ['email' => 'seller@quality.com'],
-            [
-                'name' => 'Vendedor de Calidad',
-                'email' => 'seller@quality.com',
-                'password' => Hash::make('seller123'),
-                'phone' => '+593987654323',
-                'address' => 'Av. Terciaria 789',
-                'province' => 'Azuay',
-                'city' => 'Cuenca',
-                'role' => User::ROLE_SELLER,
-                'email_verified_at' => now(),
-                'oauth_provider' => 'local',
-            ]
-        );
-
         // Crear usuario cliente
         User::firstOrCreate(
             ['email' => 'client@quality.com'],

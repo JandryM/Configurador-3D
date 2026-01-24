@@ -23,11 +23,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Registrar middleware para admin y seller
-        $router = $this->app['router'];
+        // Registrar middleware para admin y owner
+        $router = app('router');
         $router->aliasMiddleware('admin.seller', function ($request, $next) {
             $user = $request->user();
-            if (! $user || ! in_array($user->role, ['admin', 'owner', 'seller'])) {
+            if (! $user || ! in_array($user->role, ['admin', 'owner'])) {
                 if ($request->expectsJson()) {
                     return response()->json(['message' => 'Forbidden'], 403);
                 }

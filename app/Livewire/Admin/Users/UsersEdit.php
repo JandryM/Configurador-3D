@@ -27,7 +27,7 @@ class UsersEdit extends Component
         $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $this->user->id,
-            'role' => 'required|in:owner,seller,admin',
+            'role' => 'required|in:owner,admin',
         ]);
         $this->user->name = $this->name;
         $this->user->email = $this->email;

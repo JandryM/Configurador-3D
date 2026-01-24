@@ -166,10 +166,7 @@
                 <label for="role" class="block text-sm font-semibold text-slate-200 mb-1" style="color: #e2e8f0 !important;">Rol</label>
                 <select id="role" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" style="background-color: #334155 !important; color: #ffffff !important; border-color: #475569 !important;" wire:model.defer="role" required>
                     @if(auth()->user()->isAdmin())
-                        <option value="owner">Dueño</option>
-                        <option value="seller">Vendedor</option>
-                    @elseif(auth()->user()->isOwner())
-                        <option value="seller">Vendedor</option>
+                        <option value="owner">Propietario</option>
                     @endif
                 </select>
                 @error('role')

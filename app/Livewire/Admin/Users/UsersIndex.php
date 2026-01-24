@@ -20,11 +20,13 @@ class UsersIndex extends Component
     public bool $showUserModal = false;
     public bool $showUserDetailsModal = false;
     public bool $showCreateModal = false;
+    public bool $showChangeRoleModal = false;
     public ?User $selectedUser = null;
     public ?User $userDetails = null;
     public string $actionType = '';
     public string $actionReason = '';
     public string $suspensionDays = '7';
+    public string $newRole = '';
 
     public function mount()
     {
@@ -38,10 +40,8 @@ class UsersIndex extends Component
         $query = User::query();
         // Filtrar por rol del usuario autenticado
         if ($authUser->isAdmin()) {
-            $query->whereIn('role', ['owner', 'seller', 'client']);
+            $query->whereIn('role', ['owner', 'client']);
         } elseif ($authUser->isOwner()) {
-            $query->whereIn('role', ['seller', 'client']);
-        } elseif ($authUser->isSeller()) {
             $query->where('role', 'client');
         }
         if ($this->search) {
@@ -196,5 +196,58 @@ class UsersIndex extends Component
     {
 
         $this->resetPage(); // Volver a la primera página
+    }
+
+    public function openChangeRoleModal(User $user)
+    {
+        // Solo admin puede cambiar roles
+        if (!auth()->user()->isAdmin()) {
+            session()->flash('error', 'No tienes permisos para cambiar roles.');
+            return;
+        }
+
+        $this->selectedUser = $user;
+        $this->newRole = $user->role;
+        $this->showChangeRoleModal = true;
+    }
+
+    public function closeChangeRoleModal()
+    {
+        $this->showChangeRoleModal = false;
+        $this->selectedUser = null;
+        $this->newRole = '';
+    }
+
+    public function changeRole()
+    {
+        // Solo admin puede cambiar roles
+        if (!auth()->user()->isAdmin()) {
+            session()->flash('error', 'No tienes permisos para cambiar roles.');
+            return;
+        }
+
+        if (!$this->selectedUser) return;
+
+        $this->validate([
+            'newRole' => 'required|in:admin,owner,client',
+        ]);
+
+        // No permitir cambiar el rol del último admin
+        if ($this->selectedUser->isAdmin() && User::where('role', 'admin')->count() <= 1 && $this->newRole !== 'admin') {
+            session()->flash('error', 'No se puede cambiar el rol del último administrador del sistema.');
+            return;
+        }
+
+        // No permitir que se cambie su propio rol
+        if ($this->selectedUser->id === auth()->id()) {
+            session()->flash('error', 'No puedes cambiar tu propio rol.');
+            return;
+        }
+
+        $oldRole = $this->selectedUser->role;
+        $this->selectedUser->update(['role' => $this->newRole]);
+
+        session()->flash('message', "Rol cambiado de '{$oldRole}' a '{$this->newRole}' exitosamente.");
+        $this->closeChangeRoleModal();
     }
 }

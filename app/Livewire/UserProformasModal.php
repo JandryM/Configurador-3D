@@ -3,27 +3,59 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class UserProformasModal extends Component
 {
+    use WithFileUploads;
     public $showModal = false;
+    public $activeTab = 'proformas'; // 'proformas' o 'orders'
     public $proformas = [];
+    public $orders = []; // Nuevo: lista de órdenes
     public $selectedProforma = null;
+    public $selectedOrder = null; // Nuevo: orden seleccionada
     public $showProformaModal = false;
+    public $showOrderModal = false; // Nuevo: modal de orden
     public $selectedProformaId = null;
+    public $selectedOrderId = null; // Nuevo: ID de orden seleccionada
     public $paginaProformas = 1;
+    public $paginaOrdenes = 1; // Nuevo: paginación de órdenes
     public $proformasPorPagina = 5;
+    public $ordenesPorPagina = 5; // Nuevo: items por página de órdenes
     public $totalProformas = 0;
+    public $totalOrdenes = 0; // Nuevo: total de órdenes
     public $selectedProformas = [];
     public $selectAll = false;
     public $confirmOrderId = null;
+    public $paymentProof = null;
+    public $showUploadForm = false;
 
     public function setConfirmOrderId($id)
     {
         $this->confirmOrderId = $id;
+    }
+
+    public function replacePaymentProof()
+    {
+        $this->showUploadForm = true;
+        $this->reset('paymentProof');
+    }
+
+    public function updatedPaymentProof()
+    {
+        $this->validateOnly('paymentProof', [
+            'paymentProof' => 'required|file|image|mimes:jpeg,jpg,png,webp|max:5120',
+        ], [
+            'paymentProof.required' => 'Debes seleccionar una imagen del comprobante.',
+            'paymentProof.file' => 'El archivo seleccionado no es válido.',
+            'paymentProof.image' => 'El archivo debe ser una imagen (JPG, PNG, WEBP).',
+            'paymentProof.mimes' => 'Solo se permiten imágenes en formato JPG, PNG o WEBP.',
+            'paymentProof.max' => 'La imagen no debe superar 5MB (5120KB).',
+        ]);
     }
 
     public function getIsAllSelectedProperty()
@@ -61,12 +93,79 @@ class UserProformasModal extends Component
     public function mount()
     {
         $this->loadProformas();
+        $this->loadOrders();
+    }
+
+    public function switchTab($tab)
+    {
+        $this->activeTab = $tab;
+        if ($tab === 'proformas') {
+            $this->loadProformas();
+        } else {
+            $this->loadOrders();
+        }
     }
 
     public function openProformasModal()
     {
         $this->showModal = true;
         $this->loadProformas();
+        $this->loadOrders();
+    }
+
+    public function loadOrders()
+    {
+        $this->orders = [];
+        if (!Auth::check()) {
+            return;
+        }
+
+        $this->totalOrdenes = DB::table('orders')
+            ->join('proformas', 'orders.proforma_id', '=', 'proformas.id')
+            ->where('proformas.user_id', Auth::id())
+            ->count();
+
+        $offset = ($this->paginaOrdenes - 1) * $this->ordenesPorPagina;
+
+        $ordersData = DB::table('orders')
+            ->join('proformas', 'orders.proforma_id', '=', 'proformas.id')
+            ->where('proformas.user_id', Auth::id())
+            ->select('orders.*', 'proformas.number as proforma_number', 'proformas.total_price')
+            ->orderBy('orders.created_at', 'desc')
+            ->offset($offset)
+            ->limit($this->ordenesPorPagina)
+            ->get();
+
+        $this->orders = $ordersData->map(function ($order) {
+            // Obtener items de la proforma asociada
+            $items = DB::table('proforma_items')
+                ->join('products', 'proforma_items.product_id', '=', 'products.id')
+                ->where('proforma_items.proforma_id', $order->proforma_id)
+                ->where('proforma_items.is_active', true)
+                ->select(
+                    'proforma_items.*',
+                    'products.name as product_name',
+                    'products.image as product_image'
+                )
+                ->get();
+
+            $totalQuantity = $items->sum('quantity');
+
+            return [
+                'id' => $order->id,
+                'number' => $order->number,
+                'proforma_id' => $order->proforma_id,
+                'proforma_number' => $order->proforma_number,
+                'status' => $order->status,
+                'payment_proof' => $order->payment_proof,
+                'total_price' => $order->total_price,
+                'items_count' => $items->count(),
+                'total_quantity' => $totalQuantity,
+                'product_created_at' => $order->product_created_at,
+                'estimated_finish_at' => $order->estimated_finish_at,
+                'created_at' => $order->created_at,
+            ];
+        })->toArray();
     }
 
     public function loadProformas()
@@ -76,9 +175,11 @@ class UserProformasModal extends Component
             return;
         }
 
+        // Solo cargar proformas que NO han sido ordenadas
         $this->totalProformas = DB::table('proformas')
             ->where('user_id', Auth::id())
             ->where('is_active', true)
+            ->where('is_ordered', false)
             ->count();
 
         $offset = ($this->paginaProformas - 1) * $this->proformasPorPagina;
@@ -86,6 +187,7 @@ class UserProformasModal extends Component
         $proformasData = DB::table('proformas')
             ->where('user_id', Auth::id())
             ->where('is_active', true)
+            ->where('is_ordered', false)
             ->orderBy('created_at', 'desc')
             ->offset($offset)
             ->limit($this->proformasPorPagina)
@@ -235,6 +337,7 @@ class UserProformasModal extends Component
     {
         $this->showModal = false;
         $this->closeProformaModal();
+        $this->closeOrderModal();
         $this->confirmOrderId = null;
     }
 
@@ -244,6 +347,14 @@ class UserProformasModal extends Component
             $this->paginaProformas = $pagina;
         }
         $this->loadProformas();
+    }
+
+    public function actualizarOrdenes($pagina = null)
+    {
+        if ($pagina !== null) {
+            $this->paginaOrdenes = $pagina;
+        }
+        $this->loadOrders();
     }
 
     public function anteriorPaginaProformas()
@@ -261,6 +372,149 @@ class UserProformasModal extends Component
             $this->paginaProformas++;
             $this->loadProformas();
         }
+    }
+
+    public function anteriorPaginaOrdenes()
+    {
+        if ($this->paginaOrdenes > 1) {
+            $this->paginaOrdenes--;
+            $this->loadOrders();
+        }
+    }
+
+    public function siguientePaginaOrdenes()
+    {
+        $totalPaginas = ceil($this->totalOrdenes / $this->ordenesPorPagina);
+        if ($this->paginaOrdenes < $totalPaginas) {
+            $this->paginaOrdenes++;
+            $this->loadOrders();
+        }
+    }
+
+    public function uploadPaymentProof()
+    {
+        $this->validate([
+            'paymentProof' => 'required|file|image|mimes:jpeg,jpg,png,webp|max:5120|dimensions:min_width=100,min_height=100',
+        ], [
+            'paymentProof.required' => 'Debes seleccionar una imagen del comprobante.',
+            'paymentProof.file' => 'El archivo seleccionado no es válido.',
+            'paymentProof.image' => 'El archivo debe ser una imagen (JPG, PNG, WEBP).',
+            'paymentProof.mimes' => 'Solo se permiten imágenes en formato JPG, PNG o WEBP.',
+            'paymentProof.max' => 'La imagen no debe superar 5MB (5120KB). Tu archivo es demasiado grande.',
+            'paymentProof.dimensions' => 'La imagen debe tener al menos 100x100 píxeles para ser legible.',
+        ]);
+
+        if (!Auth::check()) {
+            session()->flash('error', 'Debes iniciar sesión.');
+            return;
+        }
+
+        $order = DB::table('orders')
+            ->join('proformas', 'orders.proforma_id', '=', 'proformas.id')
+            ->where('orders.id', $this->selectedOrderId)
+            ->where('proformas.user_id', Auth::id())
+            ->select('orders.*')
+            ->first();
+
+        if (!$order) {
+            session()->flash('error', 'Orden no encontrada.');
+            return;
+        }
+
+        if ($order->status !== 'approved') {
+            session()->flash('error', 'Solo puedes subir comprobante si la orden está pendiente de pago.');
+            return;
+        }
+
+        // Eliminar comprobante anterior si existe
+        if ($order->payment_proof && Storage::disk('public')->exists($order->payment_proof)) {
+            Storage::disk('public')->delete($order->payment_proof);
+        }
+
+        // Guardar nueva imagen
+        $path = $this->paymentProof->store('payment_proofs', 'public');
+
+        // Actualizar base de datos
+        DB::table('orders')
+            ->where('id', $this->selectedOrderId)
+            ->update([
+                'payment_proof' => $path,
+                'updated_at' => now()
+            ]);
+
+        session()->flash('success', 'Comprobante de pago subido exitosamente. En espera de aprobación.');
+        
+        // Limpiar el input y ocultar formulario
+        $this->reset('paymentProof');
+        $this->showUploadForm = false;
+        
+        // Recargar las órdenes primero
+        $this->loadOrders();
+        
+        // Luego recargar la orden actual con los datos actualizados
+        $this->showOrder($this->selectedOrderId);
+    }
+
+    public function showOrder($orderId)
+    {
+        // Buscar primero en la base de datos para obtener datos frescos
+        $orderFromDb = DB::table('orders')
+            ->join('proformas', 'orders.proforma_id', '=', 'proformas.id')
+            ->where('orders.id', $orderId)
+            ->where('proformas.user_id', Auth::id())
+            ->select(
+                'orders.*',
+                'proformas.number as proforma_number',
+                'proformas.total_price'
+            )
+            ->first();
+        
+        if (!$orderFromDb) {
+            return;
+        }
+        
+        // Convertir a array
+        $order = [
+            'id' => $orderFromDb->id,
+            'number' => $orderFromDb->number,
+            'proforma_id' => $orderFromDb->proforma_id,
+            'proforma_number' => $orderFromDb->proforma_number,
+            'status' => $orderFromDb->status,
+            'payment_proof' => $orderFromDb->payment_proof,
+            'total_price' => $orderFromDb->total_price,
+            'created_at' => $orderFromDb->created_at,
+            'product_created_at' => $orderFromDb->product_created_at,
+            'estimated_finish_at' => $orderFromDb->estimated_finish_at,
+        ];
+        
+        // Obtener detalles completos de la proforma asociada
+        $proforma = DB::table('proformas')->where('id', $order['proforma_id'])->first();
+        
+        if ($proforma) {
+            // Obtener items con configuración completa
+            $items = $this->getProformaItemsForPdf($order['proforma_id']);
+            
+            $this->selectedOrder = array_merge($order, [
+                'items' => $items,
+                'proforma' => [
+                    'id' => $proforma->id,
+                    'number' => $proforma->number,
+                    'expiration_date' => $proforma->expiration_date,
+                    'is_expired' => $proforma->is_expired,
+                ]
+            ]);
+            $this->selectedOrderId = $orderId;
+            $this->showOrderModal = true;
+        }
+    }
+
+    public function closeOrderModal()
+    {
+        $this->showOrderModal = false;
+        $this->selectedOrder = null;
+        $this->selectedOrderId = null;
+        $this->showUploadForm = false;
+        $this->reset('paymentProof');
     }
 
     /**
@@ -446,9 +700,13 @@ class UserProformasModal extends Component
         // Cerrar modal de confirmación
         $this->confirmOrderId = null;
         
-        // Recargar proformas para actualizar el estado
+        // Recargar proformas y órdenes para actualizar el estado
         $this->loadProformas();
+        $this->loadOrders();
         $this->closeProformaModal();
+        
+        // Cambiar a pestaña de órdenes para mostrar la nueva orden
+        $this->activeTab = 'orders';
     }
 
     public function toggleProformaSelection($proformaId)

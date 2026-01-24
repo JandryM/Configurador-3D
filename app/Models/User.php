@@ -14,11 +14,11 @@ use Illuminate\Support\Str;
 class User extends Authenticatable
 {
     /**
-     * Check if user has admin access (admin, owner, seller)
+     * Check if user has admin access (admin, owner)
      */
     public function hasAdminAccess(): bool
     {
-        return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_OWNER, self::ROLE_SELLER]);
+        return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_OWNER]);
     }
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -150,13 +150,7 @@ class User extends Authenticatable
         return $this->role === self::ROLE_OWNER;
     }
 
-    /**
-     * Check if user is a seller
-     */
-    public function isSeller(): bool
-    {
-        return $this->role === self::ROLE_SELLER;
-    }
+
 
     /**
      * Get all available roles
@@ -166,7 +160,6 @@ class User extends Authenticatable
         return [
             self::ROLE_ADMIN,
             self::ROLE_OWNER,
-            self::ROLE_SELLER,
             self::ROLE_CLIENT,
         ];
     }

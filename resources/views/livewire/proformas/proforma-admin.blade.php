@@ -214,7 +214,7 @@
                         <span class="text-sm font-semibold text-gray-100">${{ number_format($totalMateriales, 2) }}</span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-slate-600/50">
-                        <span class="text-sm text-gray-300">Costos Directos / Mano de Obra ({{ $directCost }}%)</span>
+                        <span class="text-sm text-gray-300">Costo de Mano de Obra ({{ $directCost }}%)</span>
                         <span class="text-sm font-semibold text-gray-100">${{ number_format($directAmount, 2) }}</span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-slate-600/50">
@@ -222,7 +222,7 @@
                         <span class="text-sm font-semibold text-gray-100">${{ number_format($indirectAmount, 2) }}</span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-b border-slate-600/50">
-                        <span class="text-sm text-gray-300">Material de Desperdicio ({{ $wastePercentage }}%)</span>
+                        <span class="text-sm text-gray-300">Factor de merma ({{ $wastePercentage }}%)</span>
                         <span class="text-sm font-semibold text-gray-100">${{ number_format($wasteAmount, 2) }}</span>
                     </div>
                     <div class="flex justify-between items-center py-3 bg-slate-700/70 rounded-lg px-3 mt-2 border border-slate-600">
@@ -230,7 +230,7 @@
                         <span class="text-sm font-bold text-slate-300">${{ number_format($subtotal, 2) }}</span>
                     </div>
                     <div class="flex justify-between items-center py-2 border-t border-slate-600 pt-3 mt-2">
-                        <span class="text-sm text-gray-300">Margen de Ganancia ({{ $profitMargin }}%)</span>
+                        <span class="text-sm text-gray-300">Margen de Utilidad ({{ $profitMargin }}%)</span>
                         <span class="text-sm font-semibold text-emerald-400">${{ number_format($profitAmount, 2) }}</span>
                     </div>
                     <div class="flex justify-between items-center py-3 bg-slate-700/70 rounded-lg px-3 mt-2 border border-slate-500">

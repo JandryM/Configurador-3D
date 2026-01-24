@@ -44,7 +44,7 @@
     @endif
 
     <!-- Estadísticas -->
-    <x-stats-grid columns="4">
+    <x-stats-grid columns="5">
             <x-stat-card 
                 title="Total Órdenes" 
                 :value="$total"
@@ -61,7 +61,7 @@
 
             <x-stat-card 
                 title="Ganancia Total" 
-                value="${{ number_format($gananciaTotal, 2) }}"
+                value="${{ number_format($gananciaCompletadas, 2) }}"
                 gradient="from-green-500 to-emerald-600"
                 hover-color="green-300"
             >
@@ -69,6 +69,11 @@
                     <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
                     </svg>
+                </x-slot>
+                <x-slot name="footer">
+                    <p class="text-xs text-slate-500">
+                        <span class="font-medium">Estimado:</span> ${{ number_format($gananciaEstimada, 2) }}
+                    </p>
                 </x-slot>
             </x-stat-card>
 
@@ -86,10 +91,24 @@
             </x-stat-card>
 
             <x-stat-card 
+                title="Comprobantes" 
+                :value="$comprobantesPendientes"
+                gradient="from-orange-500 to-amber-600"
+                hover-color="orange-300"
+                class="{{ $comprobantesPendientes > 0 ? 'animate-pulse ring-2 ring-orange-400' : '' }}"
+            >
+                <x-slot name="icon">
+                    <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                    </svg>
+                </x-slot>
+            </x-stat-card>
+
+            <x-stat-card 
                 title="Completadas" 
                 :value="$ordenesTerminadas"
-                gradient="from-yellow-500 to-orange-600"
-                hover-color="yellow-300"
+                gradient="from-teal-500 to-cyan-600"
+                hover-color="teal-300"
             >
                 <x-slot name="icon">
                     <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -146,6 +165,7 @@
                         <option value="" class="py-2">✨ Todos</option>
                         <option value="pending" class="py-2">⏳ Pendiente</option>
                         <option value="approved" class="py-2">✅ Aprobada</option>
+                        <option value="paid" class="py-2">💰 Pagada</option>
                         <option value="in_production" class="py-2">🔧 En Producción</option>
                         <option value="completed" class="py-2">🎉 Completada</option>
                         <option value="cancelled" class="py-2">❌ Cancelada</option>
@@ -208,6 +228,7 @@
                                         $statusColors = [
                                             'pending' => 'bg-yellow-100 text-yellow-800',
                                             'approved' => 'bg-blue-100 text-blue-800',
+                                            'paid' => 'bg-emerald-100 text-emerald-800',
                                             'in_production' => 'bg-purple-100 text-purple-800',
                                             'completed' => 'bg-green-100 text-green-800',
                                             'cancelled' => 'bg-red-100 text-red-800',
@@ -215,14 +236,22 @@
                                         $statusLabels = [
                                             'pending' => 'Pendiente',
                                             'approved' => 'Aprobada',
+                                            'paid' => 'Pagada',
                                             'in_production' => 'En Producción',
                                             'completed' => 'Completada',
                                             'cancelled' => 'Cancelada',
                                         ];
                                     @endphp
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$order['status']] ?? 'bg-gray-100 text-gray-800' }}">
-                                        {{ $statusLabels[$order['status']] ?? $order['status'] }}
-                                    </span>
+                                    <div class="flex flex-col items-start space-y-1">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$order['status']] ?? 'bg-gray-100 text-gray-800' }}">
+                                            {{ $statusLabels[$order['status']] ?? $order['status'] }}
+                                        </span>
+                                        @if($order['status'] === 'approved' && isset($order['payment_proof']) && $order['payment_proof'])
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border border-orange-300 animate-pulse">
+                                                📸 Comprobante recibido
+                                            </span>
+                                        @endif
+                                    </div>
                                 </x-table-cell>
                                 <x-table-cell>
                                     <span class="text-slate-700">
@@ -280,6 +309,25 @@
 
                                             @if($order['status'] === 'approved')
                                                 <x-action-button 
+                                                    color="emerald"
+                                                    tooltip="{{ isset($order['payment_proof']) && $order['payment_proof'] ? 'Ver comprobante y marcar como pagada' : 'Marcar como pagada' }}"
+                                                    wire:click="markAsPaid({{ $order['id'] }})"
+                                                    class="{{ isset($order['payment_proof']) && $order['payment_proof'] ? 'animate-pulse ring-2 ring-orange-400 ring-offset-2' : '' }}"
+                                                >
+                                                    @if(isset($order['payment_proof']) && $order['payment_proof'])
+                                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                                        </svg>
+                                                    @else
+                                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"></path>
+                                                        </svg>
+                                                    @endif
+                                                </x-action-button>
+                                            @endif
+
+                                            @if($order['status'] === 'paid')
+                                                <x-action-button 
                                                     color="purple"
                                                     tooltip="Iniciar producción"
                                                     wire:click="startProduction({{ $order['id'] }})"
@@ -302,7 +350,7 @@
                                             </x-action-button>
                                         @endif
 
-                                        @if(in_array($order['status'], ['pending', 'approved']))
+                                        @if(in_array($order['status'], ['pending', 'approved', 'paid']))
                                             <x-action-button 
                                                 color="red"
                                                 tooltip="Cancelar orden"
@@ -370,6 +418,7 @@
                                         $statusColors = [
                                             'pending' => 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30',
                                             'approved' => 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
+                                            'paid' => 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
                                             'in_production' => 'bg-purple-500/20 text-purple-300 border border-purple-500/30',
                                             'completed' => 'bg-green-500/20 text-green-300 border border-green-500/30',
                                             'cancelled' => 'bg-red-500/20 text-red-300 border border-red-500/30',
@@ -377,6 +426,7 @@
                                         $statusLabels = [
                                             'pending' => 'Pendiente',
                                             'approved' => 'Aprobada',
+                                            'paid' => 'Pagada',
                                             'in_production' => 'En Producción',
                                             'completed' => 'Completada',
                                             'cancelled' => 'Cancelada',
@@ -447,6 +497,15 @@
                                             ✗ Cancelar Orden
                                         </button>
                                     @elseif($selectedOrder['status'] === 'approved')
+                                        <button wire:click="markAsPaid({{ $selectedOrder['id'] }})" 
+                                                class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer">
+                                            💰 Marcar como Pagada
+                                        </button>
+                                        <button wire:click="cancelOrder({{ $selectedOrder['id'] }})" 
+                                                class="px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer">
+                                            ✗ Cancelar Orden
+                                        </button>
+                                    @elseif($selectedOrder['status'] === 'paid')
                                         <button wire:click="startProduction({{ $selectedOrder['id'] }})" 
                                                 class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer">
                                             ▶ Iniciar Producción
@@ -871,6 +930,189 @@
         </div>
     @endif
 
+    <!-- Modal de Confirmación: Marcar como Pagada -->
+    @if($showPaidConfirmModal && $pendingActionOrder)
+        <div class="fixed inset-0 z-50 overflow-y-auto" style="z-index: 1250;">
+            <div class="flex items-center justify-center min-h-screen px-4 text-center">
+                <div class="fixed inset-0 transition-opacity bg-black/50 backdrop-blur-sm" wire:click="closePaidConfirmModal"></div>
+                
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto text-left align-middle transition-all transform relative">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-4 rounded-t-2xl">
+                        <!-- Barra de carga -->
+                        <div wire:loading wire:target="confirmMarkAsPaid" class="absolute top-0 left-0 right-0 h-1 bg-white/30 overflow-hidden rounded-t-2xl">
+                            <div class="h-full bg-white animate-pulse" style="width: 100%; animation: shimmer 1.5s infinite;"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-white">Confirmar Pago Recibido</h3>
+                                    <p class="text-sm text-white/80">Verificar que el pago ha sido confirmado</p>
+                                </div>
+                            </div>
+                            <button type="button" wire:click="closePaidConfirmModal" class="text-white/80 hover:text-white transition-colors cursor-pointer">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Contenido -->
+                    <div class="px-6 py-6">
+                        <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+                            <p class="text-sm text-emerald-800 mb-2">
+                                <strong>💰 ¿Confirma que el pago ha sido recibido?</strong>
+                            </p>
+                            <p class="text-xs text-emerald-700">
+                                Al marcar la orden como pagada, se habilitará la opción para iniciar la producción del producto.
+                            </p>
+                        </div>
+
+                        <!-- Detalles de la Orden -->
+                        <div class="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-5 border border-gray-200">
+                            <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                                </svg>
+                                Detalles de la Orden
+                            </h4>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Número de Orden</p>
+                                    <p class="font-bold text-gray-800">#{{ $pendingActionOrder['id'] }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Cliente</p>
+                                    <p class="font-semibold text-gray-800">{{ $pendingActionOrder['client'] ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-span-2">
+                                    <p class="text-xs text-gray-500 mb-2">Productos</p>
+                                    <div class="space-y-1">
+                                        @if(isset($pendingActionOrder['items']) && count($pendingActionOrder['items']) > 0)
+                                            @foreach($pendingActionOrder['items'] as $item)
+                                                <div class="flex justify-between items-center bg-white/50 rounded-lg px-3 py-2">
+                                                    <span class="font-medium text-gray-800">{{ $item['product_name'] }}</span>
+                                                    <span class="text-sm text-gray-600">x{{ $item['quantity'] }}</span>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <p class="text-sm text-gray-600">{{ $pendingActionOrder['product_name'] ?? 'N/A' }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">Total a Pagar</p>
+                                    <p class="font-bold text-emerald-600 text-lg">${{ number_format($pendingActionOrder['amount'], 2) }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Comprobante de Pago -->
+                        @if(isset($pendingActionOrder['payment_proof']) && $pendingActionOrder['payment_proof'])
+                            <div class="mt-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200">
+                                <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    📸 Comprobante de Pago Enviado
+                                </h4>
+                                <div class="flex items-start space-x-4">
+                                    <div class="flex-shrink-0">
+                                        <a href="{{ asset('storage/' . $pendingActionOrder['payment_proof']) }}" target="_blank" class="block group">
+                                            <img 
+                                                src="{{ asset('storage/' . $pendingActionOrder['payment_proof']) }}" 
+                                                alt="Comprobante de pago" 
+                                                class="w-32 h-32 object-cover rounded-lg border-2 border-blue-300 shadow-lg hover:shadow-xl transition-shadow group-hover:border-blue-500"
+                                            >
+                                            <p class="text-xs text-center text-blue-600 mt-2 group-hover:text-blue-700 font-medium">
+                                                🔍 Click para ver completo
+                                            </p>
+                                        </a>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="bg-white rounded-lg p-3 border border-blue-200 mb-3">
+                                            <p class="text-sm text-gray-700 mb-2">
+                                                <span class="font-semibold text-gray-800">✅ Estado:</span> El cliente ha enviado el comprobante de pago
+                                            </p>
+                                            <p class="text-xs text-gray-600">
+                                                Verifica que los datos del comprobante sean correctos antes de confirmar el pago.
+                                            </p>
+                                        </div>
+                                        <!-- Botón para rechazar comprobante -->
+                                        <button 
+                                            type="button"
+                                            wire:click="openRejectProofModal"
+                                            class="w-full px-4 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer"
+                                        >
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span>Rechazar Comprobante</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl cursor-pointer">
+                                <div class="flex items-start space-x-3">
+                                    <svg class="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-semibold text-yellow-800 mb-1">
+                                            ⚠️ Comprobante no enviado
+                                        </p>
+                                        <p class="text-xs text-yellow-700">
+                                            El cliente aún no ha enviado el comprobante de pago. Asegúrate de verificar el comprobante antes de confirmar el pago.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Acciones -->
+                        <div class="mt-6 flex space-x-3">
+                            <button 
+                                type="button"
+                                wire:click="closePaidConfirmModal"
+                                wire:loading.attr="disabled"
+                                wire:target="confirmMarkAsPaid"
+                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                type="button"
+                                wire:click="confirmMarkAsPaid"
+                                wire:loading.attr="disabled"
+                                wire:target="confirmMarkAsPaid"
+                                class="flex-1 px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
+                            >
+                                <span wire:loading.remove wire:target="confirmMarkAsPaid">💰 Confirmar Pago</span>
+                                <span wire:loading wire:target="confirmMarkAsPaid" class="flex items-center">
+                                    <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Procesando...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Modal de Confirmación: Cancelar Orden -->
     @if($showCancelConfirmModal && $pendingActionOrder)
         <div class="fixed inset-0 z-50 overflow-y-auto" style="z-index: 1250;">
@@ -938,6 +1180,7 @@
                                             $statusColors = [
                                                 'pending' => 'text-yellow-600',
                                                 'approved' => 'text-blue-600',
+                                                'paid' => 'text-emerald-600',
                                                 'in_production' => 'text-purple-600',
                                                 'completed' => 'text-green-600',
                                                 'cancelled' => 'text-red-600'
@@ -945,6 +1188,7 @@
                                             $statusLabels = [
                                                 'pending' => 'Pendiente',
                                                 'approved' => 'Aprobada',
+                                                'paid' => 'Pagada',
                                                 'in_production' => 'En Producción',
                                                 'completed' => 'Completada',
                                                 'cancelled' => 'Cancelada'
@@ -1132,6 +1376,137 @@
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                     Procesando...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Modal de Confirmación: Rechazar Comprobante -->
+    @if($showRejectProofConfirmModal && $pendingActionOrder)
+        <div class="fixed inset-0 z-50 overflow-y-auto" style="z-index: 9999;">
+            <div class="flex items-center justify-center min-h-screen px-4 text-center">
+                <div class="fixed inset-0 transition-opacity bg-black/50 backdrop-blur-sm" wire:click="closeRejectProofConfirmModal"></div>
+                
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto text-left align-middle transition-all transform relative">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-red-500 to-rose-600 px-6 py-4 rounded-t-2xl">
+                        <!-- Barra de carga -->
+                        <div wire:loading wire:target="confirmRejectPaymentProof" class="absolute top-0 left-0 right-0 h-1 bg-white/30 overflow-hidden rounded-t-2xl">
+                            <div class="h-full bg-white animate-pulse" style="width: 100%; animation: shimmer 1.5s infinite;"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-white">Rechazar Comprobante</h2>
+                                    <p class="text-sm text-white/90">Orden: {{ $pendingActionOrder['number'] }}</p>
+                                </div>
+                            </div>
+                            <button type="button" wire:click="closeRejectProofConfirmModal" class="text-white/80 hover:text-white transition-colors cursor-pointer">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Contenido -->
+                    <div class="px-6 py-6">
+                        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                            <p class="text-sm text-red-800 mb-2">
+                                <strong>⚠️ ¿Está seguro de rechazar este comprobante de pago?</strong>
+                            </p>
+                            <p class="text-xs text-red-700 mb-2">
+                                El comprobante será eliminado y se enviará una notificación al cliente indicando que debe subir un nuevo comprobante válido.
+                            </p>
+                            <p class="text-xs text-red-700">
+                                <strong>Esta acción no se puede deshacer.</strong>
+                            </p>
+                        </div>
+
+                        <!-- Comprobante Actual -->
+                        @if(isset($pendingActionOrder['payment_proof']) && $pendingActionOrder['payment_proof'])
+                            <div class="mb-6 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-5 border border-gray-200">
+                                <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Comprobante a Rechazar
+                                </h4>
+                                <div class="flex items-start space-x-4">
+                                    <a href="{{ asset('storage/' . $pendingActionOrder['payment_proof']) }}" target="_blank" class="flex-shrink-0 group relative">
+                                        <img src="{{ asset('storage/' . $pendingActionOrder['payment_proof']) }}" alt="Comprobante" class="w-32 h-32 object-cover rounded-lg border-2 border-gray-300 group-hover:border-red-500 transition-colors shadow-md">
+                                        <div class="absolute inset-0 bg-red-500/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                            <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-700 mb-2">
+                                            <strong>Cliente:</strong> {{ $pendingActionOrder['client'] }}
+                                        </p>
+                                        <p class="text-sm text-gray-700 mb-2">
+                                            <strong>Monto:</strong> ${{ number_format($pendingActionOrder['amount'], 2) }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">
+                                            Haz clic en la imagen para ver en tamaño completo
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Motivos de Rechazo -->
+                        <div class="mb-6 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                            <h4 class="font-semibold text-yellow-800 mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                </svg>
+                                El cliente recibirá un correo con:
+                            </h4>
+                            <ul class="text-xs text-yellow-700 space-y-1 ml-6 list-disc">
+                                <li>Motivos comunes de rechazo (ilegible, monto incorrecto, etc.)</li>
+                                <li>Instrucciones para subir un nuevo comprobante</li>
+                                <li>Datos bancarios correctos para la transferencia</li>
+                                <li>Consejos para un comprobante válido</li>
+                            </ul>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="mt-6 flex space-x-3">
+                            <button 
+                                type="button"
+                                wire:click="closeRejectProofConfirmModal"
+                                wire:loading.attr="disabled"
+                                wire:target="confirmRejectPaymentProof"
+                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                type="button"
+                                wire:click="confirmRejectPaymentProof"
+                                wire:loading.attr="disabled"
+                                wire:target="confirmRejectPaymentProof"
+                                class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
+                            >
+                                <span wire:loading.remove wire:target="confirmRejectPaymentProof">✗ Rechazar Comprobante</span>
+                                <span wire:loading wire:target="confirmRejectPaymentProof" class="flex items-center">
+                                    <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Rechazando...
                                 </span>
                             </button>
                         </div>

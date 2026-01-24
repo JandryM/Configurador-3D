@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use App\Livewire\Traits\WithCustomPagination;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\OrderMaterialCalculator;
@@ -28,8 +29,10 @@ class OrdersTable extends Component
     
     // Modales de confirmación
     public $showApproveConfirmModal = false;
+    public $showPaidConfirmModal = false;
     public $showCancelConfirmModal = false;
     public $showCompleteConfirmModal = false;
+    public $showRejectProofConfirmModal = false;
     public $pendingActionOrderId = null;
     public $pendingActionOrder = null;
     
@@ -88,6 +91,7 @@ class OrdersTable extends Component
                     'number' => $order->number,
                     'proforma_id' => $order->proforma_id,
                     'status' => $order->status,
+                    'payment_proof' => $order->payment_proof,
                     'client' => $user ? $user->name : ($order->user_name ?? 'Usuario eliminado'),
                     'email' => $user ? $user->email : ($order->user_email ?? '-'),
                     'product_name' => $product ? $product->name : 'Producto eliminado',
@@ -246,6 +250,126 @@ class OrdersTable extends Component
         $this->pendingActionOrder = null;
     }
 
+    public function markAsPaid($orderId)
+    {
+        // Abrir modal de confirmación
+        $this->pendingActionOrderId = $orderId;
+        $this->pendingActionOrder = $this->allOrders->firstWhere('id', $orderId);
+        $this->showPaidConfirmModal = true;
+    }
+
+    public function confirmMarkAsPaid()
+    {
+        $success = $this->updateOrderStatusQuick($this->pendingActionOrderId, 'paid');
+
+        if ($success) {
+            // Enviar notificación al cliente sobre pago verificado
+            $order = DB::table('orders')->where('id', $this->pendingActionOrderId)->first();
+            if ($order && $order->proforma_id) {
+                $proforma = DB::table('proformas')->where('id', $order->proforma_id)->first();
+                if ($proforma && $proforma->user_id) {
+                    $user = User::find($proforma->user_id);
+                    if ($user) {
+                        // Calcular el monto total de los items activos
+                        $amount = DB::table('proforma_items')
+                            ->where('proforma_id', $proforma->id)
+                            ->where('is_active', true)
+                            ->sum('price');
+                        
+                        // Crear objeto con datos para la notificación
+                        $orderData = (object)[
+                            'number' => $order->number,
+                            'amount' => $amount,
+                        ];
+                        
+                        $user->notify(new \App\Notifications\PaymentVerified($orderData));
+                    }
+                }
+            }
+            
+            session()->flash('message', 'Pago verificado exitosamente. La orden está lista para iniciar producción.');
+        }
+
+        // Cerrar modal
+        $this->closePaidConfirmModal();
+    }
+
+    public function closePaidConfirmModal()
+    {
+        $this->showPaidConfirmModal = false;
+        $this->pendingActionOrderId = null;
+        $this->pendingActionOrder = null;
+    }
+
+    public function rejectPaymentProof($orderId)
+    {
+        if (!$this->canModifyOrders()) {
+            session()->flash('error', 'No tienes permisos para rechazar comprobantes.');
+            return;
+        }
+
+        // Obtener la orden
+        $order = DB::table('orders')->where('id', $orderId)->first();
+
+        if (!$order) {
+            session()->flash('error', 'Orden no encontrada.');
+            return;
+        }
+
+        if ($order->status !== 'approved') {
+            session()->flash('error', 'Solo puedes rechazar comprobantes de órdenes aprobadas.');
+            return;
+        }
+
+        if (!$order->payment_proof) {
+            session()->flash('error', 'No hay comprobante para rechazar.');
+            return;
+        }
+
+        // Eliminar archivo del storage
+        if (Storage::disk('public')->exists($order->payment_proof)) {
+            Storage::disk('public')->delete($order->payment_proof);
+        }
+
+        // Actualizar base de datos
+        DB::table('orders')
+            ->where('id', $orderId)
+            ->update([
+                'payment_proof' => null,
+                'updated_at' => now()
+            ]);
+
+        // Obtener usuario para enviar notificación
+        $proforma = DB::table('proformas')->where('id', $order->proforma_id)->first();
+        if ($proforma && $proforma->user_id) {
+            $user = User::find($proforma->user_id);
+            if ($user) {
+                // Calcular el monto total de los items activos de la proforma
+                $amount = DB::table('proforma_items')
+                    ->where('proforma_id', $proforma->id)
+                    ->where('is_active', true)
+                    ->sum('price');
+                
+                // Crear objeto con datos necesarios para la notificación
+                $orderData = (object)[
+                    'number' => $order->number,
+                    'amount' => $amount,
+                    'proforma_id' => $order->proforma_id,
+                ];
+                
+                $user->notify(new \App\Notifications\PaymentProofRejected($orderData));
+            }
+        }
+
+        // Cerrar modal de confirmación de pago
+        $this->closePaidConfirmModal();
+
+        session()->flash('message', 'Comprobante rechazado y eliminado. Se ha notificado al cliente.');
+        
+        // Recargar órdenes
+        $this->loadOrders();
+    }
+
     public function startProduction($orderId)
     {
         // Verificar disponibilidad de materiales antes de abrir modal de tiempo estimado
@@ -339,6 +463,31 @@ class OrdersTable extends Component
                 'updated_at' => now()
             ]);
 
+        // Enviar notificación al cliente sobre inicio de producción
+        $order = DB::table('orders')->where('id', $this->pendingProductionOrderId)->first();
+        if ($order && $order->proforma_id) {
+            $proforma = DB::table('proformas')->where('id', $order->proforma_id)->first();
+            if ($proforma && $proforma->user_id) {
+                $user = User::find($proforma->user_id);
+                if ($user) {
+                    // Calcular el monto total
+                    $amount = DB::table('proforma_items')
+                        ->where('proforma_id', $proforma->id)
+                        ->where('is_active', true)
+                        ->sum('price');
+                    
+                    // Crear objeto con datos para la notificación
+                    $orderData = (object)[
+                        'number' => $order->number,
+                        'amount' => $amount,
+                        'estimated_finish_at' => $estimatedFinishDate,
+                    ];
+                    
+                    $user->notify(new \App\Notifications\OrderInProduction($orderData));
+                }
+            }
+        }
+
         $this->loadOrders();
 
         if ($this->selectedOrder && $this->selectedOrder['id'] == $this->pendingProductionOrderId) {
@@ -374,7 +523,34 @@ class OrdersTable extends Component
 
     public function confirmCompleteOrder()
     {
-        $this->updateOrderStatusQuick($this->pendingActionOrderId, 'completed');
+        $success = $this->updateOrderStatusQuick($this->pendingActionOrderId, 'completed');
+        
+        if ($success) {
+            // Enviar notificación al cliente sobre orden completada
+            $order = DB::table('orders')->where('id', $this->pendingActionOrderId)->first();
+            if ($order && $order->proforma_id) {
+                $proforma = DB::table('proformas')->where('id', $order->proforma_id)->first();
+                if ($proforma && $proforma->user_id) {
+                    $user = User::find($proforma->user_id);
+                    if ($user) {
+                        // Calcular el monto total
+                        $amount = DB::table('proforma_items')
+                            ->where('proforma_id', $proforma->id)
+                            ->where('is_active', true)
+                            ->sum('price');
+                        
+                        // Crear objeto con datos para la notificación
+                        $orderData = (object)[
+                            'number' => $order->number,
+                            'amount' => $amount,
+                        ];
+                        
+                        $user->notify(new \App\Notifications\OrderCompleted($orderData));
+                    }
+                }
+            }
+        }
+        
         session()->flash('message', 'Orden marcada como completada exitosamente.');
         $this->closeCompleteConfirmModal();
     }
@@ -384,6 +560,34 @@ class OrdersTable extends Component
         $this->showCompleteConfirmModal = false;
         $this->pendingActionOrderId = null;
         $this->pendingActionOrder = null;
+    }
+
+    public function openRejectProofModal()
+    {
+        // Usar el pendingActionOrder que ya está cargado del modal de "Marcar como pagada"
+        if ($this->pendingActionOrder) {
+            // Cerrar el modal de confirmación de pago
+            $this->showPaidConfirmModal = false;
+            // Abrir el modal de rechazo
+            $this->showRejectProofConfirmModal = true;
+        }
+    }
+
+    public function closeRejectProofConfirmModal()
+    {
+        $this->showRejectProofConfirmModal = false;
+        // Reabrir el modal de confirmación de pago
+        $this->showPaidConfirmModal = true;
+    }
+
+    public function confirmRejectPaymentProof()
+    {
+        if ($this->pendingActionOrder) {
+            $this->rejectPaymentProof($this->pendingActionOrder['id']);
+            $this->closeRejectProofConfirmModal();
+            // Cerrar también el modal de pago después de rechazar
+            $this->showPaidConfirmModal = false;
+        }
     }
 
     public function cancelOrder($orderId)
@@ -396,7 +600,34 @@ class OrdersTable extends Component
 
     public function confirmCancelOrder()
     {
-        $this->updateOrderStatusQuick($this->pendingActionOrderId, 'cancelled');
+        $success = $this->updateOrderStatusQuick($this->pendingActionOrderId, 'cancelled');
+        
+        if ($success) {
+            // Enviar notificación al cliente sobre orden cancelada
+            $order = DB::table('orders')->where('id', $this->pendingActionOrderId)->first();
+            if ($order && $order->proforma_id) {
+                $proforma = DB::table('proformas')->where('id', $order->proforma_id)->first();
+                if ($proforma && $proforma->user_id) {
+                    $user = User::find($proforma->user_id);
+                    if ($user) {
+                        // Calcular el monto total
+                        $amount = DB::table('proforma_items')
+                            ->where('proforma_id', $proforma->id)
+                            ->where('is_active', true)
+                            ->sum('price');
+                        
+                        // Crear objeto con datos para la notificación
+                        $orderData = (object)[
+                            'number' => $order->number,
+                            'amount' => $amount,
+                        ];
+                        
+                        $user->notify(new \App\Notifications\OrderCancelled($orderData));
+                    }
+                }
+            }
+        }
+        
         session()->flash('message', 'Orden cancelada exitosamente.');
         $this->closeCancelConfirmModal();
     }
@@ -457,15 +688,23 @@ class OrdersTable extends Component
 
     public function render()
     {
-        $gananciaTotal = $this->allOrders->filter(fn($o) => in_array($o['status'], ['approved', 'in_production', 'completed']))->sum('amount');
+        // Ganancia de órdenes completadas (real)
+        $gananciaCompletadas = $this->allOrders->where('status', 'completed')->sum('amount');
+        
+        // Ganancia estimada total de órdenes pagadas (incluye paid, in_production y completed)
+        $gananciaEstimada = $this->allOrders->filter(fn($o) => in_array($o['status'], ['paid', 'in_production', 'completed']))->sum('amount');
+        
         $cantidadProductos = $this->allOrders->sum('quantity');
         $ordenesTerminadas = $this->allOrders->where('status', 'completed')->count();
+        $comprobantesPendientes = $this->allOrders->filter(fn($o) => $o['status'] === 'approved' && !empty($o['payment_proof']))->count();
 
         return view('livewire.admin.order.orders-table', [
             'canModify' => $this->canModifyOrders(),
-            'gananciaTotal' => $gananciaTotal,
+            'gananciaCompletadas' => $gananciaCompletadas,
+            'gananciaEstimada' => $gananciaEstimada,
             'cantidadProductos' => $cantidadProductos,
             'ordenesTerminadas' => $ordenesTerminadas,
+            'comprobantesPendientes' => $comprobantesPendientes,
         ])->layout('partials.sidebar');
     }
 }

@@ -17,7 +17,7 @@ class EnsureUserIsAdmin
     {
         $user = $request->user();
 
-    // Verificar que el usuario esté autenticado y tenga acceso de admin, owner o seller
+    // Verificar que el usuario esté autenticado y tenga acceso de admin u owner
     if (! $user || ! $user->hasAdminAccess()) {
             // Si es una petición AJAX o espera JSON, devolver error 403
             if ($request->expectsJson()) {
