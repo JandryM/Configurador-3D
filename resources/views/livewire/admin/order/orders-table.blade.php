@@ -1635,4 +1635,99 @@
             </div>
         </div>
     @endif
+
+    <!-- Modal: Cuenta Bancaria No Configurada -->
+    @if($showNoBankAccountModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto" style="z-index: 1300;">
+            <div class="flex items-center justify-center min-h-screen px-4 text-center">
+                <div class="fixed inset-0 transition-opacity bg-black/60 backdrop-blur-sm" wire:click="closeNoBankAccountModal"></div>
+                
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto text-left align-middle transition-all transform relative">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-red-500 to-orange-600 px-6 py-5 rounded-t-2xl">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center animate-bounce">
+                                    <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">⚠️ Acción Requerida</h3>
+                                    <p class="text-sm text-white/90">Cuenta bancaria no configurada</p>
+                                </div>
+                            </div>
+                            <button type="button" wire:click="closeNoBankAccountModal" class="text-white/80 hover:text-white transition-colors cursor-pointer p-2">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Contenido -->
+                    <div class="px-6 py-6">
+                        <div class="mb-6 p-5 bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200 rounded-xl">
+                            <div class="flex items-start space-x-3 mb-4">
+                                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-bold text-red-900 mb-2">No se puede aprobar la orden</h4>
+                                    <p class="text-sm text-red-800 leading-relaxed">
+                                        Para aprobar órdenes y enviar la información de pago a los clientes, primero debes configurar al menos una cuenta bancaria en el sistema.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white/60 rounded-lg p-4 border border-red-200">
+                                <h5 class="text-sm font-bold text-red-900 mb-2">📋 ¿Qué necesitas hacer?</h5>
+                                <ul class="space-y-2 text-xs text-red-800">
+                                    <li class="flex items-start">
+                                        <span class="text-red-500 mr-2 flex-shrink-0">1.</span>
+                                        <span>Ir al Dashboard</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-red-500 mr-2 flex-shrink-0">2.</span>
+                                        <span>Hacer clic en el ícono de banco (💳) en la esquina superior derecha</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-red-500 mr-2 flex-shrink-0">3.</span>
+                                        <span>Completar el formulario con los datos de tu cuenta bancaria</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-red-500 mr-2 flex-shrink-0">4.</span>
+                                        <span>Regresar aquí y aprobar la orden</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="flex space-x-3">
+                            <button 
+                                type="button"
+                                wire:click="closeNoBankAccountModal"
+                                class="flex-1 px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-colors cursor-pointer"
+                            >
+                                Cerrar
+                            </button>
+                            <button 
+                                type="button"
+                                onclick="window.location.href='/admin/dashboard'"
+                                class="flex-1 px-5 py-3 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg transition-all hover:scale-105 cursor-pointer flex items-center justify-center"
+                            >
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"></path>
+                                </svg>
+                                Configurar Cuenta Bancaria
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

@@ -253,7 +253,7 @@
                             <x-action-button 
                                 color="purple"
                                 tooltip="Descargar PDF"
-                                wire:click="downloadProformaPdf({{ $proforma['id'] }})"
+                                wire:click="openDownloadModal({{ $proforma['id'] }})"
                             >
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
@@ -312,6 +312,109 @@
                                 'showDownloadButton' => false
                             ])
                         @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Modal de Descarga -->
+    @if($showDownloadModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto" style="z-index: 1100;">
+            <div class="flex items-center justify-center min-h-screen px-4 text-center">
+                <!-- Fondo oscuro -->
+                <div class="fixed inset-0 transition-opacity bg-black/50 backdrop-blur-sm" wire:click="closeDownloadModal"></div>
+                
+                <!-- Panel del modal -->
+                <div class="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-auto text-left align-middle transition-all transform relative border border-slate-700">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4 rounded-t-2xl flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">Seleccionar Tipo de PDF</h3>
+                                <p class="text-sm text-white/80">Elige el formato que deseas descargar</p>
+                            </div>
+                        </div>
+                        <button type="button" wire:click="closeDownloadModal" class="p-2 text-white hover:bg-white/20 rounded-lg transition-colors duration-200 cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Contenido -->
+                    <div class="px-6 py-6 space-y-4 bg-slate-900">
+                        <!-- Botón PDF Administrativo -->
+                        <button 
+                            wire:click="downloadProformaPdf({{ $downloadProformaId }})"
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-75 cursor-not-allowed"
+                            wire:target="downloadProformaPdf,downloadProformaClientPdf"
+                            class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-4 rounded-xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-between group disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
+                        >
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center relative">
+                                    <!-- Spinner (visible cuando está cargando ESTE botón) -->
+                                    <svg wire:loading wire:target="downloadProformaPdf" class="animate-spin h-6 w-6 text-white absolute" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <!-- Icono normal (oculto cuando está cargando) -->
+                                    <svg wire:loading.remove wire:target="downloadProformaPdf" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="text-left">
+                                    <div class="font-bold text-lg">
+                                        <span wire:loading.remove wire:target="downloadProformaPdf">PDF Administrativo</span>
+                                        <span wire:loading wire:target="downloadProformaPdf">Generando PDF...</span>
+                                    </div>
+                                    <div class="text-sm text-white/80">Incluye desglose completo de materiales y costos</div>
+                                </div>
+                            </div>
+                            <svg wire:loading.remove wire:target="downloadProformaPdf" class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Botón PDF del Cliente -->
+                        <button 
+                            wire:click="downloadProformaClientPdf({{ $downloadProformaId }})"
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-75 cursor-not-allowed"
+                            wire:target="downloadProformaPdf,downloadProformaClientPdf"
+                            class="w-full bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white px-6 py-4 rounded-xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-between group disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
+                        >
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center relative">
+                                    <!-- Spinner (visible cuando está cargando ESTE botón) -->
+                                    <svg wire:loading wire:target="downloadProformaClientPdf" class="animate-spin h-6 w-6 text-white absolute" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <!-- Icono normal (oculto cuando está cargando) -->
+                                    <svg wire:loading.remove wire:target="downloadProformaClientPdf" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="text-left">
+                                    <div class="font-bold text-lg">
+                                        <span wire:loading.remove wire:target="downloadProformaClientPdf">PDF del Cliente</span>
+                                        <span wire:loading wire:target="downloadProformaClientPdf">Generando PDF...</span>
+                                    </div>
+                                    <div class="text-sm text-white/80">Formato simplificado para el cliente final</div>
+                                </div>
+                            </div>
+                            <svg wire:loading.remove wire:target="downloadProformaClientPdf" class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>

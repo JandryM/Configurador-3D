@@ -33,6 +33,7 @@ class OrdersTable extends Component
     public $showCancelConfirmModal = false;
     public $showCompleteConfirmModal = false;
     public $showRejectProofConfirmModal = false;
+    public $showNoBankAccountModal = false;
     public $pendingActionOrderId = null;
     public $pendingActionOrder = null;
     
@@ -221,6 +222,16 @@ class OrdersTable extends Component
 
     public function confirmApproveOrder()
     {
+        // Verificar si existe al menos una cuenta bancaria
+        $bankAccountExists = DB::table('bank_accounts')
+            ->exists();
+
+        if (!$bankAccountExists) {
+            $this->closeApproveConfirmModal();
+            $this->showNoBankAccountModal = true;
+            return;
+        }
+
         $success = $this->updateOrderStatusQuick($this->pendingActionOrderId, 'approved');
 
         if ($success) {
@@ -248,6 +259,11 @@ class OrdersTable extends Component
         $this->showApproveConfirmModal = false;
         $this->pendingActionOrderId = null;
         $this->pendingActionOrder = null;
+    }
+
+    public function closeNoBankAccountModal()
+    {
+        $this->showNoBankAccountModal = false;
     }
 
     public function markAsPaid($orderId)

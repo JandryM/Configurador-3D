@@ -51,7 +51,7 @@ class OrderInProduction extends Notification implements ShouldQueue
         
         if ($estimatedFinishDate) {
             $formattedDate = \Carbon\Carbon::parse($estimatedFinishDate)->format('d/m/Y');
-            $daysRemaining = \Carbon\Carbon::parse($estimatedFinishDate)->diffInDays(now());
+            $daysRemaining = abs(ceil(now()->diffInDays(\Carbon\Carbon::parse($estimatedFinishDate), false)));
             
             $mail->line('**📅 Fecha estimada de finalización:** ' . $formattedDate)
                 ->line('**⏱️ Tiempo estimado:** ' . $daysRemaining . ' día(s) aproximadamente');

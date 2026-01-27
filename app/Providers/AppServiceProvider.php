@@ -48,7 +48,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.guest', function ($view) {
             $customizableProducts = Product::where('product_type', 'customizable')
                 ->where('allows_customization', true)
-                ->orderBy('name')
+                ->orderBy('id')
                 ->get(['name', 'slug']);
             $view->with('customizableProducts', $customizableProducts);
         });

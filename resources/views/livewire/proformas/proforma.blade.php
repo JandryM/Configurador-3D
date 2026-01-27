@@ -352,32 +352,34 @@
     </div>
     
     <!-- Invoice Info -->
-    <div class="invoice-info">
-        <div class="invoice-to">
-            <h4>Proforma Para:</h4>
-            @if(isset($user) && $user)
-                <p class="client-name">{{ $user->name ?? $user->email ?? 'Cliente' }}</p>
-                @if(!empty($user->email))<p>{{ $user->email }}</p>@endif
-                @if(!empty($user->phone))<p>Tel: {{ $user->phone }}</p>@endif
-                @if(!empty($user->city))<p>{{ $user->city }}, {{ $user->province }}</p>@endif
-            @endif
-        </div>
-        <div class="invoice-meta">
-            <div class="invoice-badge">
-                @if($isMultiItem)
-                    Proforma: {{ $number ?? '' }}
-                @else
-                    Proforma
+    <table style="width: 100%; border-collapse: collapse; padding: 15px 30px;">
+        <tr>
+            <td style="width: 50%; vertical-align: top;">
+                <h4 style="font-size: 11px; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Proforma Para:</h4>
+                @if(isset($user) && $user)
+                    <p style="font-weight: 700; font-size: 14px; color: #1a202c; margin: 4px 0; line-height: 1.5;">{{ $user->name ?? $user->email ?? 'Cliente' }}</p>
+                    @if(!empty($user->email))<p style="font-size: 13px; color: #2d3748; margin: 4px 0; line-height: 1.5;"><b>Correo:</b> {{ $user->email }}</p>@endif
+                    @if(!empty($user->phone))<p style="font-size: 13px; color: #2d3748; margin: 4px 0; line-height: 1.5;"><b>Teléfono:</b> {{ $user->phone }}</p>@endif
+                    @if(!empty($user->city))<p style="font-size: 13px; color: #2d3748; margin: 4px 0; line-height: 1.5;"><b>Ubicación:</b> {{ $user->city }}, {{ $user->province }}</p>@endif
                 @endif
-            </div>
-            @if(isset($created_at))
-                <p class="invoice-date">Fecha: {{ \Carbon\Carbon::parse($created_at)->format('d/m/Y') }}</p>
-            @endif
-            @if(isset($expiration_date))
-                <p class="invoice-date">Válida hasta: {{ \Carbon\Carbon::parse($expiration_date)->format('d/m/Y') }}</p>
-            @endif
-        </div>
-    </div>
+            </td>
+            <td style="width: 50%; vertical-align: top; text-align: right; padding-top: 18px;">
+                <div style="display: inline-block; background: #7dd3fc; color: #0a4d68; padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-bottom: 8px;">
+                    @if($isMultiItem)
+                        Proforma: {{ $number ?? '' }}
+                    @else
+                        Proforma
+                    @endif
+                </div>
+                @if(isset($created_at))
+                    <p style="font-size: 12px; color: #718096; margin: 2px 0;">Fecha: {{ \Carbon\Carbon::parse($created_at)->format('d/m/Y') }}</p>
+                @endif
+                @if(isset($expiration_date))
+                    <p style="font-size: 12px; color: #718096; margin: 2px 0;">Válida hasta: {{ \Carbon\Carbon::parse($expiration_date)->format('d/m/Y') }}</p>
+                @endif
+            </td>
+        </tr>
+    </table>
     
     <div style="padding: 0 10px;">
         <span class="triangle-decoration"></span>
@@ -472,9 +474,6 @@
                     <th>Dimensiones</th>
                     <td>
                         Ancho: {{ $item['parameters']['width'] }} m, Alto: {{ $item['parameters']['height'] }} m
-                        @if(isset($item['parameters']['depth']))
-                            , Profundidad: {{ $item['parameters']['depth'] }} m
-                        @endif
                     </td>
                 </tr>
                 @endif
@@ -539,7 +538,7 @@
     <div class="totals-section">
         <div class="terms-conditions">
             <h4>Términos & Condiciones</h4>
-            <p>Esta proforma es válida por 30 días desde la fecha de emisión. Los precios incluyen IVA. Para proceder con el pedido, se requiere un anticipo del 50%.</p>
+            <p>Esta proforma es válida por 30 días desde la fecha de emisión. Los precios incluyen IVA.</p>
         </div>
         <div class="totals-box">
             <div class="total-row subtotal">

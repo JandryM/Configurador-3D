@@ -50,15 +50,31 @@ class BankAccountForm extends Component
         if ($owner->role !== 'owner') {
             abort(403);
         }
-        
+
         $this->validate([
             'bank_name' => 'required|string|max:255',
-            'account_number' => 'required|string|max:255',
-            'account_type' => 'nullable|string|max:255',
-            'identification' => 'nullable|string|max:255',
+            'account_number' => [
+                'required',
+                'digits:10',
+                'regex:/^[0-9]{10}$/'
+            ],
+            'account_type' => 'required|string|max:255',
+            'identification' => [
+                'required',
+                'regex:/^[0-9]{10,13}$/'
+            ],
             'holder_name' => 'required|string|max:255',
+        ], [
+            'bank_name.required' => 'El banco es obligatorio.',
+            'account_number.required' => 'El número de cuenta es obligatorio.',
+            'account_number.digits' => 'El número de cuenta debe tener exactamente 10 dígitos.',
+            'account_number.regex' => 'El número de cuenta debe contener solo números (10 dígitos).',
+            'account_type.required' => 'El tipo de cuenta es obligatorio.',
+            'identification.required' => 'La identificación es obligatoria.',
+            'identification.regex' => 'La identificación debe ser solo números, 10 dígitos para cédula o 13 para RUC.',
+            'holder_name.required' => 'El titular de la cuenta es obligatorio.',
         ]);
-        
+
         BankAccount::updateOrCreate(
             ['user_id' => $owner->id],
             [
@@ -70,7 +86,7 @@ class BankAccountForm extends Component
                 'phone' => $this->phone,
             ]
         );
-        
+
         session()->flash('message', 'Cuenta bancaria actualizada correctamente.');
         $this->dispatch('bankAccountUpdated');
         $this->dispatch('cuenta-bancaria-actualizada');

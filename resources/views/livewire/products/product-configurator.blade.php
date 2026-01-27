@@ -90,17 +90,17 @@
                                         <!-- Flechas personalizadas -->
                                         <div class="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                             <button type="button" 
-                                                    class="w-4 h-3 flex items-center justify-center hover:bg-blue-500/20 rounded-t transition-colors"
+                                                    class="w-4 h-3 flex items-center justify-center hover:bg-blue-500/20 rounded-t transition-colors cursor-pointer"
                                                     tabindex="-1"
-                                                    onclick="let input = this.parentElement.previousElementSibling; let currentValue = parseFloat(input.value) || 0; let newValue = (currentValue + 0.01).toFixed(3); if (parseFloat(newValue) <= parseFloat(input.max)) { input.value = newValue; input.dispatchEvent(new Event('input', { bubbles: true })); input.blur(); }">
+                                                    wire:click="incrementParameter('{{ $param }}')">
                                                 <svg class="w-3 h-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 20 20">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 12l5-5 5 5"/>
                                                 </svg>
                                             </button>
                                             <button type="button" 
-                                                    class="w-4 h-3 flex items-center justify-center hover:bg-blue-500/20 rounded-b transition-colors"
+                                                    class="w-4 h-3 flex items-center justify-center hover:bg-blue-500/20 rounded-b transition-colors cursor-pointer"
                                                     tabindex="-1"
-                                                    onclick="let input = this.parentElement.previousElementSibling; let currentValue = parseFloat(input.value) || 0; let newValue = (currentValue - 0.01).toFixed(3); if (parseFloat(newValue) >= parseFloat(input.min)) { input.value = newValue; input.dispatchEvent(new Event('input', { bubbles: true })); input.blur(); }">
+                                                    wire:click="decrementParameter('{{ $param }}')">
                                                 <svg class="w-3 h-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 20 20">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 8l-5 5-5-5"/>
                                                 </svg>

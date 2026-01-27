@@ -854,6 +854,58 @@ class ProductConfigurator extends Component
         $this->dispatch('updateModel3D', parameters: $parametersFor3D);
     }
 
+    public function incrementParameter($parameter)
+    {
+        // Obtener el valor actual
+        $currentValue = $this->parameters[$parameter] ?? $this->parameterLimits[$parameter]['min'] ?? 0;
+        
+        // Incrementar en 0.1
+        $newValue = round(($currentValue + 0.1) * 1000) / 1000;
+        
+        // Validar límite máximo
+        $maxValue = $this->parameterLimits[$parameter]['max'] ?? PHP_FLOAT_MAX;
+        $newValue = min($maxValue, $newValue);
+        
+        // Actualizar el parámetro
+        $this->parameters[$parameter] = $newValue;
+        $this->calculatePrice();
+        
+        // Dispatch evento para actualizar modelo 3D
+        $parametersFor3D = $this->parameters;
+        if ($this->getProductType() === 'window') {
+            $parametersFor3D = array_merge($this->parameters, ['depth' => 1.0]);
+        }
+        $parametersFor3D['texturePath'] = $this->getColorTexturePath($this->parameters['color']);
+        $parametersFor3D['glassTexturePath'] = $this->getGlassTexturePath($this->parameters['glassColor']);
+        $this->dispatch('updateModel3D', parameters: $parametersFor3D);
+    }
+
+    public function decrementParameter($parameter)
+    {
+        // Obtener el valor actual
+        $currentValue = $this->parameters[$parameter] ?? $this->parameterLimits[$parameter]['min'] ?? 0;
+        
+        // Decrementar en 0.1
+        $newValue = round(($currentValue - 0.1) * 1000) / 1000;
+        
+        // Validar límite mínimo
+        $minValue = $this->parameterLimits[$parameter]['min'] ?? 0;
+        $newValue = max($minValue, $newValue);
+        
+        // Actualizar el parámetro
+        $this->parameters[$parameter] = $newValue;
+        $this->calculatePrice();
+        
+        // Dispatch evento para actualizar modelo 3D
+        $parametersFor3D = $this->parameters;
+        if ($this->getProductType() === 'window') {
+            $parametersFor3D = array_merge($this->parameters, ['depth' => 1.0]);
+        }
+        $parametersFor3D['texturePath'] = $this->getColorTexturePath($this->parameters['color']);
+        $parametersFor3D['glassTexturePath'] = $this->getGlassTexturePath($this->parameters['glassColor']);
+        $this->dispatch('updateModel3D', parameters: $parametersFor3D);
+    }
+
     public function updatedQuantity($value)
     {
         // NO resetear estado - permitir que se mantenga saved/ordered

@@ -714,12 +714,6 @@
                                             <span class="text-white font-medium">{{ number_format($item['parameters']['width'], 3) }}m</span>
                                         </div>
                                         @endif
-                                        @if(isset($item['parameters']['depth']))
-                                        <div class="flex justify-between">
-                                            <span class="text-white/60">Profundidad:</span>
-                                            <span class="text-white font-medium">{{ number_format($item['parameters']['depth'], 3) }}m</span>
-                                        </div>
-                                        @endif
                                     </div>
                                 </div>
                                 @endif

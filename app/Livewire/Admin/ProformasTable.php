@@ -13,6 +13,8 @@ class ProformasTable extends Component
 
     public $showProformaModal = false;
     public $selectedProforma = null;
+    public $showDownloadModal = false;
+    public $downloadProformaId = null;
     
     // Filtros (null = sin filtro, true = filtro positivo, 'inverse' = filtro negativo)
     public $search = '';
@@ -169,6 +171,18 @@ class ProformasTable extends Component
         $this->selectedProforma = null;
     }
 
+    public function openDownloadModal($proformaId)
+    {
+        $this->downloadProformaId = $proformaId;
+        $this->showDownloadModal = true;
+    }
+
+    public function closeDownloadModal()
+    {
+        $this->showDownloadModal = false;
+        $this->downloadProformaId = null;
+    }
+
     public function downloadProformaPdf($proformaId)
     {
         $allProformas = $this->getAllProformas();
@@ -200,7 +214,41 @@ class ProformasTable extends Component
         
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
-        }, 'proforma_' . $number . '_' . now()->format('Ymd_His') . '.pdf');
+        }, 'proforma_admin_' . $number . '_' . now()->format('Ymd_His') . '.pdf');
+    }
+
+    public function downloadProformaClientPdf($proformaId)
+    {
+        $allProformas = $this->getAllProformas();
+        $proforma = $allProformas->firstWhere('id', $proformaId);
+        if (!$proforma) {
+            abort(404, 'Proforma no encontrada.');
+        }
+        
+        $user = $proforma['user'];
+        $items = $proforma['items'];
+        $total_price = $proforma['total_price'];
+        $number = $proforma['number'];
+        $created_at = $proforma['date'] ?? null;
+        $expiration_date = $proforma['expiration_date'] ?? null;
+        $is_expired = $proforma['is_expired'] ?? false;
+        $isPdf = true;
+        
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('livewire.proformas.proforma', compact(
+            'items',
+            'user',
+            'total_price',
+            'number',
+            'created_at',
+            'expiration_date',
+            'is_expired',
+            'isPdf'
+        ));
+        
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->stream();
+        }, 'proforma_cliente_' . $number . '_' . now()->format('Ymd_His') . '.pdf');
     }
 
     public function toggleFilterOrdered()
