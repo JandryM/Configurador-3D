@@ -13,14 +13,14 @@ class ParametricProduct3D {
         if (typeof window.THREE === 'undefined') {
             throw new Error('Three.js no está disponible en window.THREE');
         }
-        
+
         this.THREE = window.THREE;
         this.container = document.getElementById(containerId);
-        
+
         if (!this.container) {
             throw new Error(`Contenedor con ID '${containerId}' no encontrado`);
         }
-        
+
         this.productType = productType;
         this.parameters = {
             width: 1.0,
@@ -75,7 +75,7 @@ class ParametricProduct3D {
         this.camera.position.set(3, 3, 3);
 
         // Renderer con configuración avanzada
-        this.renderer = new THREE.WebGLRenderer({ 
+        this.renderer = new THREE.WebGLRenderer({
             antialias: true,
             alpha: true
         });
@@ -119,9 +119,32 @@ class ParametricProduct3D {
 
         // Iniciar animación
         this.animate();
+
+        // Configurar manejador de redimensionamiento
+        this.setupResizeHandler();
     }
 
-    
+
+    setupResizeHandler() {
+        this._resizeHandler = () => {
+            if (!this.container || !this.renderer || !this.camera) return;
+
+            const width = this.container.clientWidth;
+            const height = this.container.clientHeight;
+
+            this.camera.aspect = width / height;
+            this.camera.updateProjectionMatrix();
+            this.renderer.setSize(width, height);
+        };
+
+        window.addEventListener('resize', this._resizeHandler);
+
+        // También usar ResizeObserver para detectar cambios en el contenedor
+        this._resizeObserver = new ResizeObserver(this._resizeHandler);
+        this._resizeObserver.observe(this.container);
+    }
+
+
     // Agregar controles de teclado SOLO cuando el canvas tiene el foco
     setupKeyboardFocusControls() {
         // Guardar referencia para remover el listener
@@ -158,7 +181,7 @@ class ParametricProduct3D {
         const mainLight = new THREE.DirectionalLight(0xffffff, 1.0);
         mainLight.position.set(10, 15, 10);
         mainLight.castShadow = true;
-        
+
         // Configuración avanzada de sombras
         mainLight.shadow.mapSize.width = 4096;
         mainLight.shadow.mapSize.height = 4096;
@@ -169,7 +192,7 @@ class ParametricProduct3D {
         mainLight.shadow.camera.top = 15;
         mainLight.shadow.camera.bottom = -15;
         mainLight.shadow.bias = -0.0001;
-        
+
         this.scene.add(mainLight);
 
         // Luces de relleno más intensas para mejor contraste de colores
@@ -181,7 +204,7 @@ class ParametricProduct3D {
         const backLight = new THREE.DirectionalLight(0xffffff, 0.4);
         backLight.position.set(3, 5, -8);
         this.scene.add(backLight);
-        
+
         // Luz adicional desde abajo para eliminar sombras duras
         const bottomLight = new THREE.DirectionalLight(0xffffff, 0.3);
         bottomLight.position.set(0, -5, 5);
@@ -192,12 +215,12 @@ class ParametricProduct3D {
         // Configurar Raycaster para detección de clics
         this.raycaster = new this.THREE.Raycaster();
         this.mouse = new this.THREE.Vector2();
-        
+
         // Event listener para clics
         this.renderer.domElement.addEventListener('click', (event) => {
             this.onWindowClick(event);
         });
-        
+
         // Event listener para hover (opcional)
         this.renderer.domElement.addEventListener('mousemove', (event) => {
             this.onWindowHover(event);
@@ -208,37 +231,37 @@ class ParametricProduct3D {
         // Prevenir que el OrbitControls interfiera
         event.preventDefault();
         event.stopPropagation();
-        
+
         // Calcular coordenadas del mouse
         const rect = this.renderer.domElement.getBoundingClientRect();
         this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        
+
         // Raycast para detecter objetos
         this.raycaster.setFromCamera(this.mouse, this.camera);
-        
+
         if (this.productMesh) {
             const intersects = this.raycaster.intersectObjects(this.productMesh.children, true);
-            
+
             if (intersects.length > 0) {
                 let clickedObject = intersects[0].object;
-                
+
                 // Verificar si es un closet con funcionalidad interactiva
                 if (this.productMesh.userData && this.productMesh.userData.handleClick) {
                     const handled = this.productMesh.userData.handleClick(clickedObject);
                     if (handled) return;
                 }
-                
+
                 let productGroup = null;
                 let specificPanel = null;
-                
+
                 // Buscar ventana/puerta deslizable y panel específico
                 while (clickedObject.parent && !productGroup) {
                     // Verificar si es un panel específico
                     if (clickedObject.name && (clickedObject.name === 'slidingPanel1' || clickedObject.name === 'slidingPanel2')) {
                         specificPanel = clickedObject.name;
                     }
-                    
+
                     // Buscar el grupo principal de la ventana o puerta
                     if (clickedObject.parent.userData && (clickedObject.parent.userData.slideWindow || clickedObject.parent.userData.slideDoor)) {
                         productGroup = clickedObject.parent;
@@ -246,17 +269,17 @@ class ParametricProduct3D {
                     }
                     clickedObject = clickedObject.parent;
                 }
-                
+
                 // Manejar la interacción
                 if (productGroup && productGroup.userData) {
                     if (specificPanel) {
                         // Click en panel específico
                         const panelNumber = specificPanel.replace('slidingPanel', '');
-                        
+
                         if (productGroup.userData.slidePanel) {
                             productGroup.userData.slidePanel(panelNumber, 'toggle');
                         }
-                        
+
                     } else {
                         // Click general en la ventana o puerta
                         if (productGroup.userData.slideWindow) {
@@ -264,7 +287,7 @@ class ParametricProduct3D {
                         } else if (productGroup.userData.slideDoor) {
                             productGroup.userData.slideDoor('toggle');
                         }
-                        
+
                     }
                 }
             }
@@ -276,18 +299,18 @@ class ParametricProduct3D {
         const rect = this.renderer.domElement.getBoundingClientRect();
         this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        
+
         // Cambiar cursor si está sobre una ventana interactiva
         this.raycaster.setFromCamera(this.mouse, this.camera);
-        
+
         if (this.productMesh) {
             const intersects = this.raycaster.intersectObjects(this.productMesh.children, true);
-            
+
             if (intersects.length > 0) {
                 let clickedObject = intersects[0].object;
                 let isInteractive = false;
                 let hoverInfo = '';
-                
+
                 while (clickedObject.parent) {
                     // Verificar si es un panel específico
                     if (clickedObject.name === 'slidingPanel1') {
@@ -305,7 +328,7 @@ class ParametricProduct3D {
                     }
                     clickedObject = clickedObject.parent;
                 }
-                
+
                 // Cambiar cursor y tooltip
                 this.renderer.domElement.style.cursor = isInteractive ? 'pointer' : 'default';
                 this.renderer.domElement.title = isInteractive ? hoverInfo : '';
@@ -319,7 +342,7 @@ class ParametricProduct3D {
     flashWindow(windowGroup) {
         // Efecto visual rápido al hacer click
         const originalOpacity = windowGroup.children[0]?.material?.opacity || 1;
-        
+
         if (windowGroup.children[0]?.material) {
             windowGroup.children[0].material.opacity = 0.5;
             setTimeout(() => {
@@ -332,7 +355,7 @@ class ParametricProduct3D {
         // Limpiar producto anterior
         if (this.productMesh) {
             this.scene.remove(this.productMesh);
-            
+
             // Función recursiva para limpiar geometrías y materiales
             const disposeObject = (obj) => {
                 if (obj.geometry) {
@@ -350,7 +373,7 @@ class ParametricProduct3D {
                     obj.children.forEach(child => disposeObject(child));
                 }
             };
-            
+
             disposeObject(this.productMesh);
         }
 
@@ -397,7 +420,7 @@ class ParametricProduct3D {
 
         if (this.productMesh) {
             this.scene.add(this.productMesh);
-            
+
             // Solo ajustar cámara en primera carga, preservar en actualizaciones
             const isUpdate = this.cameraInitialized;
             this.fitCameraToProduct(isUpdate);
@@ -407,12 +430,12 @@ class ParametricProduct3D {
     // Actualizar parámetros en tiempo real
     updateParameter(key, value) {
         this.parameters[key] = value;
-        
+
         // Sincronizar color principal con frameColor (siempre cuando se cambie 'color')
         if (key === 'color') {
             this.parameters.frameColor = value;
         }
-        
+
         // Si es un cambio de color y ya existe el modelo, actualizar solo los colores
         if (['color', 'frameColor', 'glassColor'].includes(key) && this.productMesh && this.productMesh.userData.updateColors) {
             const parametersWithHDRI = {
@@ -425,10 +448,10 @@ class ParametricProduct3D {
             // Para otros cambios, regenerar el producto completo
             this.generateProduct();
         }
-        
+
         // Dispatch evento personalizado para actualizar precios
         this.container.dispatchEvent(new CustomEvent('parametersChanged', {
-            detail: { 
+            detail: {
                 parameters: this.parameters,
                 productType: this.productType
             }
@@ -437,22 +460,22 @@ class ParametricProduct3D {
 
     // Actualizar múltiples parámetros
     updateParameters(newParams) {
-        
+
         this.parameters = { ...this.parameters, ...newParams };
-        
+
         // Sincronizar color principal con frameColor si 'color' está en los nuevos parámetros
         if (newParams.color && !newParams.frameColor) {
             this.parameters.frameColor = newParams.color;
         }
-        
+
         // Verificar si solo son cambios de color (sin cambios de textura)
         const colorKeys = ['color', 'frameColor', 'glassColor'];
         const textureKeys = ['texturePath'];
-        const onlyColorChanges = Object.keys(newParams).every(key => colorKeys.includes(key)) && 
-                                !Object.keys(newParams).some(key => textureKeys.includes(key));
-        
+        const onlyColorChanges = Object.keys(newParams).every(key => colorKeys.includes(key)) &&
+            !Object.keys(newParams).some(key => textureKeys.includes(key));
 
-        
+
+
         if (onlyColorChanges && this.productMesh && this.productMesh.userData.updateColors) {
             const parametersWithHDRI = {
                 ...this.parameters,
@@ -464,9 +487,9 @@ class ParametricProduct3D {
             // Para otros cambios, regenerar el producto completo
             this.generateProduct();
         }
-        
+
         this.container.dispatchEvent(new CustomEvent('parametersChanged', {
-            detail: { 
+            detail: {
                 parameters: this.parameters,
                 productType: this.productType
             }
@@ -482,12 +505,12 @@ class ParametricProduct3D {
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
-        
+
         // Solo ajustar la cámara en la primera carga, no en actualizaciones
         if (!preserveCamera && !this.cameraInitialized) {
             // Distancia más cercana para mejor vista inicial
             const distance = Math.max(maxDim * 0.5, 1.4);
-            
+
             // Posicionar cámara frente a frente del modelo (vista frontal)
             this.camera.position.set(0, center.y, distance);
             this.camera.lookAt(center.x, center.y, center.z);
@@ -497,7 +520,7 @@ class ParametricProduct3D {
             // Solo actualizar el target si es necesario, manteniendo la posición actual
             this.controls.target.copy(center);
         }
-        
+
         this.controls.update();
     }
 
@@ -521,7 +544,7 @@ class ParametricProduct3D {
         if (config.productType !== this.productType) {
             return;
         }
-        
+
         this.parameters = { ...this.parameters, ...config.parameters };
         this.generateProduct();
     }
@@ -529,23 +552,30 @@ class ParametricProduct3D {
     // Tomar captura
     screenshot(width = 800, height = 600) {
         const originalSize = this.renderer.getSize(new THREE.Vector2());
-        
+
         this.renderer.setSize(width, height);
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
-        
+
         this.renderer.render(this.scene, this.camera);
         const dataURL = this.renderer.domElement.toDataURL();
-        
+
         // Restaurar tamaño original
         this.renderer.setSize(originalSize.x, originalSize.y);
         this.camera.aspect = originalSize.x / originalSize.y;
         this.camera.updateProjectionMatrix();
-        
+
         return dataURL;
     }
 
     dispose() {
+        if (this._resizeHandler) {
+            window.removeEventListener('resize', this._resizeHandler);
+        }
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect();
+        }
+
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
         }
@@ -556,7 +586,7 @@ class ParametricProduct3D {
 
         if (this.productMesh) {
             this.scene.remove(this.productMesh);
-            
+
             // Función recursiva para limpiar geometrías y materiales
             const disposeObject = (obj) => {
                 if (obj.geometry) {
@@ -574,7 +604,7 @@ class ParametricProduct3D {
                     obj.children.forEach(child => disposeObject(child));
                 }
             };
-            
+
             disposeObject(this.productMesh);
         }
 
@@ -587,7 +617,7 @@ class ParametricProduct3D {
     zoomIn(factor = 0.8) {
         const currentDistance = this.camera.position.length();
         const newDistance = currentDistance * factor;
-        
+
         // Mantener dirección, cambiar distancia
         const direction = this.camera.position.clone().normalize();
         this.camera.position.copy(direction.multiplyScalar(newDistance));
@@ -597,7 +627,7 @@ class ParametricProduct3D {
     zoomOut(factor = 1.25) {
         const currentDistance = this.camera.position.length();
         const newDistance = currentDistance * factor;
-        
+
         const direction = this.camera.position.clone().normalize();
         this.camera.position.copy(direction.multiplyScalar(newDistance));
         this.controls.update();
@@ -606,15 +636,15 @@ class ParametricProduct3D {
     setZoomLevel(level) {
         // level: 1 = normal, 2 = zoom out, 0.5 = zoom in
         if (!this.productMesh) return;
-        
+
         const box = new THREE.Box3().setFromObject(this.productMesh);
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
-        
+
         const baseDistance = Math.max(maxDim * 2, 4);
         const distance = baseDistance * level;
-        
+
         this.camera.position.set(distance * 0.8, distance * 0.6, distance * 0.8);
         this.camera.lookAt(center.x, center.y, center.z);
         this.controls.target.copy(center);
@@ -627,7 +657,7 @@ class ParametricProduct3D {
 }
 
 // Función global para crear configurador
-window.createParametricProduct3D = function(containerId, productType, initialParams = {}) {
+window.createParametricProduct3D = function (containerId, productType, initialParams = {}) {
     return new ParametricProduct3D(containerId, productType, initialParams);
 };
 

@@ -296,7 +296,7 @@
             <!-- Panel Central: Visor 3D -->
             <div class="lg:col-span-6 flex flex-col bg-white/90 dark:bg-slate-900/95 backdrop-blur-sm rounded-lg md:rounded-xl shadow-md md:shadow-lg border-2 border-slate-200/50 dark:border-slate-800/50 p-2 sm:p-3 md:p-4 h-full overflow-hidden">
                 <div class="flex flex-col items-center w-full h-full">
-                    <div wire:ignore id="parametric-3d-viewer" class="w-full flex-1 bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 dark:from-gray-950 dark:via-slate-950 dark:to-slate-900 rounded-lg relative overflow-hidden">
+                    <div wire:ignore id="parametric-3d-viewer" class="w-full flex-1 min-h-0 bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 dark:from-gray-950 dark:via-slate-950 dark:to-slate-900 rounded-lg relative overflow-hidden">
                     </div>
                     
                     <div class="mt-2 sm:mt-3 flex flex-wrap justify-center gap-2 sm:gap-3">
