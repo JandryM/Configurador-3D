@@ -22,12 +22,12 @@
             x-transition:leave-start="opacity-100 transform scale-100"
             x-transition:leave-end="opacity-0 transform scale-95">
             
-            <!-- Icono de advertencia -->
-            <div class="flex items-center justify-center mb-4">
-                <div class="w-16 h-16 rounded-full flex items-center justify-center"
-                    :class="@this.pendingVisibilityValue ? 'bg-green-100' : 'bg-yellow-100'">
-                    <svg class="w-8 h-8" :class="@this.pendingVisibilityValue ? 'text-green-600' : 'text-yellow-600'" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            <!-- Icono del modal -->
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center bg-slate-50 border border-slate-100">
+                    <svg class="w-6 h-6 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
                     </svg>
                 </div>
             </div>
@@ -70,16 +70,16 @@
             <div class="flex gap-3">
                 <button type="button" 
                     wire:click="closeVisibilityConfirmModal" 
-                    class="flex-1 px-4 py-3 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 font-medium transition-all">
+                    class="flex-1 px-4 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-medium transition-all">
                     Cancelar
                 </button>
                 <button type="button" 
                     wire:click="confirmVisibilityChange" 
-                    class="flex-1 px-4 py-3 rounded-xl font-medium transition-all {{ $pendingVisibilityValue ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg' : 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white hover:shadow-lg' }}">
+                    class="flex-1 px-4 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 shadow-sm font-medium transition-all">
                     @if($pendingVisibilityValue)
-                        Mostrar
+                        Mostrar Producto
                     @else
-                        Ocultar
+                        Ocultar Producto
                     @endif
                 </button>
             </div>
@@ -88,24 +88,17 @@
     @endif
 
     <!-- Encabezado de la sección -->
-    @php $userRole = auth()->user()->role; @endphp
     <x-page-header 
         title="Gestión de Productos"
         description="Administra el catálogo de productos y sus configuraciones"
-        gradient="from-purple-500 to-indigo-600"
-        :show-button="$userRole === 'admin' || $userRole === 'owner'"
+        :show-button="auth()->user()->role === 'admin' || auth()->user()->role === 'owner'"
         button-text="Nuevo Producto"
-        icon-gradient="from-purple-600 to-indigo-700"
-        @click="showCreateProductModal = true"
+        x-data
+        x-on:click="showCreateProductModal = true"
     >
-        <x-slot name="icon">
-            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4.5 xl:h-4.5 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v1.101a7.002 7.002 0 011.586 2.433A4.993 4.993 0 016 8a4.993 4.993 0 012.414.564A7.002 7.002 0 0110.414 6.1V5a2 2 0 00-2-2H4z" clip-rule="evenodd"></path>
-            </svg>
-        </x-slot>
         <x-slot name="buttonIcon">
-            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-3.5 lg:h-3.5 xl:w-3.5 xl:h-3.5 2xl:w-5 2xl:h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
         </x-slot>
     </x-page-header>
@@ -118,7 +111,7 @@
             x-transition:leave="transition ease-in duration-500"
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0">
-            <div class="bg-white/70 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white">
+            <div class="bg-teal-50 border border-teal-200 rounded-lg shadow-sm p-4 text-teal-800">
                 {{ session('message') }}
             </div>
         </div>
@@ -144,25 +137,22 @@
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100 transform scale-100"
             x-transition:leave-end="opacity-0 transform scale-95"
-            class="bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-[60]"
-            style="background-color: #1e293b !important;">
+            class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-[60] border border-slate-100">
             <!-- Modal header -->
-            <div class="sticky top-0 px-6 py-4 flex justify-between items-center z-10"
-                :class="showEditProductModal ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : 'bg-gradient-to-r from-purple-600 to-indigo-600'">
+            <div class="sticky top-0 px-6 py-4 flex justify-between items-center z-10 bg-white border-b border-slate-100">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center"
-                        :class="showEditProductModal ? 'bg-gradient-to-br from-blue-400 to-indigo-500' : 'bg-gradient-to-br from-indigo-400 to-purple-500'">
-                        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-slate-50 text-slate-700">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 :d="showEditProductModal ? 'M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.94l-4.243 1.415 1.415-4.243a4 4 0 01.94-1.414z' : 'M12 6v12m6-6H6'" />
                         </svg>
                     </div>
-                    <h2 class="text-xl font-bold text-white">
+                    <h2 class="text-xl font-bold text-slate-800">
                         <span x-show="showEditProductModal">Editar Producto</span>
                         <span x-show="showCreateProductModal">Crear Nuevo Producto</span>
                     </h2>
                 </div>
-                <button @click="showCreateProductModal = false; showEditProductModal = false" wire:click="closeCreateProductModal" class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-colors">
+                <button @click="showCreateProductModal = false; showEditProductModal = false" wire:click="closeCreateProductModal" class="text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -179,45 +169,45 @@
                 <form @if($showEditProductModal) wire:submit.prevent="saveEditProduct" @else wire:submit.prevent="saveProduct" @endif enctype="multipart/form-data" class="space-y-6">
                     <!-- Nombre -->
                     <div>
-                        <label for="@if($showEditProductModal)edit_name@else name @endif" class="block text-sm font-medium text-slate-200 mb-2">Nombre</label>
+                        <label for="@if($showEditProductModal)edit_name@else name @endif" class="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
                         @if($showEditProductModal)
-                            <input type="text" id="edit_name" wire:model.defer="edit_name" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" placeholder="Nombre del producto" required>
+                            <input type="text" id="edit_name" wire:model.defer="edit_name" class="w-full px-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" placeholder="Nombre del producto" required>
                             @error('edit_name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         @else
-                            <input type="text" id="name" wire:model.defer="name" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" placeholder="Nombre del producto" required>
+                            <input type="text" id="name" wire:model.defer="name" class="w-full px-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" placeholder="Nombre del producto" required>
                             @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         @endif
                     </div>
                     <!-- Descripción -->
                     <div>
-                        <label for="@if($showEditProductModal)edit_description@else description @endif" class="block text-sm font-medium text-slate-200 mb-2">Descripción</label>
+                        <label for="@if($showEditProductModal)edit_description@else description @endif" class="block text-sm font-medium text-slate-700 mb-1">Descripción</label>
                         @if($showEditProductModal)
-                            <textarea id="edit_description" wire:model.defer="edit_description" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" rows="2" placeholder="Descripción del producto" required></textarea>
+                            <textarea id="edit_description" wire:model.defer="edit_description" class="w-full px-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" rows="2" placeholder="Descripción del producto" required></textarea>
                             @error('edit_description') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         @else
-                            <textarea id="description" wire:model.defer="description" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" rows="2" placeholder="Descripción del producto" required></textarea>
+                            <textarea id="description" wire:model.defer="description" class="w-full px-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" rows="2" placeholder="Descripción del producto" required></textarea>
                             @error('description') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         @endif
                     </div>
                     <!-- Grid: Precio y Categoría -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="@if($showEditProductModal)edit_price@else price @endif" class="block text-sm font-medium text-slate-200 mb-2">Precio</label>
+                            <label for="@if($showEditProductModal)edit_price@else price @endif" class="block text-sm font-medium text-slate-700 mb-1">Precio</label>
                             <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 text-lg pointer-events-none">$</span>
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500 text-lg pointer-events-none">$</span>
                                 @if($showEditProductModal)
-                                    <input type="text" id="edit_price" wire:model.defer="edit_price" maxlength="8" pattern="^\d{1,5}(\.\d{0,2})?$" step="0.01" min="0" class="w-full pl-10 pr-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" placeholder="0.00" required oninput="let val = this.value.replace(/[^0-9.]/g, ''); let parts = val.split('.'); if(parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); if(parts[1] && parts[1].length > 2) val = parts[0] + '.' + parts[1].substring(0, 2); this.value = val;" onblur="if(this.value && this.value.trim() !== ''){ let v = parseFloat(this.value); if(!isNaN(v) && v >= 0 && v <= 99999.99) this.value = v.toFixed(2); else this.value = ''; }">
+                                    <input type="text" id="edit_price" wire:model.defer="edit_price" maxlength="8" pattern="^\d{1,5}(\.\d{0,2})?$" step="0.01" min="0" class="w-full pl-10 pr-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" placeholder="0.00" required oninput="let val = this.value.replace(/[^0-9.]/g, ''); let parts = val.split('.'); if(parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); if(parts[1] && parts[1].length > 2) val = parts[0] + '.' + parts[1].substring(0, 2); this.value = val;" onblur="if(this.value && this.value.trim() !== ''){ let v = parseFloat(this.value); if(!isNaN(v) && v >= 0 && v <= 99999.99) this.value = v.toFixed(2); else this.value = ''; }">
                                     @error('edit_price') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                                 @else
-                                    <input type="text" id="price" wire:model.defer="price" maxlength="8" pattern="^\d{1,5}(\.\d{0,2})?$" step="0.01" min="0" class="w-full pl-10 pr-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" placeholder="0.00" required oninput="let val = this.value.replace(/[^0-9.]/g, ''); let parts = val.split('.'); if(parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); if(parts[1] && parts[1].length > 2) val = parts[0] + '.' + parts[1].substring(0, 2); this.value = val;" onblur="if(this.value && this.value.trim() !== ''){ let v = parseFloat(this.value); if(!isNaN(v) && v >= 0 && v <= 99999.99) this.value = v.toFixed(2); else this.value = ''; }">
+                                    <input type="text" id="price" wire:model.defer="price" maxlength="8" pattern="^\d{1,5}(\.\d{0,2})?$" step="0.01" min="0" class="w-full pl-10 pr-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" placeholder="0.00" required oninput="let val = this.value.replace(/[^0-9.]/g, ''); let parts = val.split('.'); if(parts.length > 2) val = parts[0] + '.' + parts.slice(1).join(''); if(parts[1] && parts[1].length > 2) val = parts[0] + '.' + parts[1].substring(0, 2); this.value = val;" onblur="if(this.value && this.value.trim() !== ''){ let v = parseFloat(this.value); if(!isNaN(v) && v >= 0 && v <= 99999.99) this.value = v.toFixed(2); else this.value = ''; }">
                                     @error('price') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                                 @endif
                             </div>
                         </div>
                         <div>
-                            <label for="@if($showEditProductModal)edit_category_id@else new_category_id @endif" class="block text-sm font-medium text-slate-200 mb-2">Categoría</label>
+                            <label for="@if($showEditProductModal)edit_category_id@else new_category_id @endif" class="block text-sm font-medium text-slate-700 mb-1">Categoría</label>
                             @if($showEditProductModal)
-                                <select id="edit_category_id" wire:model="edit_category_id" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" required>
+                                <select id="edit_category_id" wire:model="edit_category_id" class="w-full px-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" required>
                                     <option value="">Seleccione una categoría</option>
                                     @foreach($categories as $category)
                                         <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -225,7 +215,7 @@
                                 </select>
                                 @error('edit_category_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             @else
-                                <select id="new_category_id" wire:model="new_category_id" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" required>
+                                <select id="new_category_id" wire:model="new_category_id" class="w-full px-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" required>
                                     <option value="">Seleccione una categoría</option>
                                     @foreach($categories as $category)
                                         <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -237,9 +227,9 @@
                     </div>
                     <!-- Imagen -->
                     <div>
-                        <label for="@if($showEditProductModal)edit_image@else image @endif" class="block text-sm font-medium text-slate-200 mb-2">Imagen</label>
+                        <label for="@if($showEditProductModal)edit_image@else image @endif" class="block text-sm font-medium text-slate-700 mb-2">Imagen</label>
                         @if($showEditProductModal)
-                            <input type="file" id="edit_image" wire:model="edit_image" accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/svg+xml,image/webp,image/avif" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700" @if(!$edit_current_image) required @endif>
+                            <input type="file" id="edit_image" wire:model="edit_image" accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/svg+xml,image/webp,image/avif" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-800" @if(!$edit_current_image) required @endif>
                             @if($edit_current_image)
                                 <p class="text-slate-400 text-xs mt-1">Si no seleccionas una nueva imagen, se mantendrá la actual.</p>
                             @endif
@@ -281,7 +271,7 @@
                                 </div>
                             @endif
                         @else
-                            <input type="file" id="image" wire:model="image" accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/svg+xml,image/webp,image/avif" class="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700" required>
+                            <input type="file" id="image" wire:model="image" accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/svg+xml,image/webp,image/avif" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-800" required>
                             @error('image') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             @php
                                 $hasImage = false;
@@ -318,26 +308,26 @@
                         @endif
                     </div>
                     <!-- Toggle Switch: Visible en Galería -->
-                    <div class="flex items-center justify-between p-4 bg-slate-700/50 rounded-xl border border-slate-600">
+                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
                         <div>
-                            <label :for="showEditProductModal ? 'edit_is_gallery_visible' : 'is_gallery_visible'" class="text-sm font-medium text-slate-200">Visible en Galería</label>
-                            <p class="text-xs text-slate-400 mt-0.5">El producto aparecerá en la galería pública</p>
+                            <label :for="showEditProductModal ? 'edit_is_gallery_visible' : 'is_gallery_visible'" class="text-sm font-medium text-slate-800">Visible en Galería</label>
+                            <p class="text-xs text-slate-500 mt-0.5">El producto aparecerá en la galería pública</p>
                         </div>
                         @if($showEditProductModal)
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" id="edit_is_gallery_visible" wire:model="edit_is_gallery_visible" class="sr-only peer">
-                                <div class="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-900"></div>
                             </label>
                         @else
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" id="is_gallery_visible" wire:model="is_gallery_visible" class="sr-only peer">
-                                <div class="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-900"></div>
                             </label>
                         @endif
                     </div>
-                    <div class="flex gap-3">
-                        <button type="button" @click="showCreateProductModal = false; showEditProductModal = false" wire:click="closeCreateProductModal" class="flex-1 px-4 py-3 bg-slate-700 text-slate-200 rounded-xl hover:bg-slate-600 font-medium transition-all border border-slate-600 cursor-pointer">Cancelar</button>
-                        <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:shadow-lg font-medium transition-all">
+                    <div class="flex gap-3 pt-4 border-t border-slate-100">
+                        <button type="button" @click="showCreateProductModal = false; showEditProductModal = false" wire:click="closeCreateProductModal" class="flex-1 px-4 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-medium transition-all cursor-pointer">Cancelar</button>
+                        <button type="submit" class="flex-1 px-4 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 shadow-sm font-medium transition-all cursor-pointer">
                             <span x-show="showEditProductModal">Guardar Cambios</span>
                             <span x-show="showCreateProductModal">Guardar Producto</span>
                         </button>
@@ -352,12 +342,11 @@
         <x-stat-card 
             title="Total Productos" 
             :value="$totalProducts"
-            gradient="from-purple-500 to-indigo-600"
-            hover-color="purple-300"
+            icon-color="text-teal-600"
         >
             <x-slot name="icon">
-                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4.5 xl:h-4.5 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v1.101a7.002 7.002 0 011.586 2.433A4.993 4.993 0 016 8a4.993 4.993 0 012.414.564A7.002 7.002 0 0110.414 6.1V5a2 2 0 00-2-2H4z" clip-rule="evenodd"></path>
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
                 </svg>
             </x-slot>
         </x-stat-card>
@@ -365,11 +354,10 @@
         <x-stat-card 
             title="Galería" 
             :value="$galleryProducts"
-            gradient="from-blue-500 to-cyan-600"
-            hover-color="blue-300"
+            icon-color="text-orange-600"
         >
             <x-slot name="icon">
-                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4.5 xl:h-4.5 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
                 </svg>
             </x-slot>
@@ -378,11 +366,10 @@
         <x-stat-card 
             title="Personalizables" 
             :value="$customizableProducts"
-            gradient="from-green-500 to-emerald-600"
-            hover-color="emerald-300"
+            icon-color="text-teal-600"
         >
             <x-slot name="icon">
-                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4.5 xl:h-4.5 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
                 </svg>
             </x-slot>
@@ -391,11 +378,10 @@
         <x-stat-card 
             title="Visibles" 
             :value="$visibleProducts"
-            gradient="from-amber-500 to-orange-600"
-            hover-color="amber-300"
+            icon-color="text-orange-600"
         >
             <x-slot name="icon">
-                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4.5 xl:h-4.5 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
                     <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
                 </svg>
@@ -412,14 +398,11 @@
         item-name="productos"
     >
         <!-- Filtros y búsqueda dentro de la tabla -->
-        <div class="bg-white border-b border-slate-200 shadow-lg mb-2 md:mb-3 lg:mb-4">
-            <div class="flex flex-wrap gap-1 sm:gap-1.5 md:gap-2 lg:gap-3 xl:gap-3 2xl:gap-4 items-end">
+        <div class="bg-white border-b border-slate-200 mb-4 px-4 py-3">
+            <div class="flex flex-wrap gap-4 items-end">
                 <!-- Búsqueda -->
-                <div class="flex-1 min-w-[200px] sm:min-w-[220px] md:min-w-[250px]">
-                    <label class="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm font-semibold text-slate-700 mb-0.5 sm:mb-1 md:mb-1.5 lg:mb-1.5 xl:mb-1 2xl:mb-2">
-                        <svg class="w-3 h-3 sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 lg:w-3.5 lg:h-3.5 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">
                         Buscar Producto
                     </label>
                     <div class="relative">
@@ -427,27 +410,24 @@
                             type="text" 
                             wire:model.live.debounce.300ms="search"
                             placeholder="Nombre o descripción..."
-                            class="w-full pl-8 sm:pl-9 md:pl-10 lg:pl-10 xl:pl-8 2xl:pl-10 pr-2 sm:pr-3 md:pr-4 lg:pr-4 xl:pr-3 2xl:pr-4 py-1 sm:py-1.5 md:py-2 lg:py-2 xl:py-1.5 2xl:py-2.5 border-2 border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:bg-white transition-all text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm hover:border-slate-300 shadow-lg"
+                            class="w-full pl-9 pr-3 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 placeholder-slate-400 text-sm transition-shadow"
                         >
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-3.5 xl:h-3.5 2xl:w-5 2xl:h-5 text-slate-400 absolute left-2 sm:left-2.5 md:left-3 lg:left-3 xl:left-2 2xl:left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
                 </div>
 
                 <!-- Filtro por categoría -->
-                <div class="min-w-[140px] sm:min-w-[150px] md:min-w-[180px]">
-                    <label class="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm font-semibold text-slate-700 mb-0.5 sm:mb-1 md:mb-1.5 lg:mb-1.5 xl:mb-1 2xl:mb-2">
-                        <svg class="w-3 h-3 sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 lg:w-3.5 lg:h-3.5 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-                        </svg>
+                <div class="min-w-[150px]">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">
                         Categoría
                     </label>
                     <select 
                         wire:model.live="category_id"
-                        class="w-full px-2 sm:px-3 md:px-4 lg:px-4 xl:px-3 2xl:px-4 py-1 sm:py-1.5 md:py-2 lg:py-2 xl:py-1.5 2xl:py-2.5 border-2 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 active:scale-[0.98] transition-all duration-200 text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm cursor-pointer shadow-md font-medium {{ $category_id !== '' ? 'border-purple-400 bg-gradient-to-br from-purple-100 to-purple-50 text-purple-900 shadow-lg hover:border-purple-500 hover:shadow-xl hover:from-purple-200 hover:to-purple-100' : 'border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100/50 text-slate-800 hover:border-purple-300 hover:shadow-lg hover:from-purple-50 hover:to-slate-50' }} [&>option]:bg-white [&>option]:text-slate-800 [&>option]:py-2 [&>option:hover]:bg-gradient-to-r [&>option:hover]:from-purple-50 [&>option:hover]:to-purple-100 [&>option:checked]:bg-purple-500 [&>option:checked]:text-white"
+                        class="w-full pl-3 pr-8 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-sm cursor-pointer hover:border-slate-400 transition-colors"
                     >
-                        <option value="" class="py-2">✨ Todas</option>
+                        <option value="" class="py-2">Todas</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}" class="py-2">{{ $category->name }}</option>
                         @endforeach
@@ -455,52 +435,45 @@
                 </div>
 
                 <!-- Filtro por tipo -->
-                <div class="min-w-[140px] sm:min-w-[150px] md:min-w-[180px]">
-                    <label class="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm font-semibold text-slate-700 mb-0.5 sm:mb-1 md:mb-1.5 lg:mb-1.5 xl:mb-1 2xl:mb-2">
-                        <svg class="w-3 h-3 sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 lg:w-3.5 lg:h-3.5 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-                        </svg>
+                <div class="min-w-[150px]">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">
                         Tipo
                     </label>
                     <select 
                         wire:model.live="productType"
-                        class="w-full px-2 sm:px-3 md:px-4 lg:px-4 xl:px-3 2xl:px-4 py-1 sm:py-1.5 md:py-2 lg:py-2 xl:py-1.5 2xl:py-2.5 border-2 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 active:scale-[0.98] transition-all duration-200 text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm cursor-pointer shadow-md font-medium {{ $productType !== '' ? 'border-purple-400 bg-gradient-to-br from-purple-100 to-purple-50 text-purple-900 shadow-lg hover:border-purple-500 hover:shadow-xl hover:from-purple-200 hover:to-purple-100' : 'border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100/50 text-slate-800 hover:border-purple-300 hover:shadow-lg hover:from-purple-50 hover:to-slate-50' }} [&>option]:bg-white [&>option]:text-slate-800 [&>option]:py-2 [&>option:hover]:bg-gradient-to-r [&>option:hover]:from-purple-50 [&>option:hover]:to-purple-100 [&>option:checked]:bg-purple-500 [&>option:checked]:text-white"
+                        class="w-full pl-3 pr-8 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-sm cursor-pointer hover:border-slate-400 transition-colors"
                     >
-                        <option value="" class="py-2">✨ Todos</option>
-                        <option value="gallery" class="py-2">🖼️ Galería</option>
-                        <option value="customizable" class="py-2">⚙️ Personalizable</option>
+                        <option value="" class="py-2">Todos</option>
+                        <option value="gallery" class="py-2">Galería</option>
+                        <option value="customizable" class="py-2">Personalizable</option>
                     </select>
                 </div>
 
                 <!-- Filtro por visibilidad -->
-                <div class="min-w-[140px] sm:min-w-[150px] md:min-w-[180px]">
-                    <label class="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm font-semibold text-slate-700 mb-0.5 sm:mb-1 md:mb-1.5 lg:mb-1.5 xl:mb-1 2xl:mb-2">
-                        <svg class="w-3 h-3 sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 lg:w-3.5 lg:h-3.5 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                        </svg>
+                <div class="min-w-[150px]">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">
                         Visibilidad
                     </label>
                     <select 
                         wire:model.live="galleryVisible"
-                        class="w-full px-2 sm:px-3 md:px-4 lg:px-4 xl:px-3 2xl:px-4 py-1 sm:py-1.5 md:py-2 lg:py-2 xl:py-1.5 2xl:py-2.5 border-2 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 active:scale-[0.98] transition-all duration-200 text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm cursor-pointer shadow-md font-medium {{ $galleryVisible !== '' ? 'border-purple-400 bg-gradient-to-br from-purple-100 to-purple-50 text-purple-900 shadow-lg hover:border-purple-500 hover:shadow-xl hover:from-purple-200 hover:to-purple-100' : 'border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100/50 text-slate-800 hover:border-purple-300 hover:shadow-lg hover:from-purple-50 hover:to-slate-50' }} [&>option]:bg-white [&>option]:text-slate-800 [&>option]:py-2 [&>option:hover]:bg-gradient-to-r [&>option:hover]:from-purple-50 [&>option:hover]:to-purple-100 [&>option:checked]:bg-purple-500 [&>option:checked]:text-white"
+                        class="w-full pl-3 pr-8 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 text-sm cursor-pointer hover:border-slate-400 transition-colors"
                     >
-                        <option value="" class="py-2">✨ Todos</option>
-                        <option value="1" class="py-2">👁️ Visible</option>
-                        <option value="0" class="py-2">🔒 Oculto</option>
+                        <option value="" class="py-2">Todos</option>
+                        <option value="1" class="py-2">Visible</option>
+                        <option value="0" class="py-2">Oculto</option>
                     </select>
                 </div>
             </div>
         </div>
 
         <thead>
-            <tr class="bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50 border-b-2 border-indigo-200 shadow-sm">
+            <tr class="bg-slate-50 border-b border-slate-200">
                 <x-table-header>Producto</x-table-header>
                 <x-table-header>Tipo</x-table-header>
                 <x-table-header>Precio</x-table-header>
                 <x-table-header>Estado</x-table-header>
                 <x-table-header>Creado</x-table-header>
-                @if($userRole === 'admin' || $userRole === 'owner')
+                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'owner')
                     <x-table-header align="center">Acciones</x-table-header>
                 @endif
             </tr>
@@ -513,8 +486,8 @@
                             @if($product->image)
                                 <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-lg object-cover shadow-md flex-shrink-0">
                             @else
-                                <div class="w-10 h-10 bg-gradient-to-r from-slate-300 to-slate-400 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
-                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 border border-slate-200">
+                                    <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
                                     </svg>
                                 </div>
@@ -538,7 +511,7 @@
                                 Galería
                             </span>
                         @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                            <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-teal-100 text-teal-800 rounded-full">
                                 Personalizable
                             </span>
                         @endif
@@ -553,7 +526,7 @@
                     <x-table-cell>
                         @if($product->product_type === 'customizable')
                             @if($product->allows_customization)
-                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded-full whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-teal-100 text-teal-800 rounded-full whitespace-nowrap">
                                     Visible en personalización
                                 </span>
                             @else
@@ -563,7 +536,7 @@
                             @endif
                         @else
                             @if($product->is_gallery_visible)
-                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded-full whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-teal-100 text-teal-800 rounded-full whitespace-nowrap">
                                     Visible en galería
                                 </span>
                             @else
@@ -576,7 +549,7 @@
                     <x-table-cell>
                         <span class="text-slate-700">{{ $product->created_at->format('d/m/Y') }}</span>
                     </x-table-cell>
-                    @if($userRole === 'admin' || $userRole === 'owner')
+                    @if(auth()->user()->role === 'admin' || auth()->user()->role === 'owner')
                         <x-table-cell align="center">
                             <div class="flex justify-center space-x-2">
                                 @if($product->product_type === 'customizable')
@@ -671,8 +644,8 @@
             
             <!-- Icono de advertencia -->
             <div class="flex items-center justify-center mb-4">
-                <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                     </svg>
                 </div>
@@ -698,12 +671,12 @@
             <div class="flex gap-3">
                 <button type="button" 
                     wire:click="closeDeleteConfirmModal" 
-                    class="flex-1 px-4 py-3 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 font-medium transition-all">
+                    class="flex-1 px-4 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-medium transition-all">
                     Cancelar
                 </button>
                 <button type="button" 
                     wire:click="confirmDeleteProduct" 
-                    class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:shadow-lg font-medium transition-all">
+                    class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-sm font-medium transition-all cursor-pointer">
                     Eliminar
                 </button>
             </div>

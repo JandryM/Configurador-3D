@@ -348,28 +348,28 @@
 <!-- Header -->
 @if(!$isPdf)
 <!-- Header de la Proforma (Vista en pantalla) -->
-<div class="mb-6 p-6 bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl border border-slate-600 shadow-lg">
+<div class="mb-6 p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
     <div class="text-center">
-        <h2 class="text-2xl font-bold text-gray-100 mb-2">Proforma de Producto{{ $isMultiItem && count($items) > 1 ? 's' : '' }}</h2>
-        <p class="text-lg font-bold text-slate-300 mb-1">{{ $displayNumber }}</p>
-        <p class="text-sm text-slate-400">Fecha: {{ now()->format('d/m/Y H:i') }}</p>
+        <h2 class="text-2xl font-bold text-slate-900 mb-2">Proforma de Producto{{ $isMultiItem && count($items) > 1 ? 's' : '' }}</h2>
+        <p class="text-lg font-bold text-slate-700 mb-1">{{ $displayNumber }}</p>
+        <p class="text-sm text-slate-600">Fecha: {{ now()->format('d/m/Y H:i') }}</p>
     </div>
     
     @if(isset($user) && $user)
-        <div class="mt-4 bg-slate-600/50 backdrop-blur-sm rounded-lg p-4 shadow-sm max-w-md mx-auto border border-slate-500">
-            <h3 class="font-semibold text-gray-100 mb-2 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-slate-300" fill="currentColor" viewBox="0 0 20 20">
+        <div class="mt-4 bg-slate-50 rounded-lg p-4 shadow-sm max-w-md mx-auto border border-slate-200">
+            <h3 class="font-semibold text-slate-900 mb-2 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
                 </svg>
                 Información del Cliente
             </h3>
-            <div class="text-sm space-y-1 text-gray-300">
-                <p><strong class="text-gray-100">Cliente:</strong> {{ $user->name ?? $user->email ?? 'Usuario' }}</p>
-                @if(!empty($user->email))<p><strong class="text-gray-100">Email:</strong> {{ $user->email }}</p>@endif
-                @if(!empty($user->phone))<p><strong class="text-gray-100">Teléfono:</strong> {{ $user->phone }}</p>@endif
-                @if(!empty($user->address))<p><strong class="text-gray-100">Dirección:</strong> {{ $user->address }}</p>@endif
-                @if(!empty($user->province))<p><strong class="text-gray-100">Provincia:</strong> {{ $user->province }}</p>@endif
-                @if(!empty($user->city))<p><strong class="text-gray-100">Ciudad:</strong> {{ $user->city }}</p>@endif
+            <div class="text-sm space-y-1 text-slate-700">
+                <p><strong class="text-slate-900">Cliente:</strong> {{ $user->name ?? $user->email ?? 'Usuario' }}</p>
+                @if(!empty($user->email))<p><strong class="text-slate-900">Email:</strong> {{ $user->email }}</p>@endif
+                @if(!empty($user->phone))<p><strong class="text-slate-900">Teléfono:</strong> {{ $user->phone }}</p>@endif
+                @if(!empty($user->address))<p><strong class="text-slate-900">Dirección:</strong> {{ $user->address }}</p>@endif
+                @if(!empty($user->province))<p><strong class="text-slate-900">Provincia:</strong> {{ $user->province }}</p>@endif
+                @if(!empty($user->city))<p><strong class="text-slate-900">Ciudad:</strong> {{ $user->city }}</p>@endif
             </div>
         </div>
     @endif
@@ -420,40 +420,50 @@
     @if(!$isPdf)
     <!-- Vista en pantalla -->
     <div class="mb-6">
-        <h4 class="text-lg font-semibold text-gray-200 mb-3 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+        <h4 class="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
             </svg>
             Información General de la Proforma
         </h4>
-        <div class="bg-slate-700/50 backdrop-blur-sm rounded-xl p-5 border border-slate-600 shadow-lg">
+        <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 shadow-sm">
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <p class="text-xs text-slate-400 mb-1">Número de Proforma</p>
-                    <p class="font-semibold text-gray-200">{{ $displayNumber }}</p>
+                    <p class="text-xs text-slate-600 mb-1">Número de Proforma</p>
+                    <p class="font-semibold text-slate-900">{{ $displayNumber }}</p>
                 </div>
                 <div>
-                    <p class="text-xs text-slate-400 mb-1">Configuraciones</p>
-                    <p class="font-semibold text-gray-200">{{ count($items) }} {{ count($items) == 1 ? 'configuración' : 'configuraciones' }}</p>
+                    <p class="text-xs text-slate-600 mb-1">Configuraciones</p>
+                    <p class="font-semibold text-slate-900">{{ count($items) }} {{ count($items) == 1 ? 'configuración' : 'configuraciones' }}</p>
                 </div>
                 <div>
-                    <p class="text-xs text-slate-400 mb-1">Cantidad Total de Productos</p>
-                    <p class="font-semibold text-gray-200">{{ $totalQuantity }} {{ $totalQuantity == 1 ? 'producto' : 'productos' }}</p>
+                    <p class="text-xs text-slate-600 mb-1">Cantidad Total de Productos</p>
+                    <p class="font-semibold text-slate-900">{{ $totalQuantity }} {{ $totalQuantity == 1 ? 'producto' : 'productos' }}</p>
                 </div>
                 <div>
-                    <p class="text-xs text-slate-400 mb-1">Estado de la Proforma</p>
+                    <p class="text-xs text-slate-600 mb-1">Estado de la Proforma</p>
                     @if(isset($is_expired))
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $is_expired ? 'bg-red-900/50 text-red-300 border border-red-700' : 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' }}">
-                            {{ $is_expired ? '❌ Expirada' : '✓ Vigente' }}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $is_expired ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-green-100 text-green-800 border border-green-200' }}">
+                            @if($is_expired)
+                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                Expirada
+                            @else
+                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                Vigente
+                            @endif
                         </span>
                     @else
-                        <span class="text-slate-400">-</span>
+                        <span class="text-slate-600">-</span>
                     @endif
                 </div>
             </div>
-            <div class="mt-4 pt-4 border-t border-slate-600">
-                <p class="text-xs text-slate-400 mb-1">Fecha de Expiración</p>
-                <p class="font-semibold text-gray-200">{{ isset($expiration_date) ? \Carbon\Carbon::parse($expiration_date)->format('d/m/Y H:i') : '-' }}</p>
+            <div class="mt-4 pt-4 border-t border-slate-200">
+                <p class="text-xs text-slate-600 mb-1">Fecha de Expiración</p>
+                <p class="font-semibold text-slate-900">{{ isset($expiration_date) ? \Carbon\Carbon::parse($expiration_date)->format('d/m/Y H:i') : '-' }}</p>
             </div>
         </div>
     </div>
@@ -463,61 +473,61 @@
     @if(!$isPdf)
     <!-- Vista pantalla: Cards detallados -->
     @foreach($items as $index => $item)
-    <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 mb-6 border-l-4 border-slate-500 shadow-lg">
+    <div class="bg-white rounded-xl p-6 mb-6 border-l-4 border-slate-300 shadow-sm">
         <div class="flex items-center mb-4">
-            <div class="w-10 h-10 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg flex items-center justify-center shadow-md mr-3 border border-slate-500">
-                <span class="text-gray-200 font-bold text-lg">{{ $index + 1 }}</span>
+            <div class="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center shadow-sm mr-3 border border-slate-300">
+                <span class="text-white font-bold text-lg">{{ $index + 1 }}</span>
             </div>
-            <h4 class="text-xl font-bold text-gray-100">{{ $item['product_name'] }}</h4>
+            <h4 class="text-xl font-bold text-slate-900">{{ $item['product_name'] }}</h4>
         </div>
         
         <!-- Datos del Producto -->
         <div class="mb-6">
-            <h5 class="text-md font-semibold text-gray-200 mb-3 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+            <h5 class="text-md font-semibold text-slate-900 mb-3 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
                 </svg>
                 Datos del Producto
             </h5>
-            <div class="bg-slate-700/50 backdrop-blur-sm rounded-lg p-4 space-y-3 border border-slate-600">
+            <div class="bg-slate-50 rounded-lg p-4 space-y-3 border border-slate-200">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <p class="text-xs text-slate-400 mb-1">Nombre del Producto</p>
-                        <p class="font-medium text-gray-200">{{ $item['product_name'] }}</p>
+                        <p class="text-xs text-slate-600 mb-1">Nombre del Producto</p>
+                        <p class="font-medium text-slate-900">{{ $item['product_name'] }}</p>
                     </div>
                     @if(isset($item['parameters']['color']))
                     <div>
-                        <p class="text-xs text-slate-400 mb-1">Color Aluminio</p>
-                        <p class="font-medium text-gray-200">{{ $item['parameters']['color'] }}</p>
+                        <p class="text-xs text-slate-600 mb-1">Color Aluminio</p>
+                        <p class="font-medium text-slate-900">{{ $item['parameters']['color'] }}</p>
                     </div>
                     @endif
                     @if(isset($item['parameters']['glassColor']))
                     <div>
-                        <p class="text-xs text-slate-400 mb-1">Color Vidrio</p>
-                        <p class="font-medium text-gray-200">{{ $item['parameters']['glassColor'] }}</p>
+                        <p class="text-xs text-slate-600 mb-1">Color Vidrio</p>
+                        <p class="font-medium text-slate-900">{{ $item['parameters']['glassColor'] }}</p>
                     </div>
                     @endif
                     @if(isset($item['parameters']['width']) && isset($item['parameters']['height']))
                     <div class="col-span-2">
-                        <p class="text-xs text-slate-400 mb-1">Dimensiones</p>
-                        <p class="font-medium text-gray-200">
+                        <p class="text-xs text-slate-600 mb-1">Dimensiones</p>
+                        <p class="font-medium text-slate-900">
                             Ancho: {{ $item['parameters']['width'] }} m | Alto: {{ $item['parameters']['height'] }} m
                         </p>
                     </div>
                     @endif
                     <div>
-                        <p class="text-xs text-slate-400 mb-1">Cantidad</p>
-                        <p class="font-medium text-gray-200">{{ $item['quantity'] }} {{ $item['quantity'] == 1 ? 'unidad' : 'unidades' }}</p>
+                        <p class="text-xs text-slate-600 mb-1">Cantidad</p>
+                        <p class="font-medium text-slate-900">{{ $item['quantity'] }} {{ $item['quantity'] == 1 ? 'unidad' : 'unidades' }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-400 mb-1">Precio Unitario</p>
-                        <p class="font-medium text-gray-200">${{ number_format($item['price'] / max(1, $item['quantity']), 2) }}</p>
+                        <p class="text-xs text-slate-600 mb-1">Precio Unitario</p>
+                        <p class="font-medium text-slate-900">${{ number_format($item['price'] / max(1, $item['quantity']), 2) }}</p>
                     </div>
                 </div>
-                <div class="pt-3 border-t border-slate-600">
-                    <div class="flex justify-between items-center bg-slate-700/70 rounded-lg p-3 border border-slate-600">
-                        <span class="font-semibold text-gray-200">Subtotal Ítem</span>
-                        <span class="text-lg font-bold text-slate-300">${{ number_format($item['price'], 2) }}</span>
+                <div class="pt-3 border-t border-slate-200">
+                    <div class="flex justify-between items-center bg-slate-50 rounded-lg p-3 border border-slate-200">
+                        <span class="font-semibold text-slate-900">Subtotal Ítem</span>
+                        <span class="text-lg font-bold text-slate-900">${{ number_format($item['price'], 2) }}</span>
                     </div>
                 </div>
             </div>
@@ -529,39 +539,39 @@
             $totalMateriales = collect($item['materialCosts'])->sum('total_cost');
         @endphp
         <div class="mb-6">
-            <h5 class="text-md font-semibold text-gray-200 mb-3 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+            <h5 class="text-md font-semibold text-slate-900 mb-3 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                 </svg>
                 Desglose de Materiales
             </h5>
-            <div class="bg-slate-800/50 rounded-lg overflow-hidden border border-slate-600">
+            <div class="bg-white rounded-lg overflow-hidden border border-slate-200">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-slate-600">
-                        <thead class="bg-slate-700/70">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Material</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Cantidad</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Unidad</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">P. Unit.</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Inc. Color</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Total</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Material</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Cantidad</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Unidad</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">P. Unit.</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Inc. Color</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Total</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-slate-800/30 divide-y divide-slate-600">
+                        <tbody class="bg-white divide-y divide-slate-200">
                         @foreach($item['materialCosts'] as $mat)
-                            <tr class="hover:bg-slate-700/50 transition-colors">
-                                <td class="px-4 py-3 text-sm text-gray-200">{{ $mat['name'] ?? '-' }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-300">{{ number_format($mat['quantity'] ?? 0, 2) }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-300">{{ $mat['unit'] ?? '-' }}</td>
-                                <td class="px-4 py-3 text-sm font-medium text-gray-200">${{ number_format($mat['unit_price'] ?? 0, 2) }}</td>
-                                <td class="px-4 py-3 text-sm font-medium text-orange-400">${{ number_format($mat['color_increase'] ?? 0, 2) }}</td>
-                                <td class="px-4 py-3 text-sm font-semibold text-gray-100">${{ number_format($mat['total_cost'] ?? 0, 2) }}</td>
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-4 py-3 text-sm text-slate-900">{{ $mat['name'] ?? '-' }}</td>
+                                <td class="px-4 py-3 text-sm text-slate-700">{{ number_format($mat['quantity'] ?? 0, 2) }}</td>
+                                <td class="px-4 py-3 text-sm text-slate-700">{{ $mat['unit'] ?? '-' }}</td>
+                                <td class="px-4 py-3 text-sm font-medium text-slate-900">${{ number_format($mat['unit_price'] ?? 0, 2) }}</td>
+                                <td class="px-4 py-3 text-sm font-medium text-orange-600">${{ number_format($mat['color_increase'] ?? 0, 2) }}</td>
+                                <td class="px-4 py-3 text-sm font-semibold text-slate-900">${{ number_format($mat['total_cost'] ?? 0, 2) }}</td>
                             </tr>
                         @endforeach
-                        <tr class="bg-slate-700/70 font-bold border-t-2 border-slate-500">
-                            <td colspan="5" class="px-4 py-3 text-right text-sm text-gray-200">Subtotal Materiales:</td>
-                            <td class="px-4 py-3 text-sm font-bold text-slate-300">${{ number_format($totalMateriales, 2) }}</td>
+                        <tr class="bg-slate-50 font-bold border-t-2 border-slate-300">
+                            <td colspan="5" class="px-4 py-3 text-right text-sm text-slate-900">Subtotal Materiales:</td>
+                            <td class="px-4 py-3 text-sm font-bold text-slate-900">${{ number_format($totalMateriales, 2) }}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -583,42 +593,42 @@
         @endphp
         
         <div class="mb-6">
-            <h5 class="text-md font-semibold text-gray-200 mb-3 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+            <h5 class="text-md font-semibold text-slate-900 mb-3 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"></path>
                 </svg>
                 Análisis de Costos
             </h5>
-            <div class="bg-slate-800/50 rounded-lg p-5 border border-slate-600">
+            <div class="bg-slate-50 rounded-lg p-5 border border-slate-200">
                 <div class="space-y-3">
-                    <div class="flex justify-between items-center py-2 border-b border-slate-600/50">
-                        <span class="text-sm text-gray-300">Costo de Materiales</span>
-                        <span class="text-sm font-semibold text-gray-100">${{ number_format($totalMateriales, 2) }}</span>
+                    <div class="flex justify-between items-center py-2 border-b border-slate-200">
+                        <span class="text-sm text-slate-700">Costo de Materiales</span>
+                        <span class="text-sm font-semibold text-slate-900">${{ number_format($totalMateriales, 2) }}</span>
                     </div>
-                    <div class="flex justify-between items-center py-2 border-b border-slate-600/50">
-                        <span class="text-sm text-gray-300">Costo de Mano de Obra ({{ $directCost }}%)</span>
-                        <span class="text-sm font-semibold text-gray-100">${{ number_format($directAmount, 2) }}</span>
+                    <div class="flex justify-between items-center py-2 border-b border-slate-200">
+                        <span class="text-sm text-slate-700">Costo de Mano de Obra ({{ $directCost }}%)</span>
+                        <span class="text-sm font-semibold text-slate-900">${{ number_format($directAmount, 2) }}</span>
                     </div>
-                    <div class="flex justify-between items-center py-2 border-b border-slate-600/50">
-                        <span class="text-sm text-gray-300">Costos Indirectos ({{ $indirectCost }}%)</span>
-                        <span class="text-sm font-semibold text-gray-100">${{ number_format($indirectAmount, 2) }}</span>
+                    <div class="flex justify-between items-center py-2 border-b border-slate-200">
+                        <span class="text-sm text-slate-700">Costos Indirectos ({{ $indirectCost }}%)</span>
+                        <span class="text-sm font-semibold text-slate-900">${{ number_format($indirectAmount, 2) }}</span>
                     </div>
-                    <div class="flex justify-between items-center py-2 border-b border-slate-600/50">
-                        <span class="text-sm text-gray-300">Factor de merma ({{ $wastePercentage }}%)</span>
-                        <span class="text-sm font-semibold text-gray-100">${{ number_format($wasteAmount, 2) }}</span>
+                    <div class="flex justify-between items-center py-2 border-b border-slate-200">
+                        <span class="text-sm text-slate-700">Factor de merma ({{ $wastePercentage }}%)</span>
+                        <span class="text-sm font-semibold text-slate-900">${{ number_format($wasteAmount, 2) }}</span>
                     </div>
-                    <div class="flex justify-between items-center py-3 bg-slate-700/70 rounded-lg px-3 mt-2 border border-slate-600">
-                        <span class="text-sm font-semibold text-gray-200">Costo Total de Producción</span>
-                        <span class="text-sm font-bold text-slate-300">${{ number_format($subtotal, 2) }}</span>
+                    <div class="flex justify-between items-center py-3 bg-slate-100 rounded-lg px-3 mt-2 border border-slate-200">
+                        <span class="text-sm font-semibold text-slate-900">Costo Total de Producción</span>
+                        <span class="text-sm font-bold text-slate-900">${{ number_format($subtotal, 2) }}</span>
                     </div>
-                    <div class="flex justify-between items-center py-2 border-t border-slate-600 pt-3 mt-2">
-                        <span class="text-sm text-gray-300">Margen de Utilidad ({{ $profitMargin }}%)</span>
-                        <span class="text-sm font-semibold text-emerald-400">${{ number_format($profitAmount, 2) }}</span>
+                    <div class="flex justify-between items-center py-2 border-t border-slate-200 pt-3 mt-2">
+                        <span class="text-sm text-slate-700">Margen de Utilidad ({{ $profitMargin }}%)</span>
+                        <span class="text-sm font-semibold text-green-600">${{ number_format($profitAmount, 2) }}</span>
                     </div>
-                    <div class="flex justify-between items-center py-3 bg-slate-700/70 rounded-lg px-3 mt-2 border border-slate-500">
-                        <span class="text-base font-bold text-gray-100">Subtotal</span>
-                        <span class="text-lg font-bold text-emerald-400">${{ number_format($subtotal + $profitAmount, 2) }}</span>
+                    <div class="flex justify-between items-center py-3 bg-slate-100 rounded-lg px-3 mt-2 border border-slate-200">
+                        <span class="text-base font-bold text-slate-900">Subtotal</span>
+                        <span class="text-lg font-bold text-green-600">${{ number_format($subtotal + $profitAmount, 2) }}</span>
                     </div>
                 </div>
             </div>
@@ -628,14 +638,14 @@
         <!-- Notas del Ítem -->
         @if(!empty($item['notes']))
         <div>
-            <h5 class="text-md font-semibold text-gray-200 mb-3 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+            <h5 class="text-md font-semibold text-slate-900 mb-3 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                 </svg>
                 Notas
             </h5>
-            <div class="bg-slate-800/50 border-l-4 border-slate-500 rounded-lg p-4 backdrop-blur-sm">
-                <p class="text-sm text-gray-300">{{ $item['notes'] }}</p>
+            <div class="bg-slate-50 border-l-4 border-slate-300 rounded-lg p-4">
+                <p class="text-sm text-slate-700">{{ $item['notes'] }}</p>
             </div>
         </div>
         @endif

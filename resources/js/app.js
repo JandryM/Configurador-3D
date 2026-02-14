@@ -45,20 +45,20 @@ if (document.getElementById('proformasLineChart')) {
         ],
         xaxis: {
             categories: window.dashboardProformasLine?.meses || [],
-            labels: { 
-                style: { 
+            labels: {
+                style: {
                     colors: '#64748b',
                     fontSize: '10px'
-                } 
+                }
             }
         },
         yaxis: {
-            labels: { 
-                style: { 
+            labels: {
+                style: {
                     colors: '#64748b',
                     fontSize: '10px'
                 },
-                formatter: function(val) {
+                formatter: function (val) {
                     return Math.floor(val);
                 }
             }
@@ -76,7 +76,7 @@ if (document.getElementById('proformasLineChart')) {
                 size: 6
             }
         },
-        dataLabels: { 
+        dataLabels: {
             enabled: false
         },
         grid: {
@@ -93,7 +93,7 @@ if (document.getElementById('proformasLineChart')) {
             shared: true,
             intersect: false,
             y: {
-                formatter: function(val) {
+                formatter: function (val) {
                     return val + ' proformas';
                 }
             }
@@ -110,7 +110,7 @@ if (document.getElementById('ordenesDonutChart')) {
             type: 'donut',
             height: 200
         },
-        series: window.dashboardDonutSeries || [], 
+        series: window.dashboardDonutSeries || [],
         labels: window.dashboardDonutLabels || [],
         colors: ['#facc15', '#06b6d4', '#a78bfa', '#22c55e', '#ef4444'],
         legend: {
@@ -143,7 +143,7 @@ if (document.getElementById('ordenesDonutChart')) {
                             label: 'Total',
                             fontSize: '10px',
                             color: '#64748b',
-                            formatter: function(w) {
+                            formatter: function (w) {
                                 return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
                             }
                         }

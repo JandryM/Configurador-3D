@@ -36,12 +36,12 @@
                         wire:click="$set('perPage', {{ $size }})"
                         class="px-3 py-1 rounded-lg text-sm font-medium transition-all
                             @if($perPage == $size)
-                                bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-md
+                                bg-slate-900 text-white shadow-md
                             @else
                                 bg-slate-100 text-slate-600 hover:bg-slate-200
                             @endif
-                        "
-                    >
+                            cursor-pointer"
+                        >
                         {{ $size }}
                     </button>
                 @endforeach
@@ -53,7 +53,7 @@
                 <button 
                     wire:click="firstPage"
                     @if($page <= 1) disabled @endif
-                    class="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 text-white hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="p-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     title="Ir al inicio"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,7 +65,7 @@
                 <button 
                     wire:click="previousPage"
                     @if($page <= 1) disabled @endif
-                    class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     title="Página anterior"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,7 +85,7 @@
                 <button 
                     wire:click="nextPage"
                     @if($page >= $totalPages) disabled @endif
-                    class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     title="Página siguiente"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,7 +97,7 @@
                 <button 
                     wire:click="lastPage"
                     @if($page >= $totalPages) disabled @endif
-                    class="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 text-white hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="p-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     title="Ir al final"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

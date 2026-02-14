@@ -3,7 +3,7 @@
 <!-- HEADER - DASHBOARD MEJORADO -->
 <!-- ============================================ -->
 <div class="fade-in mb-6">
-    <div class="!bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-lg p-6">
+    <div class="!bg-gradient-to-r from-orange-500 via-amber-500 to-teal-500 rounded-2xl shadow-lg p-6">
         <div class="flex items-center justify-between">
             <div class="flex-1">
                 <div class="flex items-center mb-2">
@@ -12,7 +12,7 @@
                     </svg>
                     <h1 class="text-3xl font-bold text-white">Dashboard</h1>
                 </div>
-                <p class="text-blue-100 text-sm">Bienvenido de nuevo, <span class="font-semibold text-white">{{ $userName }}</span>. Aquí tienes una visión general de tu actividad.</p>
+                <p class="text-white/90 text-sm">Bienvenido de nuevo, <span class="font-semibold text-white">{{ $userName }}</span>. Aquí tienes una visión general de tu actividad.</p>
             </div>
             
             <div class="flex items-center space-x-4">
@@ -95,7 +95,7 @@
                          style="display: none;">
                         
                         <!-- Header del dropdown -->
-                        <div class="!bg-gradient-to-r from-blue-600 to-indigo-700 px-4 py-3 !border-b !border-blue-500">
+                        <div class="!bg-gradient-to-r from-orange-500 via-amber-500 to-teal-500 px-4 py-3 !border-b !border-orange-400">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-white font-bold text-sm">Notificaciones</h3>
                                 @if(count($alertas) > 0)
@@ -385,7 +385,7 @@
         <div class="!bg-white rounded-2xl shadow-md !border !border-slate-100 p-5 hover:shadow-xl hover:scale-105 transition-all duration-200">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center">
-                    <div class="w-12 h-12 !bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-3 shadow-lg shadow-blue-500/30">
+                    <div class="w-12 h-12 !bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center mr-3 shadow-lg shadow-teal-500/30">
                         <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
                         </svg>
@@ -431,7 +431,7 @@
         <div class="!bg-white rounded-2xl shadow-md !border !border-slate-100 p-5 hover:shadow-xl hover:scale-105 transition-all duration-200">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center">
-                    <div class="w-12 h-12 !bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 shadow-lg shadow-purple-500/30">
+                    <div class="w-12 h-12 !bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center mr-3 shadow-lg shadow-teal-500/30">
                         <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                         </svg>
@@ -459,7 +459,7 @@
         <div class="!bg-white rounded-2xl shadow-md !border !border-slate-100 p-5 hover:shadow-xl hover:scale-105 transition-all duration-200">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center">
-                    <div class="w-12 h-12 !bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mr-3 shadow-lg shadow-green-500/30">
+                    <div class="w-12 h-12 !bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mr-3 shadow-lg shadow-orange-500/30">
                         <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
                         </svg>
@@ -493,13 +493,13 @@
 <div class="fade-in mb-6">
     <div class="!bg-white rounded-2xl shadow-lg !border !border-slate-100 p-6">
         <div class="flex items-center mb-5">
-            <div class="w-12 h-12 !bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mr-3 shadow-lg shadow-purple-500/30">
+            <div class="w-12 h-12 !bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center mr-3 shadow-lg shadow-teal-500/30">
                 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
             <div>
-                <h3 class="text-xl font-bold !bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">Análisis de Rentabilidad</h3>
+                <h3 class="text-xl font-bold !bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">Análisis de Rentabilidad</h3>
                 <p class="text-sm text-slate-600 mt-1">📊 Órdenes completadas - {{ now()->format('F Y') }}</p>
             </div>
         </div>
@@ -570,8 +570,8 @@
             </div>
             
             <!-- Sección 2: Productos Más Vendidos -->
-            <div class="!bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 !border !border-purple-200">
-                <h4 class="text-sm font-bold text-purple-900 mb-3 flex items-center">
+            <div class="!bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-4 !border !border-orange-200">
+                <h4 class="text-sm font-bold text-orange-900 mb-3 flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
                     </svg>
@@ -580,33 +580,33 @@
                 <div class="space-y-2">
                     @if(count($productosMasVendidos) > 0)
                         @foreach($productosMasVendidos as $index => $producto)
-                        <div class="!bg-white/50 rounded p-3 !border !border-purple-100">
+                        <div class="!bg-white/50 rounded p-3 !border !border-orange-100">
                             <div class="flex items-start justify-between mb-2">
                                 <div class="flex-1 min-w-0 pr-2">
-                                    <div class="font-semibold text-sm text-purple-900 truncate" title="{{ $producto['nombre'] }}">
+                                    <div class="font-semibold text-sm text-gray-900 truncate" title="{{ $producto['nombre'] }}">
                                         {{ $producto['nombre'] }}
                                     </div>
-                                    <div class="text-xs text-purple-700 mt-1">
+                                    <div class="text-xs text-orange-700 mt-1">
                                         {{ $producto['cantidad_ordenes'] }} {{ $producto['cantidad_ordenes'] == 1 ? 'orden' : 'órdenes' }}
                                         · ${{ number_format($producto['ventas_totales'], 0) }}
                                     </div>
                                 </div>
                                 <div class="text-right flex-shrink-0">
-                                    <div class="text-lg font-bold {{ $index == 0 ? 'text-purple-700' : 'text-purple-600' }}">
+                                    <div class="text-lg font-bold {{ $index == 0 ? 'text-orange-600' : 'text-orange-500' }}">
                                         {{ number_format($producto['porcentaje_ordenes'], 0) }}%
                                     </div>
-                                    <div class="text-xs text-purple-600">órdenes</div>
+                                    <div class="text-xs text-orange-600">órdenes</div>
                                 </div>
                             </div>
                             
                             <!-- Barra de porcentaje -->
                             <div class="relative">
                                 <div class="w-full bg-white rounded-full h-2 overflow-hidden">
-                                    <div class="{{ $index == 0 ? 'bg-purple-600' : ($index == 1 ? 'bg-purple-500' : 'bg-purple-400') }} h-2 rounded-full transition-all duration-300" 
+                                    <div class="{{ $index == 0 ? 'bg-orange-500' : ($index == 1 ? 'bg-orange-400' : 'bg-orange-300') }} h-2 rounded-full transition-all duration-300" 
                                          style="width: {{ $producto['porcentaje_ordenes'] }}%"></div>
                                 </div>
                                 <div class="flex items-center justify-between mt-1">
-                                    <span class="text-xs text-purple-600">{{ number_format($producto['porcentaje_ventas'], 1) }}% en ventas</span>
+                                    <span class="text-xs text-orange-700">{{ number_format($producto['porcentaje_ventas'], 1) }}% en ventas</span>
                                 </div>
                             </div>
                         </div>
@@ -614,7 +614,7 @@
                         
                         @if(count($productosMasVendidos) > 3)
                         <div class="text-center pt-2">
-                            <span class="text-xs text-purple-600">+{{ count($productosMasVendidos) - 3 }} productos más</span>
+                            <span class="text-xs text-orange-600">+{{ count($productosMasVendidos) - 3 }} productos más</span>
                         </div>
                         @endif
                     @else
@@ -647,12 +647,12 @@
         <!-- Resumen de Proformas del mes (25%) -->
         <div class="!bg-white rounded-2xl shadow-lg !border !border-slate-100 p-5">
             <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center">
-                <div class="w-8 h-8 !bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center mr-2 shadow-md shadow-indigo-500/30">
+                <div class="w-8 h-8 !bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-2 shadow-md shadow-blue-500/30">
                     <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
                     </svg>
                 </div>
-                <span class="!bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">Proformas - {{ now()->format('M Y') }}</span>
+                <span class="!bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Proformas - {{ now()->format('M Y') }}</span>
             </h3>
             
             <div class="space-y-3">
@@ -742,13 +742,13 @@
                     <p class="text-xl font-bold text-cyan-700">{{ $ordenesAprobadas }}</p>
                     <p class="text-xs text-cyan-600">{{ $porcentajeOrdenes['aprobadas'] }}%</p>
                 </div>
-                <div class="!bg-gradient-to-br from-purple-50 to-purple-100 !border-2 !border-purple-200 rounded-xl p-3 text-center hover:shadow-md transition-all">
+                <div class="!bg-gradient-to-br from-indigo-50 to-indigo-100 !border-2 !border-indigo-200 rounded-xl p-3 text-center hover:shadow-md transition-all">
                     <div class="flex items-center justify-center mb-1">
-                        <div class="w-2 h-2 bg-purple-400 rounded-full mr-1"></div>
+                        <div class="w-2 h-2 bg-indigo-400 rounded-full mr-1"></div>
                         <span class="text-xs font-semibold text-slate-700">Producción</span>
                     </div>
-                    <p class="text-xl font-bold text-purple-700">{{ $ordenesEnProduccion }}</p>
-                    <p class="text-xs text-purple-600">{{ $porcentajeOrdenes['produccion'] }}%</p>
+                    <p class="text-xl font-bold text-indigo-700">{{ $ordenesEnProduccion }}</p>
+                    <p class="text-xs text-indigo-600">{{ $porcentajeOrdenes['produccion'] }}%</p>
                 </div>
                 <div class="!bg-gradient-to-br from-green-50 to-green-100 !border-2 !border-green-200 rounded-xl p-3 text-center hover:shadow-md transition-all">
                     <div class="flex items-center justify-center mb-1">
@@ -785,7 +785,7 @@
                 @elseif($actividad->tipo === 'costo_cambiado') !border-orange-200 !bg-orange-50/30
                 @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'pending') !border-yellow-200 !bg-yellow-50/30
                 @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'approved') !border-cyan-200 !bg-cyan-50/30
-                @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'in_production') !border-purple-200 !bg-purple-50/30
+                @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'in_production') !border-indigo-200 !bg-indigo-50/30
                 @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'completed') !border-green-200 !bg-green-50/30
                 @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'cancelled') !border-red-200 !bg-red-50/30
                 @else !border-slate-200 !bg-slate-50/30 @endif">
@@ -794,7 +794,7 @@
                         @elseif($actividad->tipo === 'costo_cambiado') hover:!bg-orange-100/50
                         @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'pending') hover:!bg-yellow-100/50
                         @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'approved') hover:!bg-cyan-100/50
-                        @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'in_production') hover:!bg-purple-100/50
+                        @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'in_production') hover:!bg-indigo-100/50
                         @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'completed') hover:!bg-green-100/50
                         @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'cancelled') hover:!bg-red-100/50
                         @else hover:!bg-slate-100/50 @endif"
@@ -809,12 +809,13 @@
         <div class="w-12 h-12 rounded-xl flex items-center justify-center mr-4 flex-shrink-0 shadow-lg
             @if($actividad->tipo === 'proforma_creada') !bg-gradient-to-br from-blue-500 to-blue-600 shadow-blue-500/40
             @elseif($actividad->tipo === 'costo_cambiado') !bg-gradient-to-br from-orange-500 to-orange-600 shadow-orange-500/40
-            @elseif($actividad->tipo === 'orden_produccion') !bg-gradient-to-br from-purple-500 to-purple-600 shadow-purple-500/40
+            @elseif($actividad->tipo === 'orden_produccion') !bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-indigo-500/40
             @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'pending') !bg-gradient-to-br from-yellow-500 to-yellow-600 shadow-yellow-500/40
             @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'approved') !bg-gradient-to-br from-cyan-500 to-cyan-600 shadow-cyan-500/40
-            @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'in_production') !bg-gradient-to-br from-purple-500 to-purple-600 shadow-purple-500/40
+            @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'in_production') !bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-indigo-500/40
             @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'completed') !bg-gradient-to-br from-green-500 to-green-600 shadow-green-500/40
             @elseif($actividad->tipo === 'proforma_a_orden' && $actividad->estado === 'cancelled') !bg-gradient-to-br from-red-500 to-red-600 shadow-red-500/40
+            @else !bg-gradient-to-br from-slate-500 to-slate-600 shadow-slate-500/40
             @endif">
             @if($actividad->tipo === 'proforma_creada')
                 <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -846,6 +847,9 @@
                     @elseif($actividad->estado === 'cancelled')
                         <line x1="6" y1="6" x2="14" y2="14" stroke="currentColor" stroke-width="2" />
                         <line x1="14" y1="6" x2="6" y2="14" stroke="currentColor" stroke-width="2" />
+                    @else
+                        <!-- Icono de edición/actualización por defecto -->
+                        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                     @endif
                 </svg>
             @endif
@@ -895,17 +899,17 @@
                                     $proformaNum = $actividad->proforma_numero;
                                 @endphp
                                 @if($estado === 'pending')
-                                    <span class="font-semibold text-slate-900">{{ $usuario }}</span> ha pasado a orden <a href="{{ route('admin.orders.index') }}?order_id={{ $ordenId }}" class="font-mono font-bold text-purple-700 hover:text-purple-900 hover:underline bg-purple-100 px-2 py-0.5 rounded">#{{ $ordenId }}</a> la proforma <a href="{{ route('admin.proformas.index') }}?proforma_id={{ $proformaId }}" class="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline bg-blue-100 px-2 py-0.5 rounded">#{{ $proformaNum }}</a>
+                                    <span class="font-semibold text-slate-900">{{ $usuario }}</span> ha pasado a orden <a href="{{ route('admin.orders.index') }}?order_id={{ $ordenId }}" class="font-mono font-bold text-indigo-700 hover:text-indigo-900 hover:underline bg-indigo-100 px-2 py-0.5 rounded">#{{ $ordenId }}</a> la proforma <a href="{{ route('admin.proformas.index') }}?proforma_id={{ $proformaId }}" class="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline bg-blue-100 px-2 py-0.5 rounded">#{{ $proformaNum }}</a>
                                 @elseif($estado === 'approved')
-                                    La orden <a href="{{ route('admin.orders.index') }}?order_id={{ $ordenId }}" class="font-mono font-bold text-purple-700 hover:text-purple-900 hover:underline bg-purple-100 px-2 py-0.5 rounded">#{{ $ordenId }}</a> del usuario <span class="font-semibold text-slate-900">{{ $usuario }}</span> ha sido <span class="font-bold text-white bg-gradient-to-r from-cyan-500 to-cyan-600 px-2 py-1 rounded shadow-md">aprobada</span> para la proforma <a href="{{ route('admin.proformas.index') }}?proforma_id={{ $proformaId }}" class="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline bg-blue-100 px-2 py-0.5 rounded">#{{ $proformaNum }}</a>
+                                    La orden <a href="{{ route('admin.orders.index') }}?order_id={{ $ordenId }}" class="font-mono font-bold text-indigo-700 hover:text-indigo-900 hover:underline bg-indigo-100 px-2 py-0.5 rounded">#{{ $ordenId }}</a> del usuario <span class="font-semibold text-slate-900">{{ $usuario }}</span> ha sido <span class="font-bold text-white bg-gradient-to-r from-cyan-500 to-cyan-600 px-2 py-1 rounded shadow-md">aprobada</span> para la proforma <a href="{{ route('admin.proformas.index') }}?proforma_id={{ $proformaId }}" class="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline bg-blue-100 px-2 py-0.5 rounded">#{{ $proformaNum }}</a>
                                 @elseif($estado === 'in_production')
-                                    La orden <a href="{{ route('admin.orders.index') }}?order_id={{ $ordenId }}" class="font-mono font-bold text-purple-700 hover:text-purple-900 hover:underline bg-purple-100 px-2 py-0.5 rounded">#{{ $ordenId }}</a> del usuario <span class="font-semibold text-slate-900">{{ $usuario }}</span> está <span class="font-bold text-white bg-gradient-to-r from-purple-500 to-purple-600 px-2 py-1 rounded shadow-md">en producción</span> para la proforma <a href="{{ route('admin.proformas.index') }}?proforma_id={{ $proformaId }}" class="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline bg-blue-100 px-2 py-0.5 rounded">#{{ $proformaNum }}</a>
+                                    La orden <a href="{{ route('admin.orders.index') }}?order_id={{ $ordenId }}" class="font-mono font-bold text-indigo-700 hover:text-indigo-900 hover:underline bg-indigo-100 px-2 py-0.5 rounded">#{{ $ordenId }}</a> del usuario <span class="font-semibold text-slate-900">{{ $usuario }}</span> está <span class="font-bold text-white bg-gradient-to-r from-indigo-500 to-indigo-600 px-2 py-1 rounded shadow-md">en producción</span> para la proforma <a href="{{ route('admin.proformas.index') }}?proforma_id={{ $proformaId }}" class="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline bg-blue-100 px-2 py-0.5 rounded">#{{ $proformaNum }}</a>
                                 @elseif($estado === 'completed')
-                                    La orden <a href="{{ route('admin.orders.index') }}?order_id={{ $ordenId }}" class="font-mono font-bold text-purple-700 hover:text-purple-900 hover:underline bg-purple-100 px-2 py-0.5 rounded">#{{ $ordenId }}</a> del usuario <span class="font-semibold text-slate-900">{{ $usuario }}</span> ha sido <span class="font-bold text-white bg-gradient-to-r from-green-500 to-green-600 px-2 py-1 rounded shadow-md">finalizada</span> para la proforma <a href="{{ route('admin.proformas.index') }}?proforma_id={{ $proformaId }}" class="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline bg-blue-100 px-2 py-0.5 rounded">#{{ $proformaNum }}</a>
+                                    La orden <a href="{{ route('admin.orders.index') }}?order_id={{ $ordenId }}" class="font-mono font-bold text-indigo-700 hover:text-indigo-900 hover:underline bg-indigo-100 px-2 py-0.5 rounded">#{{ $ordenId }}</a> del usuario <span class="font-semibold text-slate-900">{{ $usuario }}</span> ha sido <span class="font-bold text-white bg-gradient-to-r from-green-500 to-green-600 px-2 py-1 rounded shadow-md">finalizada</span> para la proforma <a href="{{ route('admin.proformas.index') }}?proforma_id={{ $proformaId }}" class="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline bg-blue-100 px-2 py-0.5 rounded">#{{ $proformaNum }}</a>
                                 @elseif($estado === 'cancelled')
-                                    La orden <a href="{{ route('admin.orders.index') }}?order_id={{ $ordenId }}" class="font-mono font-bold text-purple-700 hover:text-purple-900 hover:underline bg-purple-100 px-2 py-0.5 rounded">#{{ $ordenId }}</a> del usuario <span class="font-semibold text-slate-900">{{ $usuario }}</span> ha sido <span class="font-bold text-white bg-gradient-to-r from-red-500 to-red-600 px-2 py-1 rounded shadow-md">cancelada</span> para la proforma <a href="{{ route('admin.proformas.index') }}?proforma_id={{ $proformaId }}" class="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline bg-blue-100 px-2 py-0.5 rounded">#{{ $proformaNum }}</a>
+                                    La orden <a href="{{ route('admin.orders.index') }}?order_id={{ $ordenId }}" class="font-mono font-bold text-indigo-700 hover:text-indigo-900 hover:underline bg-indigo-100 px-2 py-0.5 rounded">#{{ $ordenId }}</a> del usuario <span class="font-semibold text-slate-900">{{ $usuario }}</span> ha sido <span class="font-bold text-white bg-gradient-to-r from-red-500 to-red-600 px-2 py-1 rounded shadow-md">cancelada</span> para la proforma <a href="{{ route('admin.proformas.index') }}?proforma_id={{ $proformaId }}" class="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline bg-blue-100 px-2 py-0.5 rounded">#{{ $proformaNum }}</a>
                                 @else
-                                    <span class="font-semibold text-slate-900">{{ $usuario }}</span> ha actualizado la orden <a href="{{ route('admin.orders.index') }}?order_id={{ $ordenId }}" class="font-mono font-bold text-purple-700 hover:text-purple-900 hover:underline bg-purple-100 px-2 py-0.5 rounded">#{{ $ordenId }}</a> para la proforma <a href="{{ route('admin.proformas.index') }}?proforma_id={{ $proformaId }}" class="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline bg-blue-100 px-2 py-0.5 rounded">#{{ $proformaNum }}</a>
+                                    <span class="font-semibold text-slate-900">{{ $usuario }}</span> ha actualizado la orden <a href="{{ route('admin.orders.index') }}?order_id={{ $ordenId }}" class="font-mono font-bold text-indigo-700 hover:text-indigo-900 hover:underline bg-indigo-100 px-2 py-0.5 rounded">#{{ $ordenId }}</a> para la proforma <a href="{{ route('admin.proformas.index') }}?proforma_id={{ $proformaId }}" class="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline bg-blue-100 px-2 py-0.5 rounded">#{{ $proformaNum }}</a>
                                 @endif
                             @endif
                         </p>
@@ -973,7 +977,7 @@
                     @endphp
                     <div class="flex items-center justify-between text-xs">
                         <div class="flex items-center">
-                            <svg class="w-4 h-4 text-purple-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-4 h-4 text-indigo-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <circle cx="10" cy="10" r="8" fill="currentColor" />
                             </svg>
                             <span class="text-slate-800">Estado de la orden: <span class="font-semibold text-slate-900">{{ ucfirst($actividad->estado) }}</span></span>

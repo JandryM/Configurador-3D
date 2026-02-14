@@ -223,10 +223,10 @@ class User extends Authenticatable
         }
 
         if (! $this->email_verified_at) {
-            return 'yellow';
+            return 'orange';
         }
 
-        return 'green';
+        return 'teal';
     }
 
     /**

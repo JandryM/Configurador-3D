@@ -3,9 +3,8 @@
     <x-page-header 
         title="Gestión de Proformas"
         description="Administra cotizaciones y propuestas comerciales"
-        gradient="from-pink-400 to-fuchsia-500"
         :show-button="false"
-        icon-gradient="from-pink-500 to-fuchsia-600"
+        icon-gradient="from-orange-500 via-amber-500 to-teal-500"
     >
         <x-slot name="icon">
             <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -18,12 +17,11 @@
     <x-stats-grid columns="3">
         <x-stat-card 
             title="Total Proformas" 
-            :value="$total"
-            gradient="from-pink-500 to-fuchsia-600"
-            hover-color="pink-300"
+            :value="$allProformas->count()"
+            icon-color="text-teal-600"
         >
             <x-slot name="icon">
-                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
                 </svg>
             </x-slot>
@@ -32,11 +30,10 @@
         <x-stat-card 
             title="Ordenadas" 
             :value="$allProformas->filter(fn($p) => DB::table('orders')->where('proforma_id', $p['id'])->exists())->count()"
-            gradient="from-green-500 to-emerald-600"
-            hover-color="green-300"
+            icon-color="text-orange-600"
         >
             <x-slot name="icon">
-                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                 </svg>
             </x-slot>
@@ -45,11 +42,10 @@
         <x-stat-card 
             title="Expiradas" 
             :value="$allProformas->filter(fn($p) => $p['is_expired'])->count()"
-            gradient="from-red-500 to-pink-500"
-            hover-color="red-300"
+            icon-color="text-teal-600"
         >
             <x-slot name="icon">
-                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                 </svg>
             </x-slot>
@@ -65,14 +61,11 @@
         item-name="proforma"
     >
         <!-- Filtros y búsqueda dentro de la tabla -->
-        <div class="bg-white border-b border-slate-200 shadow-lg mb-2 md:mb-3 lg:mb-4">
-            <div class="flex flex-wrap gap-1 sm:gap-1.5 md:gap-2 lg:gap-3 xl:gap-3 2xl:gap-4 items-end">
+        <div class="bg-white border-b border-slate-200 mb-4 px-4 py-3">
+            <div class="flex flex-wrap gap-4 items-end">
                 <!-- Búsqueda -->
-                <div class="flex-1 min-w-[200px] sm:min-w-[220px] md:min-w-[250px]">
-                    <label class="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm font-semibold text-slate-700 mb-0.5 sm:mb-1 md:mb-1.5 lg:mb-1.5 xl:mb-1 2xl:mb-2">
-                        <svg class="w-3 h-3 sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 lg:w-3.5 lg:h-3.5 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">
                         Buscar Proforma
                     </label>
                     <div class="relative">
@@ -80,78 +73,34 @@
                             type="text" 
                             wire:model.live.debounce.300ms="search"
                             placeholder="Número o cliente..."
-                            class="w-full pl-8 sm:pl-9 md:pl-10 lg:pl-10 xl:pl-8 2xl:pl-10 pr-2 sm:pr-3 md:pr-4 lg:pr-4 xl:pr-3 2xl:pr-4 py-1 sm:py-1.5 md:py-2 lg:py-2 xl:py-1.5 2xl:py-2.5 border-2 border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:bg-white transition-all text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm hover:border-slate-300 shadow-lg"
+                            class="w-full pl-9 pr-3 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 placeholder-slate-400 text-sm transition-shadow"
                         >
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-3.5 xl:h-3.5 2xl:w-5 2xl:h-5 text-slate-400 absolute left-2 sm:left-2.5 md:left-3 lg:left-3 xl:left-2 2xl:left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
                 </div>
 
-                <!-- Filtro por estado de orden -->
-                <div class="flex items-end">
+                <!-- Filtros de estado -->
+                <div class="flex gap-2">
                     <button 
                         wire:click="toggleFilterOrdered"
-                        class="px-2 sm:px-2.5 md:px-3 lg:px-4 xl:px-2.5 2xl:px-4 py-1 sm:py-1.5 md:py-2 lg:py-2 xl:py-1.5 2xl:py-2.5 rounded-xl font-medium transition-all shadow-lg border-2 text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm 
-                        {{ $filterOrdered === true ? 'bg-green-100 border-green-500 text-green-800 hover:bg-green-200 hover:border-green-600 hover:shadow-xl' : 
-                           ($filterOrdered === 'inverse' ? 'bg-red-100 border-red-500 text-red-800 hover:bg-red-200 hover:border-red-600 hover:shadow-xl' : 
-                           'bg-slate-100 border-slate-300 text-slate-600 hover:bg-slate-200 hover:border-slate-400') }}"
+                        class="px-3 py-2 rounded-lg text-sm font-medium transition-colors border {{ $filterOrdered === true ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50' }}"
                     >
-                        <span class="flex items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-2 xl:gap-1.5 2xl:gap-2">
-                            @if($filterOrdered === true)
-                                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-4 lg:h-4 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span>Ordenadas</span>
-                            @elseif($filterOrdered === 'inverse')
-                                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-4 lg:h-4 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span>No Ordenadas</span>
-                            @else
-                                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-4 lg:h-4 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span>Ordenadas</span>
-                            @endif
-                        </span>
+                        Ordenadas
                     </button>
-                </div>
-
-                <!-- Filtro por expiradas -->
-                <div class="flex items-end">
                     <button 
                         wire:click="toggleFilterExpired"
-                        class="px-2 sm:px-2.5 md:px-3 lg:px-4 xl:px-2.5 2xl:px-4 py-1 sm:py-1.5 md:py-2 lg:py-2 xl:py-1.5 2xl:py-2.5 rounded-xl font-medium transition-all shadow-lg border-2 text-xs sm:text-xs md:text-sm lg:text-sm xl:text-xs 2xl:text-sm 
-                        {{ $filterExpired === true ? 'bg-red-100 border-red-500 text-red-800 hover:bg-red-200 hover:border-red-600 hover:shadow-xl' : 
-                           ($filterExpired === 'inverse' ? 'bg-green-100 border-green-500 text-green-800 hover:bg-green-200 hover:border-green-600 hover:shadow-xl' : 
-                           'bg-slate-100 border-slate-300 text-slate-600 hover:bg-slate-200 hover:border-slate-400') }}"
+                        class="px-3 py-2 rounded-lg text-sm font-medium transition-colors border {{ $filterExpired === true ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50' }}"
                     >
-                        <span class="flex items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-2 xl:gap-1.5 2xl:gap-2">
-                            @if($filterExpired === true)
-                                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-4 lg:h-4 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span>Expiradas</span>
-                            @elseif($filterExpired === 'inverse')
-                                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-4 lg:h-4 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span>No Expiradas</span>
-                            @else
-                                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-4 lg:h-4 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span>Expiradas</span>
-                            @endif
-                        </span>
+                        Expiradas
                     </button>
                 </div>
             </div>
         </div>
 
         <thead>
-            <tr class="bg-gradient-to-r from-pink-50 via-fuchsia-50 to-purple-50 border-b-2 border-pink-200 shadow-sm">
+            <tr class="bg-slate-50 border-b-2 border-slate-200">
                 <x-table-header>Número</x-table-header>
                 <x-table-header>Cliente</x-table-header>
                 <x-table-header>Fecha Expiración</x-table-header>
@@ -167,7 +116,7 @@
                 <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-all duration-150">
                     <x-table-cell>
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-gradient-to-r from-pink-400 to-fuchsia-500 rounded-lg flex items-center justify-center shadow-md">
+                            <div class="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center shadow-sm">
                                 <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
                             </div>
@@ -206,7 +155,7 @@
                             $hasOrder = DB::table('orders')->where('proforma_id', $proforma['id'])->exists();
                         @endphp
                         @if($hasOrder)
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                 </svg>
@@ -230,7 +179,7 @@
                                 Sí
                             </span>
                         @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                 </svg>
@@ -241,7 +190,7 @@
                     <x-table-cell align="center">
                         <div class="flex justify-center space-x-2">
                             <x-action-button 
-                                color="blue"
+                                color="teal"
                                 tooltip="Ver proforma"
                                 wire:click="showProforma({{ $proforma['id'] }})"
                             >
@@ -278,29 +227,30 @@
                 <!-- Fondo oscuro -->
                 <div class="fixed inset-0 transition-opacity bg-black/30 backdrop-blur-[1px]" wire:click="closeModal"></div>
                 <!-- Panel del modal -->
-                <div class="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl mx-auto text-left align-middle transition-all transform relative border border-slate-700" style="max-height: 90vh; display: flex; flex-direction: column;">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto text-left align-middle transition-all transform relative border border-slate-200" style="max-height: 90vh; display: flex; flex-direction: column;">
                     <!-- Header -->
-                    <div class="sticky top-0 bg-gradient-to-r from-pink-400 to-fuchsia-500 px-6 py-4 rounded-t-2xl flex justify-between items-center z-10">
+                    <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 rounded-t-2xl flex justify-between items-center z-10">
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <div class="w-10 h-10 bg-teal-50 rounded-lg flex items-center justify-center border border-teal-100 shadow-sm">
+                                <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
                                 </svg>
                             </div>
                             <div>
-                                <h2 class="text-xl font-bold text-white">Detalles de Proforma</h2>
-                                <p class="text-sm text-pink-100">Información completa de la cotización</p>
+                                <h2 class="text-xl font-bold text-slate-900">Detalles de Proforma</h2>
+                                <p class="text-sm text-slate-600">Información completa de la cotización</p>
                             </div>
                         </div>
-                        <button type="button" wire:click="closeModal" class="p-2 text-white hover:bg-white/20 rounded-lg transition-colors duration-200 cursor-pointer relative group">
+                        <button type="button" wire:click="closeModal" class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors duration-200 cursor-pointer relative group">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
                         </button>
                     </div>
                     <!-- Contenido -->
-                    <div class="overflow-y-auto px-6 py-4 bg-slate-900 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 hover:scrollbar-thumb-slate-500" style="flex: 1; scrollbar-width: thin; scrollbar-color: #475569 #1e293b;">
+                    <div class="overflow-y-auto px-6 py-4 bg-white" style="flex: 1;">
                         @if(empty($selectedProforma['items']) || count($selectedProforma['items']) == 0)
-                            <div class="text-center text-gray-400 py-8">No hay ítems en esta proforma.</div>
+                            <div class="text-center text-slate-500 py-8">No hay ítems en esta proforma.</div>
                         @else
                             @include('livewire.proformas.proforma-admin', [
                                 'items' => $selectedProforma['items'],
@@ -326,21 +276,21 @@
                 <div class="fixed inset-0 transition-opacity bg-black/50 backdrop-blur-sm" wire:click="closeDownloadModal"></div>
                 
                 <!-- Panel del modal -->
-                <div class="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-auto text-left align-middle transition-all transform relative border border-slate-700">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto text-left align-middle transition-all transform relative border border-slate-200">
                     <!-- Header -->
-                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4 rounded-t-2xl flex justify-between items-center">
+                    <div class="bg-white px-6 py-4 rounded-t-2xl flex justify-between items-center border-b border-slate-200">
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <div class="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center border border-orange-100 shadow-sm">
+                                <svg class="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-white">Seleccionar Tipo de PDF</h3>
-                                <p class="text-sm text-white/80">Elige el formato que deseas descargar</p>
+                                <h3 class="text-lg font-bold text-slate-900">Seleccionar Tipo de PDF</h3>
+                                <p class="text-sm text-slate-600">Elige el formato que deseas descargar</p>
                             </div>
                         </div>
-                        <button type="button" wire:click="closeDownloadModal" class="p-2 text-white hover:bg-white/20 rounded-lg transition-colors duration-200 cursor-pointer">
+                        <button type="button" wire:click="closeDownloadModal" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors duration-200 cursor-pointer">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -348,24 +298,24 @@
                     </div>
                     
                     <!-- Contenido -->
-                    <div class="px-6 py-6 space-y-4 bg-slate-900">
+                    <div class="px-6 py-6 space-y-4 bg-white">
                         <!-- Botón PDF Administrativo -->
                         <button 
                             wire:click="downloadProformaPdf({{ $downloadProformaId }})"
                             wire:loading.attr="disabled"
                             wire:loading.class="opacity-75 cursor-not-allowed"
                             wire:target="downloadProformaPdf,downloadProformaClientPdf"
-                            class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-4 rounded-xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-between group disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
+                            class="w-full bg-white hover:bg-slate-50 border-2 border-slate-200 hover:border-slate-300 text-slate-900 px-6 py-4 rounded-lg font-medium shadow-sm transition-all duration-200 flex items-center justify-between group disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
                         >
                             <div class="flex items-center space-x-3">
-                                <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center relative">
+                                <div class="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center relative">
                                     <!-- Spinner (visible cuando está cargando ESTE botón) -->
                                     <svg wire:loading wire:target="downloadProformaPdf" class="animate-spin h-6 w-6 text-white absolute" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                     <!-- Icono normal (oculto cuando está cargando) -->
-                                    <svg wire:loading.remove wire:target="downloadProformaPdf" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg wire:loading.remove wire:target="downloadProformaPdf" class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
                                     </svg>
                                 </div>
@@ -374,10 +324,10 @@
                                         <span wire:loading.remove wire:target="downloadProformaPdf">PDF Administrativo</span>
                                         <span wire:loading wire:target="downloadProformaPdf">Generando PDF...</span>
                                     </div>
-                                    <div class="text-sm text-white/80">Incluye desglose completo de materiales y costos</div>
+                                    <div class="text-sm text-slate-600">Incluye desglose completo de materiales y costos</div>
                                 </div>
                             </div>
-                            <svg wire:loading.remove wire:target="downloadProformaPdf" class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                            <svg wire:loading.remove wire:target="downloadProformaPdf" class="w-5 h-5 text-slate-600 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                             </svg>
                         </button>
@@ -388,17 +338,17 @@
                             wire:loading.attr="disabled"
                             wire:loading.class="opacity-75 cursor-not-allowed"
                             wire:target="downloadProformaPdf,downloadProformaClientPdf"
-                            class="w-full bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white px-6 py-4 rounded-xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-between group disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
+                            class="w-full bg-white hover:bg-slate-50 border-2 border-slate-200 hover:border-slate-300 text-slate-900 px-6 py-4 rounded-lg font-medium shadow-sm transition-all duration-200 flex items-center justify-between group disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
                         >
                             <div class="flex items-center space-x-3">
-                                <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center relative">
+                                <div class="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center relative">
                                     <!-- Spinner (visible cuando está cargando ESTE botón) -->
                                     <svg wire:loading wire:target="downloadProformaClientPdf" class="animate-spin h-6 w-6 text-white absolute" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                     <!-- Icono normal (oculto cuando está cargando) -->
-                                    <svg wire:loading.remove wire:target="downloadProformaClientPdf" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg wire:loading.remove wire:target="downloadProformaClientPdf" class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
                                         <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
                                     </svg>
@@ -408,10 +358,10 @@
                                         <span wire:loading.remove wire:target="downloadProformaClientPdf">PDF del Cliente</span>
                                         <span wire:loading wire:target="downloadProformaClientPdf">Generando PDF...</span>
                                     </div>
-                                    <div class="text-sm text-white/80">Formato simplificado para el cliente final</div>
+                                    <div class="text-sm text-slate-600">Formato simplificado para el cliente final</div>
                                 </div>
                             </div>
-                            <svg wire:loading.remove wire:target="downloadProformaClientPdf" class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                            <svg wire:loading.remove wire:target="downloadProformaClientPdf" class="w-5 h-5 text-slate-600 transform group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                             </svg>
                         </button>

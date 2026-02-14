@@ -2,23 +2,25 @@
     'title',
     'value',
     'icon',
-    'gradient' => 'from-blue-500 to-blue-600',
-    'hoverColor' => 'blue-300',
+    'iconColor' => 'text-slate-600', // New prop for brand colors
+    'gradient' => null, // Kept for backward compat but unused in new design
+    'hoverColor' => null, // Kept for backward compat but unused
 ])
 
-<div class="group !bg-white rounded-2xl shadow-md !border !border-slate-100 p-5 hover:shadow-xl hover:scale-105 transition-all duration-200">
+<div class="group bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-300 transition-all duration-200 hover:shadow-sm">
     <div class="flex items-center justify-between">
-        <div class="flex-1">
-            <p class="text-xs font-medium text-slate-600 mb-2">{{ $title }}</p>
-            <p class="text-3xl font-bold text-slate-900">{{ $value }}</p>
+        <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-slate-500 mb-1 truncate">{{ $title }}</p>
+            <h3 class="text-2xl font-bold text-slate-900 tracking-tight">{{ $value }}</h3>
             @isset($footer)
                 <div class="mt-2">
                     {{ $footer }}
                 </div>
             @endisset
         </div>
-        <div class="w-12 h-12 !bg-gradient-to-br {{ $gradient }} rounded-xl flex items-center justify-center shadow-lg shadow-{{ $hoverColor }}/30 group-hover:scale-110 transition-transform duration-300">
+        <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center {{ $iconColor }} group-hover:scale-110 transition-transform duration-200">
             {{ $icon }}
         </div>
     </div>
 </div>
+
