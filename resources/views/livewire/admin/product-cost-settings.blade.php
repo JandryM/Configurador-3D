@@ -6,6 +6,7 @@
         :show-button="true"
         button-text="Costos Globales"
         button-link="{{ route('admin.cost-settings') }}"
+        button-color="red"
     >
         <x-slot name="icon">
             <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -235,7 +236,7 @@
                 <div class="mt-6 flex justify-end">
                     <button 
                         type="submit"
-                        class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg shadow-sm transition"
+                        class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg shadow-sm transition cursor-pointer"
                     >
                         Guardar Configuración
                     </button>
@@ -330,7 +331,7 @@
                 
                 <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-auto text-left align-middle transition-all transform relative">
                     <!-- Header -->
-                    <div class="bg-slate-900 px-6 py-4 rounded-t-xl">
+                    <div class="bg-custom-blue px-6 py-4 rounded-t-xl">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center">
@@ -340,10 +341,10 @@
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-bold text-white">Confirmar Cambios</h3>
-                                    <p class="text-sm text-slate-300">Revisa los detalles antes de continuar</p>
+                                    <p class="text-sm text-red-400">Revisa los detalles antes de continuar</p>
                                 </div>
                             </div>
-                            <button type="button" wire:click="closeConfirmModal" class="text-slate-300 hover:text-white transition-colors">
+                            <button type="button" wire:click="closeConfirmModal" class="text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-2  transition-colors cursor-pointer">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -389,13 +390,13 @@
                         <div class="flex space-x-3">
                             <button 
                                 wire:click="closeConfirmModal"
-                                class="flex-1 px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-medium rounded-lg border border-slate-300 transition"
+                                class="flex-1 px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-medium rounded-lg border border-slate-300 transition cursor-pointer"
                             >
                                 Cancelar
                             </button>
                             <button 
                                 wire:click="confirmAction"
-                                class="flex-1 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg shadow-sm transition"
+                                class="flex-1 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg shadow-sm transition cursor-pointer"
                             >
                                 Sí, Confirmar
                             </button>

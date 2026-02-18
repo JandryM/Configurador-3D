@@ -40,9 +40,9 @@ class UsersIndex extends Component
         $query = User::query();
         // Filtrar por rol del usuario autenticado
         if ($authUser->isAdmin()) {
-            $query->whereIn('role', ['owner', 'client']);
+            // Los admins pueden ver todos los usuarios (sin restricción de rol)
         } elseif ($authUser->isOwner()) {
-            $query->where('role', 'client');
+            $query->whereIn('role', ['owner', 'client']);
         }
         if ($this->search) {
             $query->where(function ($q) {
@@ -67,7 +67,8 @@ class UsersIndex extends Component
         
         // Guardar el total para la paginación
         $this->total = $query->count();
-        $users = $query->orderBy('created_at', 'desc')
+        $users = $query->where('id', '!=', $authUser->id)
+            ->orderBy('created_at', 'desc')
             ->skip(($this->page - 1) * $this->perPage)
             ->take($this->perPage)
             ->get();

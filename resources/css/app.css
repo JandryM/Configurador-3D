@@ -1,3 +1,4 @@
+@config "../../tailwind.config.js";
 @import 'tailwindcss';
 @import '../../vendor/livewire/flux/dist/flux.css';
 @import './model-3d.css';

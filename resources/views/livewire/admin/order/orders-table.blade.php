@@ -6,7 +6,7 @@
         :show-button="false"
     >
         <x-slot name="icon">
-            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-4.5 lg:h-4.5 xl:w-4 xl:h-4 2xl:w-7 2xl:h-7 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
                 <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
             </svg>
@@ -120,7 +120,7 @@
         item-name="orden"
     >
         <!-- Filtros y búsqueda dentro de la tabla -->
-        <div class="bg-white border-b border-slate-200 mb-4 px-4 py-3">
+        <div class="bg-blue-50 border-b border-custom-blue/20 mb-4 px-4 py-3">
             <div class="flex flex-wrap gap-4 items-end">
                 <!-- Búsqueda -->
                 <div class="flex-1 min-w-[200px]">
@@ -134,7 +134,7 @@
                             placeholder="Número o cliente..."
                             class="w-full pl-9 pr-3 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 placeholder-slate-400 text-sm transition-shadow"
                         >
-                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-orange-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
@@ -162,7 +162,7 @@
         </div>
 
         <thead>
-            <tr class="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b-2 border-indigo-200 shadow-sm">
+            <tr class="bg-blue-50 border-b border-custom-blue-200">
                             <x-table-header>Número</x-table-header>
                             <x-table-header>Cliente</x-table-header>
                             <x-table-header>Producto</x-table-header>
@@ -179,8 +179,8 @@
                             <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-all duration-150">
                                 <x-table-cell>
                                     <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center">
-                                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-lg flex items-center justify-center shadow-sm border border-custom-blue flex-shrink-0">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
                                                 <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
                                             </svg>
@@ -271,7 +271,7 @@
                                 <x-table-cell align="center">
                                     <div class="flex justify-center space-x-2">
                                         <x-action-button 
-                                            color="teal"
+                                            color="green"
                                             tooltip="Ver detalles"
                                             wire:click="showOrder({{ $order['id'] }})"
                                         >
@@ -370,17 +370,17 @@
                 
                 <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-4xl mx-auto text-left align-middle transition-all transform relative" style="max-height: 90vh; display: flex; flex-direction: column;">
                     <!-- Header -->
-                    <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 rounded-t-2xl flex justify-between items-center z-10">
+                    <div class="sticky top-0 bg-custom-blue border-b border-slate-200 px-6 py-4 rounded-t-2xl flex justify-between items-center z-10">
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center border border-teal-100">
-                                <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                            <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center border border-orange-100">
+                                <svg class="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
                                     <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
                                 </svg>
                             </div>
                             <div>
-                                <h2 class="text-xl font-bold text-slate-900">Detalles de Orden: {{ $selectedOrder['number'] }}</h2>
-                                <p class="text-sm text-slate-600">Gestión completa de la orden</p>
+                                <h2 class="text-xl font-bold text-white">Detalles de Orden: {{ $selectedOrder['number'] }}</h2>
+                                <p class="text-sm text-orange-200">Gestión completa de la orden</p>
                             </div>
                         </div>
                         <button type="button" wire:click="closeModal" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors duration-200 cursor-pointer">
@@ -440,7 +440,7 @@
                                         <p class="text-sm text-slate-600 mb-2">Proforma</p>
                                         <button 
                                             wire:click="goToProforma({{ $selectedOrder['proforma_id'] }})"
-                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-sm transition-all duration-200 cursor-pointer">
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-400 hover:bg-indigo-600 border border-indigo-600 text-white hover:text-white rounded-lg text-sm transition-all duration-200 cursor-pointer">
                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
                                             </svg>
@@ -614,7 +614,7 @@
                 
                 <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto text-left align-middle transition-all transform relative">
                     <!-- Header -->
-                    <div class="bg-white border-b border-slate-200 px-6 py-4 rounded-t-2xl">
+                    <div class="bg-custom-blue border-b border-slate-200 px-6 py-4 rounded-t-2xl">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center border border-orange-100">
@@ -623,8 +623,8 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-bold text-slate-900">Tiempo Estimado de Producción</h3>
-                                    <p class="text-sm text-slate-600">Ingresa los días estimados</p>
+                                    <h3 class="text-lg font-bold text-white">Tiempo Estimado de Producción</h3>
+                                    <p class="text-sm text-orange-200">Ingresa los días estimados</p>
                                 </div>
                             </div>
                             <button type="button" wire:click="cancelEstimatedTimeModal" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer p-2 rounded-lg">
@@ -653,8 +653,8 @@
                                     wire:click="toggleCustomDate"
                                     class="text-xs px-3 py-1.5 rounded-lg border font-medium transition-all duration-200 cursor-pointer
                                         {{ $customDate 
-                                            ? 'bg-slate-900 border-slate-900 text-white hover:bg-slate-800' 
-                                            : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50' 
+                                            ? 'bg-sky-900 border-sky-900 text-white hover:bg-sky-800' 
+                                            : 'bg-white border-sky-300 text-sky-700 hover:bg-sky-50' 
                                         }}"
                                 >
                                     {{ $customDate ? 'Fecha personalizada' : 'Personalizar fecha' }}
@@ -667,66 +667,66 @@
                                     <button 
                                         type="button"
                                         wire:click="$set('estimatedDays', 3)"
-                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 3 ? 'border-teal-500 bg-teal-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
+                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 3 ? 'border-orange-500 bg-orange-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
                                     >
                                         <div class="text-center">
-                                            <div class="text-2xl font-bold {{ $estimatedDays == 3 ? 'text-teal-600' : 'text-slate-700' }}">3</div>
-                                            <div class="text-xs {{ $estimatedDays == 3 ? 'text-teal-600' : 'text-slate-500' }} bg-transparent">días</div>
+                                            <div class="text-2xl font-bold {{ $estimatedDays == 3 ? 'text-orange-600' : 'text-slate-700' }}">3</div>
+                                            <div class="text-xs {{ $estimatedDays == 3 ? 'text-orange-600' : 'text-slate-500' }} bg-transparent">días</div>
                                         </div>
                                     </button>
 
                                     <button 
                                         type="button"
                                         wire:click="$set('estimatedDays', 7)"
-                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 7 ? 'border-teal-500 bg-teal-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
+                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 7 ? 'border-orange-500 bg-orange-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
                                     >
                                         <div class="text-center">
-                                            <div class="text-2xl font-bold {{ $estimatedDays == 7 ? 'text-teal-600' : 'text-slate-700' }}">7</div>
-                                            <div class="text-xs {{ $estimatedDays == 7 ? 'text-teal-600' : 'text-slate-500' }} bg-transparent">días (1 semana)</div>
+                                            <div class="text-2xl font-bold {{ $estimatedDays == 7 ? 'text-orange-600' : 'text-slate-700' }}">7</div>
+                                            <div class="text-xs {{ $estimatedDays == 7 ? 'text-orange-600' : 'text-slate-500' }} bg-transparent">días (1 semana)</div>
                                         </div>
                                     </button>
 
                                     <button 
                                         type="button"
                                         wire:click="$set('estimatedDays', 14)"
-                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 14 ? 'border-teal-500 bg-teal-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
+                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 14 ? 'border-orange-500 bg-orange-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
                                     >
                                         <div class="text-center">
-                                            <div class="text-2xl font-bold {{ $estimatedDays == 14 ? 'text-teal-600' : 'text-slate-700' }}">14</div>
-                                            <div class="text-xs {{ $estimatedDays == 14 ? 'text-teal-600' : 'text-slate-500' }} bg-transparent">días (2 semanas)</div>
+                                            <div class="text-2xl font-bold {{ $estimatedDays == 14 ? 'text-orange-600' : 'text-slate-700' }}">14</div>
+                                            <div class="text-xs {{ $estimatedDays == 14 ? 'text-orange-600' : 'text-slate-500' }} bg-transparent">días (2 semanas)</div>
                                         </div>
                                     </button>
 
                                     <button 
                                         type="button"
                                         wire:click="$set('estimatedDays', 21)"
-                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 21 ? 'border-teal-500 bg-teal-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
+                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 21 ? 'border-orange-500 bg-orange-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
                                     >
                                         <div class="text-center">
-                                            <div class="text-2xl font-bold {{ $estimatedDays == 21 ? 'text-teal-600' : 'text-slate-700' }}">21</div>
-                                            <div class="text-xs {{ $estimatedDays == 21 ? 'text-teal-600' : 'text-slate-500' }} bg-transparent">días (3 semanas)</div>
+                                            <div class="text-2xl font-bold {{ $estimatedDays == 21 ? 'text-orange-600' : 'text-slate-700' }}">21</div>
+                                            <div class="text-xs {{ $estimatedDays == 21 ? 'text-orange-600' : 'text-slate-500' }} bg-transparent">días (3 semanas)</div>
                                         </div>
                                     </button>
 
                                     <button 
                                         type="button"
                                         wire:click="$set('estimatedDays', 30)"
-                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 30 ? 'border-teal-500 bg-teal-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
+                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 30 ? 'border-orange-500 bg-orange-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
                                     >
                                         <div class="text-center">
-                                            <div class="text-2xl font-bold {{ $estimatedDays == 30 ? 'text-teal-600' : 'text-slate-700' }}">30</div>
-                                            <div class="text-xs {{ $estimatedDays == 30 ? 'text-teal-600' : 'text-slate-500' }} bg-transparent">días (1 mes)</div>
+                                            <div class="text-2xl font-bold {{ $estimatedDays == 30 ? 'text-orange-600' : 'text-slate-700' }}">30</div>
+                                            <div class="text-xs {{ $estimatedDays == 30 ? 'text-orange-600' : 'text-slate-500' }} bg-transparent">días (1 mes)</div>
                                         </div>
                                     </button>
 
                                     <button 
                                         type="button"
                                         wire:click="$set('estimatedDays', 60)"
-                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 60 ? 'border-teal-500 bg-teal-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
+                                        class="p-4 rounded-xl border-2 transition-all {{ $estimatedDays == 60 ? 'border-orange-500 bg-orange-50' : 'border-slate-200 bg-white hover:border-slate-300' }} cursor-pointer"
                                     >
                                         <div class="text-center">
-                                            <div class="text-2xl font-bold {{ $estimatedDays == 60 ? 'text-teal-600' : 'text-slate-700' }}">60</div>
-                                            <div class="text-xs {{ $estimatedDays == 60 ? 'text-teal-600' : 'text-slate-500' }} bg-transparent">días (2 meses)</div>
+                                            <div class="text-2xl font-bold {{ $estimatedDays == 60 ? 'text-orange-600' : 'text-slate-700' }}">60</div>
+                                            <div class="text-xs {{ $estimatedDays == 60 ? 'text-orange-600' : 'text-slate-500' }} bg-transparent">días (2 meses)</div>
                                         </div>
                                     </button>
                                 </div>
@@ -805,7 +805,7 @@
                 
                 <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto text-left align-middle transition-all transform relative">
                     <!-- Header -->
-                    <div class="bg-white border-b border-slate-200 px-6 py-4 rounded-t-2xl">
+                    <div class="bg-custom-blue border-b border-slate-200 px-6 py-4 rounded-t-2xl">
                         <!-- Barra de carga -->
                         <div wire:loading wire:target="confirmApproveOrder" class="absolute top-0 left-0 right-0 h-1 bg-slate-200 overflow-hidden rounded-t-2xl">
                             <div class="h-full bg-slate-900 animate-pulse" style="width: 100%; animation: shimmer 1.5s infinite;"></div>
@@ -813,14 +813,14 @@
                         
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-orange-700" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-bold text-slate-900">Confirmar Aprobación</h3>
-                                    <p class="text-sm text-slate-600">Verificar antes de aprobar la orden</p>
+                                    <h3 class="text-lg font-bold text-white">Confirmar Aprobación</h3>
+                                    <p class="text-sm text-orange-200">Verificar antes de aprobar la orden</p>
                                 </div>
                             </div>
                             <button type="button" wire:click="closeApproveConfirmModal" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer p-2 rounded-lg">
@@ -925,7 +925,7 @@
                 
                 <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto text-left align-middle transition-all transform relative">
                     <!-- Header -->
-                    <div class="bg-white border-b border-slate-200 px-6 py-4 rounded-t-2xl">
+                    <div class="bg-custom-blue border-b border-slate-200 px-6 py-4 rounded-t-2xl">
                         <!-- Barra de carga -->
                         <div wire:loading wire:target="confirmMarkAsPaid" class="absolute top-0 left-0 right-0 h-1 bg-slate-200 overflow-hidden rounded-t-2xl">
                             <div class="h-full bg-slate-900 animate-pulse" style="width: 100%; animation: shimmer 1.5s infinite;"></div>
@@ -933,14 +933,14 @@
                         
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-orange-700" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"></path>
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-bold text-slate-900">Confirmar Pago Recibido</h3>
-                                    <p class="text-sm text-slate-600">Verificar que el pago ha sido confirmado</p>
+                                    <h3 class="text-lg font-bold text-white">Confirmar Pago Recibido</h3>
+                                    <p class="text-sm text-orange-200">Verificar que el pago ha sido confirmado</p>
                                 </div>
                             </div>
                             <button type="button" wire:click="closePaidConfirmModal" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer p-2 rounded-lg">
@@ -1266,7 +1266,7 @@
                 
                 <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto text-left align-middle transition-all transform relative">
                     <!-- Header -->
-                    <div class="bg-white border-b border-slate-200 px-6 py-4 rounded-t-2xl">
+                    <div class="bg-custom-blue border-b border-slate-200 px-6 py-4 rounded-t-2xl">
                         <!-- Barra de carga -->
                         <div wire:loading wire:target="confirmCompleteOrder" class="absolute top-0 left-0 right-0 h-1 bg-slate-200 overflow-hidden rounded-t-2xl">
                             <div class="h-full bg-slate-900 animate-pulse" style="width: 100%; animation: shimmer 1.5s infinite;"></div>
@@ -1274,14 +1274,14 @@
                         
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-orange-700" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-bold text-slate-900">Confirmar Completación</h3>
-                                    <p class="text-sm text-slate-600">Verificar antes de marcar como completada</p>
+                                    <h3 class="text-lg font-bold text-white">Confirmar Completación</h3>
+                                    <p class="text-sm text-orange-200">Verificar antes de marcar como completada</p>
                                 </div>
                             </div>
                             <button type="button" wire:click="closeCompleteConfirmModal" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer p-2 rounded-lg">

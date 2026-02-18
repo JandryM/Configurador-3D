@@ -6,6 +6,7 @@
         :show-button="true"
         button-text="Costos por Producto"
         button-link="{{ route('admin.product-cost-settings') }}"
+        button-color="red"
     >
         <x-slot name="icon">
             <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -51,7 +52,7 @@
                         @if($currentSetting->canBeEdited())
                             <button 
                                 wire:click="enableEditMode"
-                                class="inline-flex items-center px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium rounded-lg transition shadow-sm"
+                                class="inline-flex items-center px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium rounded-lg transition shadow-sm cursor-pointer"
                                 title="Editar configuración (máx 2 veces en 1 minuto)"
                             >
                                 <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -267,6 +268,9 @@
                                         wire:model.live="valid_from"
                                         class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white text-slate-900 transition-shadow shadow-sm"
                                     >
+                                    @error('valid_from') 
+                                        <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> 
+                                    @enderror
                                 @else
                                     <div class="text-lg font-semibold text-slate-900">
                                         {{ \Carbon\Carbon::parse($valid_from)->format('d/m/Y') }}
@@ -285,6 +289,9 @@
                                         wire:model="valid_until"
                                         class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white text-slate-900 transition-shadow shadow-sm"
                                     >
+                                    @error('valid_until') 
+                                        <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> 
+                                    @enderror
                                 @else
                                     <div class="text-lg font-semibold text-slate-900">
                                         {{ \Carbon\Carbon::parse($valid_until)->format('d/m/Y') }}
@@ -432,6 +439,9 @@
                                     wire:model.live="valid_from"
                                     class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white text-slate-900 transition-shadow shadow-sm"
                                 >
+                                @error('valid_from') 
+                                    <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> 
+                                @enderror
                             @else
                                 <div class="text-lg font-semibold text-slate-900">
                                     {{ \Carbon\Carbon::parse($valid_from)->format('d/m/Y') }}
@@ -450,6 +460,9 @@
                                     wire:model="valid_until"
                                     class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 bg-white text-slate-900 transition-shadow shadow-sm"
                                 >
+                                @error('valid_until') 
+                                    <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> 
+                                @enderror
                             @else
                                 <div class="text-lg font-semibold text-slate-900">
                                     {{ \Carbon\Carbon::parse($valid_until)->format('d/m/Y') }}
@@ -472,7 +485,7 @@
             <div class="mt-6 flex justify-end">
                 <button 
                     type="submit"
-                    class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg shadow-sm transition"
+                    class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg shadow-sm transition cursor-pointer"
                 >
                     Guardar Configuración
                 </button>
@@ -533,7 +546,7 @@
                 
                 <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-auto text-left align-middle transition-all transform relative">
                     <!-- Header -->
-                    <div class="bg-slate-900 px-6 py-4 rounded-t-xl">
+                    <div class="bg-custom-blue px-6 py-4 rounded-t-xl">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center">
@@ -543,10 +556,10 @@
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-bold text-white">Confirmar Cambios</h3>
-                                    <p class="text-sm text-slate-300">Revisa los detalles antes de continuar</p>
+                                    <p class="text-sm text-red-400">Revisa los detalles antes de continuar</p>
                                 </div>
                             </div>
-                            <button type="button" wire:click="closeConfirmModal" class="text-slate-300 hover:text-white transition-colors">
+                            <button type="button" wire:click="closeConfirmModal" class="text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-2  transition-colors cursor-pointer">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -577,13 +590,13 @@
                         <div class="flex space-x-3">
                             <button 
                                 wire:click="closeConfirmModal"
-                                class="flex-1 px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-medium rounded-lg border border-slate-300 transition"
+                                class="flex-1 px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-medium rounded-lg border border-slate-300 transition cursor-pointer"
                             >
                                 Cancelar
                             </button>
                             <button 
                                 wire:click="confirmAction"
-                                class="flex-1 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg shadow-sm transition"
+                                class="flex-1 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg shadow-sm transition cursor-pointer"
                             >
                                 Sí, Confirmar
                             </button>

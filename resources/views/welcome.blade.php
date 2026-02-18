@@ -33,7 +33,7 @@
                         </div>
                     </li>
                     <!-- Slide 2: Ventanas de Baño -->
-                    <li class="glide__slide relative">
+                    <!-- <li class="glide__slide relative">
                         <div class="h-[700px] bg-cover bg-center" style="background-image: linear-gradient(135deg, rgba(71,85,105,0.9), rgba(148,163,184,0.8)), url('https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
                             <div class="absolute inset-0 flex items-center">
                                 <div class="container mx-auto px-6 text-center">
@@ -56,7 +56,7 @@
                                 </div>
                             </div>
                         </div>
-                    </li>
+                    </li> -->
                     <!-- Slide 3: Portones -->
                     <li class="glide__slide relative">
                         <div class="h-[700px] bg-cover bg-center" style="background-image: linear-gradient(135deg, rgba(55,65,81,0.9), rgba(107,114,128,0.8)), url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=2069&q=80');">
@@ -263,9 +263,9 @@
                 <div class="w-24 h-1 bg-gradient-to-r from-blue-600 to-cyan-600 mx-auto rounded-full"></div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                 <!-- Producto 1: Ventanas Normales -->
-                <div class="group bg-slate-50/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-slate-200/50">
+                <a href="{{ route('configurador', ['product' => 'ventana-corrediza-de-2-hojas']) }}" class="group bg-slate-50/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-slate-200/50 block">
                     <div class="relative overflow-hidden rounded-t-3xl">
                         <div class="h-56 bg-cover bg-center" style="background-image: linear-gradient(135deg, rgba(30,58,138,0.8), rgba(59,130,246,0.6)), url('https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80');"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
@@ -281,17 +281,17 @@
                         <p class="text-slate-600 leading-relaxed">Ventanas resistentes y duraderas, perfectas para hogares y oficinas. Diseño moderno con máxima eficiencia térmica.</p>
                         <div class="mt-4 flex items-center justify-between">
                             <span class="text-sm text-blue-600 font-semibold">Desde $150</span>
-                            <button class="text-blue-600 hover:text-blue-800 transition-colors">
+                            <span class="text-blue-600 group-hover:text-blue-800 transition-colors">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
-                            </button>
+                            </span>
                         </div>
                     </div>
-                </div>
+                </a>
                 
                 <!-- Producto 2: Ventanas de Baño -->
-                <div class="group bg-cyan-50/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-cyan-200/50">
+                <!-- <div class="group bg-cyan-50/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-cyan-200/50">
                     <div class="relative overflow-hidden rounded-t-3xl">
                         <div class="h-56 bg-cover bg-center" style="background-image: linear-gradient(135deg, rgba(71,85,105,0.8), rgba(148,163,184,0.6)), url('https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80');"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
@@ -314,10 +314,10 @@
                             </button>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 
                 <!-- Producto 3: Portones -->
-                <div class="group bg-gray-50/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-gray-200/50">
+                <a href="{{ route('configurador', ['product' => 'port-n-corredizo-de-2-hojas']) }}" class="group bg-gray-50/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-gray-200/50 block">
                     <div class="relative overflow-hidden rounded-t-3xl">
                         <div class="h-56 bg-cover bg-center" style="background-image: linear-gradient(135deg, rgba(55,65,81,0.8), rgba(107,114,128,0.6)), url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80');"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
@@ -333,17 +333,17 @@
                         <p class="text-slate-600 leading-relaxed">Seguridad y elegancia para la entrada principal. Diseños personalizados con acabados de alta calidad.</p>
                         <div class="mt-4 flex items-center justify-between">
                             <span class="text-sm text-gray-600 font-semibold">Desde $350</span>
-                            <button class="text-gray-600 hover:text-gray-800 transition-colors">
+                            <span class="text-gray-600 group-hover:text-gray-800 transition-colors">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
-                            </button>
+                            </span>
                         </div>
                     </div>
-                </div>
+                </a>
                 
                 <!-- Producto 4: Mallas Antimosquiteras -->
-                <div class="group bg-emerald-50/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-emerald-200/50">
+                <a href="{{ route('configurador', ['product' => 'malla-antimosquitos']) }}" class="group bg-emerald-50/80 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-emerald-200/50 block">
                     <div class="relative overflow-hidden rounded-t-3xl">
                         <div class="h-56 bg-cover bg-center" style="background-image: linear-gradient(135deg, rgba(14,116,144,0.8), rgba(34,197,94,0.6)), url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80');"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
@@ -359,14 +359,14 @@
                         <p class="text-slate-600 leading-relaxed">Protección efectiva contra insectos. Mallas de alta calidad que permiten la ventilación natural.</p>
                         <div class="mt-4 flex items-center justify-between">
                             <span class="text-sm text-emerald-600 font-semibold">Desde $45</span>
-                            <button class="text-emerald-600 hover:text-emerald-800 transition-colors">
+                            <span class="text-emerald-600 group-hover:text-emerald-800 transition-colors">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
-                            </button>
+                            </span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     </section>
@@ -547,12 +547,12 @@
                             </svg>
                             Ventanas de Aluminio
                         </a></li>
-                        <li><a href="#servicios" class="text-slate-300 hover:text-cyan-300 transition-colors duration-300 flex items-center">
+                        <!-- <li><a href="#servicios" class="text-slate-300 hover:text-cyan-300 transition-colors duration-300 flex items-center">
                             <svg class="w-4 h-4 mr-2 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             Ventanas de Baño
-                        </a></li>
+                        </a></li> -->
                         <li><a href="#servicios" class="text-slate-300 hover:text-cyan-300 transition-colors duration-300 flex items-center">
                             <svg class="w-4 h-4 mr-2 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>

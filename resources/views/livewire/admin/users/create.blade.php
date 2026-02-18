@@ -1,22 +1,22 @@
-<div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-auto overflow-hidden flex flex-col relative border border-slate-100">
+<div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-auto overflow-hidden flex flex-col relative border border-slate-200">
     <!-- Header Minimalista -->
-    <div class="bg-white px-6 py-4 flex justify-between items-center border-b border-slate-100">
+    <div class="bg-custom-blue px-6 py-4 flex justify-between items-center border-b border-custom-blue/20">
         <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-slate-50 border border-slate-100">
-                <svg class="w-6 h-6 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50 border border-custom-blue/30">
+                <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                 </svg>
             </div>
-            <h1 class="text-xl font-bold text-slate-800">Crear Nuevo Usuario</h1>
+            <h1 class="text-xl font-bold text-slate-100">Crear Nuevo Usuario</h1>
         </div>
-        <button type="button" class="text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors focus:outline-none" wire:click="$dispatch('close-modal')">
+        <button type="button" class="text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors focus:outline-none cursor-pointer" wire:click="$dispatch('close-modal')">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>
     </div>
     
-    <div class="p-6 overflow-y-auto flex-1">
+    <div class="p-6 overflow-y-auto flex-1 bg-white">
         @if (session()->has('error'))
             <div class="mb-4 p-4 bg-red-50 border border-red-100 rounded-xl text-red-700 text-sm">
                 {{ session('error') }}
@@ -47,7 +47,7 @@
                 x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="opacity-100"
                 x-transition:leave-end="opacity-0">
-                <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative z-[80] border border-slate-100"
+                <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative z-[80] border border-custom-blue/30"
                     x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="opacity-0 transform scale-95"
                     x-transition:enter-end="opacity-100 transform scale-100"
@@ -57,8 +57,8 @@
                     
                     <!-- Icono de confirmación -->
                     <div class="flex items-center justify-center mb-6">
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-slate-50 border border-slate-100">
-                            <svg class="w-6 h-6 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-emerald-50 border border-emerald-500/30">
+                            <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
@@ -75,7 +75,7 @@
                     </p>
 
                     <!-- Datos del usuario -->
-                    <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 mb-6 space-y-3">
+                    <div class="bg-blue-50 border border-custom-blue/20 rounded-xl p-4 mb-6 space-y-3">
                         <div class="flex items-start">
                             <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center mr-3 flex-shrink-0">
                                 <svg class="w-4 h-4 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
@@ -111,7 +111,19 @@
                             <div class="flex-1">
                                 <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Rol</p>
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                    {{ $role === 'owner' ? 'Propietario' : 'Vendedor' }}
+                                    @switch($role)
+                                        @case('admin')
+                                            Administrador
+                                            @break
+                                        @case('owner')
+                                            Propietario
+                                            @break
+                                        @case('client')
+                                            Cliente
+                                            @break
+                                        @default
+                                            {{ ucfirst($role) }}
+                                    @endswitch
                                 </span>
                             </div>
                         </div>
@@ -126,7 +138,7 @@
                         </button>
                         <button type="button" 
                             wire:click="confirmCreateUser" 
-                            class="flex-1 px-4 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 shadow-sm font-medium transition-all cursor-pointer">
+                            class="flex-1 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-lg font-medium transition-all cursor-pointer">
                             Confirmar
                         </button>
                     </div>
@@ -138,7 +150,7 @@
             <!-- Nombre -->
             <div>
                 <label for="name" class="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
-                <input type="text" id="name" class="w-full px-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all placeholder-slate-400" wire:model.defer="name" required placeholder="Ej. Juan Pérez">
+                <input type="text" id="name" class="w-full px-4 py-2 bg-white border border-custom-blue/30 text-slate-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-blue-50/50 transition-all placeholder-slate-400" wire:model.defer="name" required placeholder="Ej. Juan Pérez">
                 @error('name')
                     <span class="text-red-500 text-xs mt-1 block">{{ __($message) }}</span>
                 @enderror
@@ -147,7 +159,7 @@
             <!-- Email -->
             <div>
                 <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>
-                <input type="email" id="email" class="w-full px-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all placeholder-slate-400" wire:model.defer="email" required placeholder="ejemplo@correo.com">
+                <input type="email" id="email" class="w-full px-4 py-2 bg-white border border-custom-blue/30 text-slate-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-blue-50/50 transition-all placeholder-slate-400" wire:model.defer="email" required placeholder="ejemplo@correo.com">
                 @error('email')
                     <span class="text-red-500 text-xs mt-1 block">{{ __($message) }}</span>
                 @enderror
@@ -156,7 +168,7 @@
             <!-- Contraseña -->
             <div>
                 <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-                <input type="password" id="password" class="w-full px-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all placeholder-slate-400" wire:model.defer="password" required placeholder="••••••••">
+                <input type="password" id="password" class="w-full px-4 py-2 bg-white border border-custom-blue/30 text-slate-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-blue-50/50 transition-all placeholder-slate-400" wire:model.defer="password" required placeholder="••••••••">
                 @error('password')
                     <span class="text-red-500 text-xs mt-1 block">{{ __($message) }}</span>
                 @enderror
@@ -166,9 +178,14 @@
             <div>
                 <label for="role" class="block text-sm font-medium text-slate-700 mb-1">Rol</label>
                 <div class="relative">
-                    <select id="role" class="w-full px-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all appearance-none" wire:model.defer="role" required>
+                    <select id="role" class="w-full px-4 py-2 bg-white border border-custom-blue/30 text-slate-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-blue-50/50 transition-all appearance-none" wire:model.defer="role" required>
                         @if(auth()->user()->isAdmin())
+                            <option value="admin">Administrador</option>
                             <option value="owner">Propietario</option>
+                            <option value="client" selected>Cliente</option>
+                        @elseif(auth()->user()->isOwner())
+                            <option value="owner">Propietario</option>
+                            <option value="client" selected>Cliente</option>
                         @endif
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
@@ -184,9 +201,6 @@
 
             <div class="pt-2">
                 <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-6 rounded-lg shadow-sm transition-all flex items-center justify-center cursor-pointer">
-                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
                     Crear Usuario
                 </button>
             </div>

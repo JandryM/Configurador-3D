@@ -32,7 +32,7 @@
     }
 </style>
 
-<div {{ $attributes->merge(['class' => '!bg-white rounded-2xl !border !border-slate-100 shadow-lg']) }}>
+<div {{ $attributes->merge(['class' => '!bg-blue-50 rounded-2xl !border !border-custom-blue/20 shadow-lg']) }}>
     <div class="p-6">
         <div 
             class="overflow-x-auto custom-scrollbar"

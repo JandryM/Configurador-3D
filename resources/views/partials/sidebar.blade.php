@@ -62,7 +62,7 @@
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden hidden transition-opacity duration-300"></div>
     
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed left-0 top-0 h-full w-[280px] lg:w-[280px] bg-slate-900 border-r border-slate-800 z-50 transition-all duration-300 ease-in-out -translate-x-full lg:translate-x-0 shadow-2xl">
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-[280px] lg:w-[280px] bg-custom-blue border-r border-slate-800 z-50 transition-all duration-300 ease-in-out -translate-x-full lg:translate-x-0 shadow-2xl">
         <!-- Logo y Header del Sidebar -->
         <div id="sidebar-header" class="flex items-center justify-between p-4 sm:p-6 border-b border-slate-800 transition-all duration-300">
             <div class="flex items-center space-x-0 w-full overflow-hidden transition-all duration-300" id="sidebar-header-content">
@@ -164,8 +164,8 @@
                     #sidebar nav { padding-bottom: 110px; }
                     @media (min-width: 640px) { #sidebar nav { padding-bottom: 130px; } }
                 </style>
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.dashboard') ? 'bg-orange-500/10 text-orange-400 border-l-2 border-orange-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0 transition-colors {{ request()->routeIs('admin.dashboard') ? 'text-orange-400' : 'text-slate-500 group-hover:text-white' }}" fill="currentColor" viewBox="0 0 20 20">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.dashboard') ? 'bg-white/10 text-white border-l-2 border-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0 transition-colors {{ request()->routeIs('admin.dashboard') ? 'text-white' : 'text-slate-500 group-hover:text-white' }}" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7A1 1 0 003 11h1v6a1 1 0 001 1h4a1 1 0 001-1v-4h2v4a1 1 0 001 1h4a1 1 0 001-1v-6h1a1 1 0 00.707-1.707l-7-7z" />
                 </svg>
                 <span class="sidebar-text text-sm sm:text-base font-medium">Dashboard</span>
@@ -173,16 +173,16 @@
 
             @if($userRole === 'admin' || $userRole === 'owner')
                 <!-- Usuarios -->
-                <a href="{{ route('admin.users.index') }}" class="flex items-center px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.users.*') ? 'bg-teal-500/10 text-teal-400 border-l-2 border-teal-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0 transition-colors {{ request()->routeIs('admin.users.*') ? 'text-teal-400' : 'text-slate-500 group-hover:text-white' }}" fill="currentColor" viewBox="0 0 20 20">
+                <a href="{{ route('admin.users.index') }}" class="flex items-center px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.users.*') ? 'bg-sky-500/10 text-sky-400 border-l-2 border-sky-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0 transition-colors {{ request()->routeIs('admin.users.*') ? 'text-sky-400' : 'text-slate-500 group-hover:text-white' }}" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
                     </svg>
                     <span class="sidebar-text text-sm sm:text-base font-medium">Usuarios</span>
                 </a>
 
                 <!-- Productos -->
-                <a href="{{ route('admin.products.index') }}" class="flex items-center px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.products.*') ? 'bg-teal-500/10 text-teal-400 border-l-2 border-teal-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0 transition-colors {{ request()->routeIs('admin.products.*') ? 'text-teal-400' : 'text-slate-500 group-hover:text-white' }}" fill="currentColor" viewBox="0 0 20 20">
+                <a href="{{ route('admin.products.index') }}" class="flex items-center px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.products.*') ? 'bg-amber-500/10 text-amber-400 border-l-2 border-amber-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0 transition-colors {{ request()->routeIs('admin.products.*') ? 'text-amber-400' : 'text-slate-500 group-hover:text-white' }}" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v1.101a7.002 7.002 0 011.586 2.433A4.993 4.993 0 016 8a4.993 4.993 0 012.414.564A7.002 7.002 0 0110.414 6.1V5a2 2 0 00-2-2H4z" clip-rule="evenodd"></path>
                     </svg>
                     <span class="sidebar-text text-sm sm:text-base font-medium">Productos</span>
@@ -197,8 +197,8 @@
                 </a>
 
                 <!-- Costos -->
-                <a href="{{ route('admin.cost-settings') }}" class="flex items-center px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.cost-settings') || request()->routeIs('admin.product-cost-settings') ? 'bg-orange-500/10 text-orange-400 border-l-2 border-orange-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0 transition-colors {{ request()->routeIs('admin.cost-settings') || request()->routeIs('admin.product-cost-settings') ? 'text-orange-400' : 'text-slate-500 group-hover:text-white' }}" fill="currentColor" viewBox="0 0 20 20">
+                <a href="{{ route('admin.cost-settings') }}" class="flex items-center px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.cost-settings') || request()->routeIs('admin.product-cost-settings') ? 'bg-red-500/10 text-red-400 border-l-2 border-red-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0 transition-colors {{ request()->routeIs('admin.cost-settings') || request()->routeIs('admin.product-cost-settings') ? 'text-red-400' : 'text-slate-500 group-hover:text-white' }}" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"></path>
                     </svg>
@@ -207,8 +207,8 @@
             @endif
 
             <!-- Proformas -->
-            <a href="{{ route('admin.proformas.index') }}" class="flex items-center px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.proformas.*') ? 'bg-blue-500/10 text-blue-400 border-l-2 border-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0 transition-colors {{ request()->routeIs('admin.proformas.*') ? 'text-blue-400' : 'text-slate-500 group-hover:text-white' }}" fill="currentColor" viewBox="0 0 20 20">
+            <a href="{{ route('admin.proformas.index') }}" class="flex items-center px-2 sm:px-3 py-2.5 sm:py-3 rounded-lg transition-all duration-200 group {{ request()->routeIs('admin.proformas.*') ? 'bg-indigo-500/10 text-indigo-400 border-l-2 border-indigo-500' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0 transition-colors {{ request()->routeIs('admin.proformas.*') ? 'text-indigo-400' : 'text-slate-500 group-hover:text-white' }}" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
                     <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 002 2h6a2 2 0 002-2V3a2 2 0 012 2v6.5a1.5 1.5 0 01-1.5 1.5h-6A1.5 1.5 0 019 11.5V4H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-1V4a1 1 0 10-2 0v1H7V4a1 1 0 10-2 0v1z" clip-rule="evenodd"></path>
                 </svg>
@@ -239,7 +239,15 @@
         
         <div class="absolute bottom-0 left-0 right-0 p-3 sm:p-4 pb-5 sm:pb-7 border-t border-slate-800 bg-slate-900/50 backdrop-blur-sm transition-all duration-300">
             <div class="user-profile flex items-center justify-center sm:justify-start space-x-0 sm:space-x-3 mb-3">
-                <div class="w-8 h-8 sm:w-9 sm:h-9 bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center shadow-lg flex-shrink-0 group relative cursor-help">
+                <div class="w-8 h-8 sm:w-9 sm:h-9 
+                    @if(auth()->user()->role === 'admin')
+                        bg-gradient-to-br from-orange-500 to-red-600 border-orange-400
+                    @elseif(auth()->user()->role === 'owner')
+                        bg-gradient-to-br from-purple-500 to-indigo-600 border-purple-400
+                    @else
+                        bg-gradient-to-br from-blue-500 to-cyan-600 border-blue-400
+                    @endif
+                    border rounded-lg flex items-center justify-center shadow-lg flex-shrink-0 group relative cursor-help">
                     <span class="text-xs sm:text-sm font-bold text-white">
                         {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                     </span>
@@ -251,18 +259,37 @@
                 <div class="sidebar-text min-w-0">
                     <p class="text-white text-xs sm:text-sm font-medium truncate">{{ auth()->user()->name }}</p>
                     <p class="text-slate-400 text-[0.65rem] sm:text-xs truncate">{{ auth()->user()->email }}</p>
+                    <div class="mt-1">
+                        <span class="
+                            @if(auth()->user()->role === 'admin')
+                                bg-orange-500/20 text-orange-300 border-orange-500/30
+                            @elseif(auth()->user()->role === 'owner')
+                                bg-purple-500/20 text-purple-300 border-purple-500/30
+                            @else
+                                bg-blue-500/20 text-blue-300 border-blue-500/30
+                            @endif
+                            text-[0.6rem] sm:text-[0.65rem] font-semibold border px-2 py-0.5 rounded inline-block">
+                            @if(auth()->user()->role === 'admin')
+                                Administrador
+                            @elseif(auth()->user()->role === 'owner')
+                                Propietario
+                            @else
+                                Cliente
+                            @endif
+                        </span>
+                    </div>
                 </div>
             </div>
             
             <!-- Botones de acción -->
             <div class="footer-actions flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                <a href="{{ route('home') }}" class="flex-1 bg-blue-600/10 hover:bg-blue-600 border border-blue-600/50 hover:border-blue-500 text-blue-400 hover:text-white text-[0.65rem] sm:text-xs py-2 px-2 rounded-lg transition-all text-center flex items-center justify-center group" title="Ver Sitio">
+                <a href="{{ route('home') }}" class="flex-1 bg-blue-600/10 hover:bg-blue-600 border border-blue-600/50 hover:border-blue-500 text-blue-400 hover:text-white text-[0.65rem] sm:text-xs py-2 px-2 rounded-lg transition-all text-center flex items-center justify-center group cursor-pointer" title="Ver Sitio">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                     <span class="sidebar-text ml-1.5">Sitio</span>
                 </a>
                 <form method="POST" action="{{ route('logout') }}" class="flex-1 w-full m-0">
                     @csrf
-                    <button type="submit" class="w-full bg-red-600/10 hover:bg-red-600 border border-red-600/50 hover:border-red-500 text-red-400 hover:text-white text-[0.65rem] sm:text-xs py-2 px-2 rounded-lg transition-all flex items-center justify-center group" title="Cerrar Sesión">
+                    <button type="submit" class="w-full bg-red-600/10 hover:bg-red-600 border border-red-600/50 hover:border-red-500 text-red-400 hover:text-white text-[0.65rem] sm:text-xs py-2 px-2 rounded-lg transition-all flex items-center justify-center group cursor-pointer" title="Cerrar Sesión">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                         <span class="sidebar-text ml-1.5">Salir</span>
                     </button>

@@ -146,15 +146,21 @@ class GlobalCostSettings extends Component
 
     public function updatedValidFrom()
     {
-        $this->updateValidUntil();
+        // Solo actualizar valid_until automáticamente si NO está en modo personalizado
+        if (!$this->custom_duration) {
+            $this->updateValidUntil();
+        }
     }
 
     public function save()
     {
         $this->validate([
             'indirect_cost_percentage' => 'required|numeric|min:0|max:100',
-            'valid_from' => 'nullable|date',
-            'valid_until' => 'nullable|date|after_or_equal:valid_from',
+            'valid_from' => 'nullable|date|after_or_equal:today',
+            'valid_until' => 'nullable|date|after_or_equal:valid_from|after_or_equal:today',
+        ], [
+            'valid_from.after_or_equal' => 'La fecha de inicio no puede ser anterior a hoy.',
+            'valid_until.after_or_equal' => 'La fecha de fin debe ser posterior o igual a la fecha de inicio y no puede ser anterior a hoy.',
         ]);
 
         // Solo administradores y dueños pueden crear o editar

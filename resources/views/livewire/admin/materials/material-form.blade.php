@@ -304,17 +304,19 @@
         
         @if($productFormulas->count() > 0)
             <div class="border-t border-slate-100 pt-4">
-                <div class="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                <div class="bg-gradient-to-br from-blue-50 to-teal-50 rounded-lg p-4 border-2 border-teal-200 shadow-sm">
                     <div class="flex items-center space-x-2 mb-2">
-                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                        <h3 class="text-sm font-bold text-slate-800">Fórmulas de Cálculo en Productos</h3>
+                        <div class="p-2 bg-teal-100 rounded-lg">
+                            <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-sm font-bold text-teal-900">Fórmulas de Cálculo en Productos</h3>
                     </div>
-                    <p class="text-xs text-slate-500 mb-3">Este material se calcula con las siguientes fórmulas en cada producto:</p>
+                    <p class="text-xs text-teal-600 mb-3">Este material se calcula con las siguientes fórmulas en cada producto:</p>
                     <div class="space-y-2">
                         @foreach($productFormulas as $index => $formula)
-                            <div class="bg-white rounded-lg p-3 border border-slate-200 shadow-sm" x-data="{ 
+                            <div class="bg-white rounded-lg p-3 border-l-4 border-l-teal-500 border border-teal-100 shadow-sm hover:shadow-md transition-shadow" x-data="{ 
                                 open: false, 
                                 width: 2, 
                                 height: 2, 
@@ -336,8 +338,8 @@
                                     }
                                 }
                             }">
-                                <p class="text-xs font-bold text-slate-700 mb-1">{{ $formula->product_name }}</p>
-                                <code class="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded font-mono block break-all border border-slate-200">
+                                <p class="text-xs font-bold text-teal-900 mb-1">{{ $formula->product_name }}</p>
+                                <code class="text-xs text-teal-700 bg-teal-50 px-2 py-1 rounded font-mono block break-all border border-teal-200">
                                     {{ $formula->calculation_formula }}
                                 </code>
                                 
@@ -345,7 +347,7 @@
                                 <button 
                                     type="button"
                                     @click="open = !open; if(open && !result) calculate()"
-                                    class="mt-2 text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1 transition-colors cursor-pointer font-medium"
+                                    class="mt-2 text-xs text-teal-600 hover:text-teal-800 hover:bg-teal-50 flex items-center gap-1 transition-colors cursor-pointer font-medium px-2 py-1 rounded"
                                 >
                                     <svg class="w-3 h-3 transition-transform" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -362,62 +364,62 @@
                                     x-transition:leave="transition ease-in duration-150"
                                     x-transition:leave-start="opacity-100 transform scale-100"
                                     x-transition:leave-end="opacity-0 transform scale-95"
-                                    class="mt-3 bg-slate-50 rounded-lg p-3 border border-slate-200"
+                                    class="mt-3 bg-gradient-to-b from-teal-50 to-blue-50 rounded-lg p-3 border border-teal-200"
                                     style="display: none;"
                                 >
                                     <div class="grid grid-cols-3 gap-3 mb-3">
                                         <div>
-                                            <label class="text-xs text-slate-500 block mb-1">Ancho (m)</label>
+                                            <label class="text-xs text-teal-700 block mb-1 font-medium">Ancho (m)</label>
                                             <input 
                                                 type="number" 
                                                 x-model="width" 
                                                 @input="calculate()"
                                                 step="0.01"
                                                 min="0"
-                                                class="w-full px-2 py-1 text-xs bg-white text-slate-900 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500"
+                                                class="w-full px-2 py-1 text-xs bg-white text-slate-900 border-2 border-teal-300 rounded focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                                             >
                                         </div>
                                         <div>
-                                            <label class="text-xs text-slate-500 block mb-1">Alto (m)</label>
+                                            <label class="text-xs text-teal-700 block mb-1 font-medium">Alto (m)</label>
                                             <input 
                                                 type="number" 
                                                 x-model="height" 
                                                 @input="calculate()"
                                                 step="0.01"
                                                 min="0"
-                                                class="w-full px-2 py-1 text-xs bg-white text-slate-900 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500"
+                                                class="w-full px-2 py-1 text-xs bg-white text-slate-900 border-2 border-teal-300 rounded focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                                             >
                                         </div>
                                         <div>
-                                            <label class="text-xs text-slate-500 block mb-1">Marco (m)</label>
+                                            <label class="text-xs text-teal-700 block mb-1 font-medium">Marco (m)</label>
                                             <input 
                                                 type="number" 
                                                 x-model="frameWidth" 
                                                 @input="calculate()"
                                                 step="0.001"
                                                 min="0"
-                                                class="w-full px-2 py-1 text-xs bg-white text-slate-900 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500"
+                                                class="w-full px-2 py-1 text-xs bg-white text-slate-900 border-2 border-teal-300 rounded focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                                             >
                                         </div>
                                     </div>
                                     
                                     <!-- Resultado -->
-                                    <div class="bg-white rounded p-2 border border-green-200 shadow-sm">
+                                    <div class="bg-white rounded p-2 border-2 border-emerald-300 shadow-sm">
                                         <div class="flex items-center gap-2 mb-1">
-                                            <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                                             </svg>
-                                            <span class="text-xs font-bold text-green-700">Resultado del cálculo:</span>
+                                            <span class="text-xs font-bold text-emerald-700">Resultado del cálculo:</span>
                                         </div>
                                         <div class="ml-5 space-y-1">
-                                            <div class="text-xs text-slate-500">
-                                                <span class="text-slate-400">Fórmula evaluada:</span>
-                                                <code class="block text-slate-700 bg-slate-100 px-2 py-1 rounded mt-0.5 font-mono text-xs break-all border border-slate-200" x-text="'{{ $formula->calculation_formula }}'.replace(/\{width\}/g, width).replace(/\{height\}/g, height).replace(/\{frameWidth\}/g, frameWidth).replace(/\{area\}/g, (width * height).toFixed(3)).replace(/\{perimeter\}/g, (2 * (parseFloat(width) + parseFloat(height))).toFixed(3))"></code>
+                                            <div class="text-xs text-teal-600">
+                                                <span class="text-teal-500 font-medium">Fórmula evaluada:</span>
+                                                <code class="block text-teal-800 bg-teal-100 px-2 py-1 rounded mt-0.5 font-mono text-xs break-all border border-teal-300" x-text="'{{ $formula->calculation_formula }}'.replace(/\{width\}/g, width).replace(/\{height\}/g, height).replace(/\{frameWidth\}/g, frameWidth).replace(/\{area\}/g, (width * height).toFixed(3)).replace(/\{perimeter\}/g, (2 * (parseFloat(width) + parseFloat(height))).toFixed(3))"></code>
                                             </div>
                                             <div class="text-xs">
-                                                <span class="text-slate-500">Cantidad necesaria:</span>
-                                                <span class="text-lg font-bold text-green-600 ml-1" x-text="result !== null ? parseFloat(result).toFixed(3) : '---'"></span>
-                                                <span class="text-slate-500 ml-1">{{ $unit_measure == 'metros_cuadrados' ? 'm²' : ($unit_measure == 'unidad' ? 'unidades' : 'm') }}</span>
+                                                <span class="text-teal-700 font-medium">Cantidad necesaria:</span>
+                                                <span class="text-lg font-bold text-emerald-600 ml-1" x-text="result !== null ? parseFloat(result).toFixed(3) : '---'"></span>
+                                                <span class="text-teal-600 ml-1">{{ $unit_measure == 'metros_cuadrados' ? 'm²' : ($unit_measure == 'unidad' ? 'unidades' : 'm') }}</span>
                                             </div>
                                         </div>
                                     </div>

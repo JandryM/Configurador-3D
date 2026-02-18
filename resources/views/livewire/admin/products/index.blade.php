@@ -2,6 +2,13 @@
     showCreateProductModal: @entangle('showCreateProductModal').live,
     showEditProductModal: @entangle('showEditProductModal').live
 }">
+    @php
+        $categoryTranslations = [
+            'Mesh' => 'Malla',
+            'Window' => 'Ventana',
+            'Door' => 'Puerta',
+        ];
+    @endphp
     <!-- Modal de confirmación de visibilidad -->
     @if($showVisibilityConfirmModal && $pendingVisibilityProductId)
     <div class="fixed inset-0 z-[60] flex items-center justify-center p-4"
@@ -93,14 +100,10 @@
         description="Administra el catálogo de productos y sus configuraciones"
         :show-button="auth()->user()->role === 'admin' || auth()->user()->role === 'owner'"
         button-text="Nuevo Producto"
+        button-color="amber"
         x-data
         x-on:click="showCreateProductModal = true"
     >
-        <x-slot name="buttonIcon">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-        </x-slot>
     </x-page-header>
 
     @if (session()->has('message'))
@@ -139,20 +142,14 @@
             x-transition:leave-end="opacity-0 transform scale-95"
             class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-[60] border border-slate-100">
             <!-- Modal header -->
-            <div class="sticky top-0 px-6 py-4 flex justify-between items-center z-10 bg-white border-b border-slate-100">
+            <div class="sticky top-0 px-6 py-4 flex justify-between items-center z-10 bg-custom-blue border-b border-slate-100">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-slate-50 text-slate-700">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                :d="showEditProductModal ? 'M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.94l-4.243 1.415 1.415-4.243a4 4 0 01.94-1.414z' : 'M12 6v12m6-6H6'" />
-                        </svg>
-                    </div>
-                    <h2 class="text-xl font-bold text-slate-800">
+                    <h2 class="text-xl font-bold text-slate-100">
                         <span x-show="showEditProductModal">Editar Producto</span>
                         <span x-show="showCreateProductModal">Crear Nuevo Producto</span>
                     </h2>
                 </div>
-                <button @click="showCreateProductModal = false; showEditProductModal = false" wire:click="closeCreateProductModal" class="text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors">
+                <button @click="showCreateProductModal = false; showEditProductModal = false" wire:click="closeCreateProductModal" class="text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors cursor-pointer">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -161,7 +158,7 @@
             <!-- Modal body -->
             <div class="p-6">
                 @if (session()->has('error'))
-                    <div class="mb-4 p-4 bg-red-500/20 border border-red-500/50 rounded-xl">
+                    <div class="mb-4 p-4 bg-red-500/90 border border-red-500 rounded-xl">
                         <p class="text-red-200 text-sm">{{ session('error') }}</p>
                     </div>
                 @endif
@@ -210,7 +207,7 @@
                                 <select id="edit_category_id" wire:model="edit_category_id" class="w-full px-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" required>
                                     <option value="">Seleccione una categoría</option>
                                     @foreach($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                        <option value="{{ $category->id }}">{{ $categoryTranslations[$category->name] ?? $category->name }}</option>
                                     @endforeach
                                 </select>
                                 @error('edit_category_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
@@ -218,7 +215,7 @@
                                 <select id="new_category_id" wire:model="new_category_id" class="w-full px-4 py-2 bg-white border border-slate-300 text-slate-900 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all" required>
                                     <option value="">Seleccione una categoría</option>
                                     @foreach($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                        <option value="{{ $category->id }}">{{ $categoryTranslations[$category->name] ?? $category->name }}</option>
                                     @endforeach
                                 </select>
                                 @error('new_category_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
@@ -229,7 +226,7 @@
                     <div>
                         <label for="@if($showEditProductModal)edit_image@else image @endif" class="block text-sm font-medium text-slate-700 mb-2">Imagen</label>
                         @if($showEditProductModal)
-                            <input type="file" id="edit_image" wire:model="edit_image" accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/svg+xml,image/webp,image/avif" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-800" @if(!$edit_current_image) required @endif>
+                            <input type="file" id="edit_image" wire:model="edit_image" accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/svg+xml,image/webp,image/avif" class="cursor-pointer w-full px-4 py-3 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-800" @if(!$edit_current_image) required @endif>
                             @if($edit_current_image)
                                 <p class="text-slate-400 text-xs mt-1">Si no seleccionas una nueva imagen, se mantendrá la actual.</p>
                             @endif
@@ -254,12 +251,12 @@
                                 }
                             @endphp
                             @if($hasImage)
-                                <div class="relative w-full h-64 bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden mt-2 flex items-center justify-center">
+                                <div class="relative w-full h-64 bg-white border border-custom-blue/30 rounded-2xl overflow-hidden mt-2 flex items-center justify-center">
                                     @if($canPreview)
-                                        <img src="{{ $previewUrl }}" alt="Vista previa" class="w-full h-64 object-cover rounded-2xl shadow-xl border border-slate-600 bg-white">
+                                        <img src="{{ $previewUrl }}" alt="Vista previa" class="w-full h-64 object-cover rounded-2xl shadow-xl border border-custom-blue/30 bg-white">
                                         <button type="button" wire:click="removeEditImage" class="absolute top-3 right-3 bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center font-bold shadow-lg z-20 hover:bg-red-700 transition-colors" title="Quitar imagen seleccionada">X</button>
                                     @else
-                                        <div class="bg-slate-700 border border-slate-600 rounded-2xl p-4 flex flex-col items-center justify-center w-full h-64">
+                                        <div class="bg-blue-50 border border-custom-blue/30 rounded-2xl p-4 flex flex-col items-center justify-center w-full h-64">
                                             <svg class="w-12 h-12 text-slate-400 mb-2" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
                                             </svg>
@@ -271,7 +268,7 @@
                                 </div>
                             @endif
                         @else
-                            <input type="file" id="image" wire:model="image" accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/svg+xml,image/webp,image/avif" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-800" required>
+                            <input type="file" id="image" wire:model="image" accept="image/jpeg,image/jpg,image/png,image/gif,image/bmp,image/svg+xml,image/webp,image/avif" class="cursor-pointer w-full px-4 py-3 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-800" required>
                             @error('image') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             @php
                                 $hasImage = false;
@@ -289,12 +286,12 @@
                                 }
                             @endphp
                             @if($hasImage)
-                                <div class="relative w-full h-64 bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden mt-2 flex items-center justify-center">
+                                <div class="relative w-full h-64 bg-white border border-custom-blue/30 rounded-2xl overflow-hidden mt-2 flex items-center justify-center">
                                     @if($canPreview)
-                                        <img src="{{ $previewUrl }}" alt="Vista previa" class="w-full h-64 object-cover rounded-2xl shadow-xl border border-slate-600 bg-white">
+                                        <img src="{{ $previewUrl }}" alt="Vista previa" class="w-full h-64 object-cover rounded-2xl shadow-xl border border-custom-blue/30 bg-white">
                                         <button type="button" wire:click="removeImage" class="absolute top-3 right-3 bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center font-bold shadow-lg z-20 hover:bg-red-700 transition-colors" title="Quitar imagen seleccionada">X</button>
                                     @else
-                                        <div class="bg-slate-700 border border-slate-600 rounded-2xl p-4 flex flex-col items-center justify-center w-full h-64">
+                                        <div class="bg-blue-50 border border-custom-blue/30 rounded-2xl p-4 flex flex-col items-center justify-center w-full h-64">
                                             <svg class="w-12 h-12 text-slate-400 mb-2" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
                                             </svg>
@@ -398,7 +395,7 @@
         item-name="productos"
     >
         <!-- Filtros y búsqueda dentro de la tabla -->
-        <div class="bg-white border-b border-slate-200 mb-4 px-4 py-3">
+        <div class="bg-blue-50 border-b border-custom-blue/20 mb-4 px-4 py-3">
             <div class="flex flex-wrap gap-4 items-end">
                 <!-- Búsqueda -->
                 <div class="flex-1 min-w-[200px]">
@@ -412,7 +409,7 @@
                             placeholder="Nombre o descripción..."
                             class="w-full pl-9 pr-3 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 placeholder-slate-400 text-sm transition-shadow"
                         >
-                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-amber-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
@@ -429,7 +426,7 @@
                     >
                         <option value="" class="py-2">Todas</option>
                         @foreach($categories as $category)
-                            <option value="{{ $category->id }}" class="py-2">{{ $category->name }}</option>
+                            <option value="{{ $category->id }}" class="py-2">{{ $categoryTranslations[$category->name] ?? $category->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -467,7 +464,7 @@
         </div>
 
         <thead>
-            <tr class="bg-slate-50 border-b border-slate-200">
+            <tr class="bg-blue-50 border-b border-custom-blue/20">
                 <x-table-header>Producto</x-table-header>
                 <x-table-header>Tipo</x-table-header>
                 <x-table-header>Precio</x-table-header>
@@ -484,9 +481,9 @@
                     <x-table-cell>
                         <div class="flex items-center space-x-3">
                             @if($product->image)
-                                <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-lg object-cover shadow-md flex-shrink-0">
+                                <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-lg object-cover shadow-md flex-shrink-0 border border-custom-blue">
                             @else
-                                <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 border border-slate-200">
+                                <div class="w-10 h-10 bg-blue-200 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 border border-custom-blue">
                                     <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
                                     </svg>
@@ -526,7 +523,7 @@
                     <x-table-cell>
                         @if($product->product_type === 'customizable')
                             @if($product->allows_customization)
-                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-teal-100 text-teal-800 rounded-full whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full whitespace-nowrap">
                                     Visible en personalización
                                 </span>
                             @else
@@ -536,7 +533,7 @@
                             @endif
                         @else
                             @if($product->is_gallery_visible)
-                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-teal-100 text-teal-800 rounded-full whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full whitespace-nowrap">
                                     Visible en galería
                                 </span>
                             @else

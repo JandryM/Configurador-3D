@@ -7,7 +7,7 @@
     'hoverColor' => null, // Kept for backward compat but unused
 ])
 
-<div class="group bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-300 transition-all duration-200 hover:shadow-sm">
+<div class="group bg-blue-50 rounded-xl border border-custom-blue/20 p-5 hover:border-custom-blue/40 transition-all duration-200 hover:shadow-sm">
     <div class="flex items-center justify-between">
         <div class="flex-1 min-w-0">
             <p class="text-sm font-medium text-slate-500 mb-1 truncate">{{ $title }}</p>
@@ -18,7 +18,7 @@
                 </div>
             @endisset
         </div>
-        <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center {{ $iconColor }} group-hover:scale-110 transition-transform duration-200">
+        <div class="w-10 h-10 bg-blue-100/30 rounded-lg flex items-center justify-center {{ $iconColor }} group-hover:scale-110 transition-transform duration-200">
             {{ $icon }}
         </div>
     </div>

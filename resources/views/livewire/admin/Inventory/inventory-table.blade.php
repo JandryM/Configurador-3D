@@ -1,4 +1,11 @@
 <div>
+    @php
+        $categoryTranslations = [
+            'Mesh' => 'Malla',
+            'Window' => 'Ventana',
+            'Door' => 'Puerta',
+        ];
+    @endphp
     <!-- Encabezado de la sección -->
     <x-page-header 
         title="Gestión de Inventario"
@@ -107,7 +114,7 @@
         item-name="materiales"
     >
         <!-- Filtros y búsqueda dentro de la tabla -->
-        <div class="bg-white border-b border-slate-200 mb-4 px-4 py-3">
+        <div class="bg-blue-50 border-b border-custom-blue/20 mb-4 px-4 py-3">
             <div class="flex flex-wrap gap-4 items-end">
                 <!-- Búsqueda -->
                 <div class="flex-1 min-w-[200px]">
@@ -121,7 +128,7 @@
                             placeholder="Nombre o descripción..."
                             class="w-full pl-9 pr-3 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 placeholder-slate-400 text-sm transition-shadow"
                         >
-                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-teal-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
@@ -143,9 +150,9 @@
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}">
                                 @if($cat->parent_id)
-                                    &nbsp;&nbsp;└ {{ $cat->name }}
+                                    &nbsp;&nbsp;└ {{ $categoryTranslations[$cat->name] ?? $cat->name }}
                                 @else
-                                    {{ $cat->name }}
+                                    {{ $categoryTranslations[$cat->name] ?? $cat->name }}
                                 @endif
                             </option>
                         @endforeach
@@ -186,7 +193,7 @@
         </div>
 
         <thead>
-            <tr class="bg-slate-50 border-b border-slate-200">
+            <tr class="bg-blue-50 border-b border-custom-blue-200">
                 <x-table-header>Material</x-table-header>
                 <x-table-header>Categoría</x-table-header>
                 <x-table-header>Stock</x-table-header>
@@ -213,7 +220,7 @@
                 <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-all duration-150">
                     <x-table-cell>
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-teal-50 text-teal-600 rounded-lg flex items-center justify-center shadow-sm border border-teal-100 flex-shrink-0">
+                            <div class="w-10 h-10 bg-teal-50 text-teal-600 rounded-lg flex items-center justify-center shadow-sm border border-custom-blue flex-shrink-0">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                                 </svg>
@@ -230,7 +237,7 @@
                     </x-table-cell>
                     <x-table-cell>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                            {{ $material->category->name ?? 'Sin categoría' }}
+                            {{ $categoryTranslations[$material->category->name] ?? $material->category->name ?? 'Sin categoría' }}
                         </span>
                     </x-table-cell>
                     <x-table-cell>
@@ -334,7 +341,7 @@
             <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" wire:click="closeAddStockModal"></div>
             <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-auto overflow-hidden relative z-[60] transform transition-all scale-100">
                 <!-- Header -->
-                <div class="bg-white px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                <div class="bg-custom-blue px-6 py-4 border-b border-slate-100 flex justify-between items-center">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50 text-blue-600">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -342,15 +349,15 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-slate-900">
+                            <h3 class="text-lg font-bold text-white">
                                 Agregar Stock
                             </h3>
-                            <p class="text-sm text-slate-500">Añadir existencias al inventario</p>
+                            <p class="text-sm text-teal-200">Añadir existencias al inventario</p>
                         </div>
                     </div>
                     <button 
                         wire:click="closeAddStockModal"
-                        class="text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-2 transition-colors"
+                        class="text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-2 transition-colors cursor-pointer"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -362,7 +369,7 @@
                     <div class="bg-slate-50 rounded-lg p-4 mb-5 border border-slate-200">
                         <div class="flex justify-between items-start mb-1">
                             <p class="font-semibold text-slate-800">{{ $selectedMaterial->name }}</p>
-                            <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
+                            <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-teal-200 text-teal-600">
                                 {{ $selectedMaterial->category->name ?? 'Sin categoría' }}
                             </span>
                         </div>
@@ -430,18 +437,15 @@
                 <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex gap-3 justify-end">
                     <button 
                         wire:click="closeAddStockModal"
-                        class="px-4 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition-colors shadow-sm"
+                        class="px-4 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-900 font-medium text-sm transition-colors shadow-sm cursor-pointer"
                     >
                         Cancelar
                     </button>
                     <button 
                         wire:click="addStock"
-                        class="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 font-medium text-sm transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+                        class="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 font-medium text-sm transition-all shadow-sm hover:shadow-md flex items-center gap-2 cursor-pointer"
                     >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
-                        Confirmar Ingreso
+                        Confirmar
                     </button>
                 </div>
             </div>
@@ -454,23 +458,23 @@
             <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" wire:click="closeRemainderModal"></div>
             <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col relative z-[60] transform transition-all scale-100">
                 <!-- Header -->
-                <div class="bg-white px-6 py-4 border-b border-slate-100 flex justify-between items-center z-10">
+                <div class="bg-custom-blue px-6 py-4 border-b border-slate-100 flex justify-between items-center z-10">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-slate-100 text-slate-600">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50 text-blue-600">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h2a4 4 0 014 4v2M9 17a4 4 0 01-4-4V7a4 4 0 014-4h6a4 4 0 014 4v6a4 4 0 01-4 4M9 17h6" />
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-slate-900">
+                            <h3 class="text-lg font-bold text-white">
                                 Retazos Disponibles
                             </h3>
-                            <p class="text-sm text-slate-500">{{ $selectedMaterial->name }}</p>
+                            <p class="text-sm text-teal-200 font-medium">{{ $selectedMaterial->name }}</p>
                         </div>
                     </div>
                     <button 
                         wire:click="closeRemainderModal"
-                        class="text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-2 transition-colors"
+                        class="text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-2 transition-colors cursor-pointer"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -483,19 +487,19 @@
                         <div class="mb-6 bg-slate-50 rounded-lg p-4 border border-slate-200">
                             <div class="flex items-center gap-2">
                                 <div class="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-3 h-3 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-3 h-3 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
                                         <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
                                     </svg>
                                 </div>
-                                <p class="font-semibold text-slate-900">
+                                <p class="font-semibold text-slate-800">
                                     Total en retazos: 
                                     <span class="text-slate-700 font-bold">
                                         {{ number_format($selectedMaterial->remainders->sum('remaining_length'), 3) }}@if($selectedMaterial->unit_measure == 'metros_cuadrados')m²@else{{ 'm' }}@endif
                                     </span>
                                 </p>
                             </div>
-                            <p class="text-sm text-slate-500 ml-7 mt-0.5">
+                            <p class="text-sm text-slate-600 ml-7 mt-0.5 font-medium">
                                 {{ $selectedMaterial->remainders->count() }} retazo{{ $selectedMaterial->remainders->count() > 1 ? 's' : '' }} disponible{{ $selectedMaterial->remainders->count() > 1 ? 's' : '' }}
                             </p>
                         </div>
@@ -514,8 +518,8 @@
                                                     <p class="text-xs text-slate-400">ID: {{ $remainder->id }}</p>
                                                 </div>
                                             </div>
-                                            <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-                                                <svg class="w-3 h-3 mr-1 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-bold rounded-full bg-green-100 text-green-700 border border-green-300 shadow-sm">
+                                                <svg class="w-3 h-3 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                                 </svg>
                                                 Disponible
@@ -545,7 +549,7 @@
                                                     <button 
                                                         type="button" 
                                                         @click="openHistory = !openHistory"
-                                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 rounded-lg transition-all text-xs font-medium border border-slate-200 cursor-pointer"
+                                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-teal-200 text-teal-700 hover:text-teal-900 rounded-lg transition-all text-xs font-medium border border-teal-300 cursor-pointer"
                                                     >
                                                         <svg class="w-3.5 h-3.5 transition-transform text-slate-500" :class="{'rotate-180': openHistory}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -565,7 +569,7 @@
                                                         x-transition:leave="transition ease-in duration-150"
                                                         x-transition:leave-start="opacity-100 transform translate-y-0"
                                                         x-transition:leave-end="opacity-0 transform -translate-y-2"
-                                                        class="bg-slate-50 border border-slate-200 rounded-xl mt-3 p-4 space-y-3"
+                                                        class="bg-white border border-slate-200 rounded-xl mt-3 p-4 space-y-3 shadow-sm"
                                                         style="display: none;"
                                                     >
                                                         <div class="flex items-center gap-2 pb-2.5 border-b border-slate-200 mb-1">
@@ -581,7 +585,7 @@
                                                                 $firstMovement = $movements->first();
                                                                 $cortesCount = $movements->count();
                                                             @endphp
-                                                            <div class="bg-white rounded-lg p-3 border-l-4 border-slate-300 shadow-sm">
+                                                            <div class="bg-white rounded-lg p-3 border-l-4 border-red-400 shadow-sm hover:shadow-md transition-shadow">
                                                                 <div class="flex items-start justify-between gap-3">
                                                                     <div class="flex items-start gap-2 flex-1">
                                                                         <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0">
@@ -628,14 +632,14 @@
                                                             </div>
                                                         @endforeach
                                                         
-                                                        <div class="pt-3 mt-1 border-t border-slate-200 flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-slate-100 shadow-sm">
+                                                        <div class="pt-3 mt-1 border-t border-slate-200 flex items-center justify-between bg-red-50 rounded-lg px-3 py-2 border border-red-100">
                                                             <div class="flex items-center gap-2">
-                                                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                                                                 </svg>
-                                                                <span class="text-xs font-bold text-slate-500 uppercase">Total usado del retazo:</span>
+                                                                <span class="text-xs font-bold text-red-700 uppercase">Total usado del retazo:</span>
                                                             </div>
-                                                            <span class="text-sm font-bold text-slate-700">
+                                                            <span class="text-sm font-bold text-red-700">
                                                                 {{ number_format($remainder->movements->sum(function($m) { return abs($m->quantity); }), 3) }}@if($selectedMaterial->unit_measure == 'metros_cuadrados')m²@else{{ 'm' }}@endif
                                                             </span>
                                                         </div>
@@ -678,7 +682,7 @@
             <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" wire:click="closeEditModal"></div>
             <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col relative z-[60] transform transition-all scale-100">
                 <!-- Header -->
-                <div class="bg-white px-6 py-4 border-b border-slate-100 flex justify-between items-center z-10">
+                <div class="bg-custom-blue px-6 py-4 border-b border-slate-100 flex justify-between items-center z-10">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-cyan-50 text-cyan-600">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -686,15 +690,15 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-slate-900">
+                            <h3 class="text-lg font-bold text-white">
                                 Editar Material
                             </h3>
-                            <p class="text-sm text-slate-500">Modificar información del material</p>
+                            <p class="text-sm text-teal-200">Modificar información del material</p>
                         </div>
                     </div>
                     <button 
                         wire:click="closeEditModal"
-                        class="text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-2 transition-colors"
+                        class="text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-2 transition-colors cursor-pointer"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>

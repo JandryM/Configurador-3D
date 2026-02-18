@@ -206,6 +206,10 @@ class User extends Authenticatable
             return 'Suspendido';
         }
 
+        if (! $this->last_login_at) {
+            return 'Nuevo';
+        }
+
         if (! $this->email_verified_at) {
             return 'Pendiente verificación';
         }
@@ -220,6 +224,10 @@ class User extends Authenticatable
     {
         if ($this->isSuspended()) {
             return 'red';
+        }
+
+        if (! $this->last_login_at) {
+            return 'blue';
         }
 
         if (! $this->email_verified_at) {

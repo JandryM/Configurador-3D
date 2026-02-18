@@ -12,16 +12,28 @@ class UsersCreate extends Component
     public string $name = '';
     public string $email = '';
     public string $password = '';
-    public string $role = 'owner';
+    public string $role = 'client';
     public bool $showConfirmModal = false;
 
     public function save()
     {
+        $currentUser = Auth::user();
+        
+        // Determinar roles permitidos según el usuario autenticado
+        $allowedRoles = [];
+        if ($currentUser->isAdmin()) {
+            $allowedRoles = ['admin', 'owner', 'client'];
+        } elseif ($currentUser->isOwner()) {
+            $allowedRoles = ['owner', 'client'];
+        }
+        
+        $rolesRule = 'required|in:' . implode(',', $allowedRoles);
+        
         $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:owner',
+            'role' => $rolesRule,
         ], [
             'name.required' => 'El nombre es obligatorio.',
             'name.string' => 'El nombre debe ser una cadena de texto.',
@@ -33,7 +45,7 @@ class UsersCreate extends Component
             'password.string' => 'La contraseña debe ser una cadena de texto.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'role.required' => 'El rol es obligatorio.',
-            'role.in' => 'El rol seleccionado no es válido.',
+            'role.in' => 'El rol seleccionado no es válido para tu perfil.',
         ]);
         $this->showConfirmModal = true;
     }
@@ -41,19 +53,14 @@ class UsersCreate extends Component
     public function confirmCreateUser()
     {
         $currentUser = Auth::user();
-        if (
-            ($currentUser->isOwner() && $this->role !== User::ROLE_SELLER) ||
-            (!$currentUser->isAdmin() && !$currentUser->isOwner())
-        ) {
-            session()->flash('error', 'No tienes permiso para asignar este rol.');
+        
+        // Validar permisos finales
+        if ($currentUser->isOwner() && $this->role === 'admin') {
+            session()->flash('error', 'No tienes permiso para asignar el rol de administrador.');
             $this->showConfirmModal = false;
             return;
         }
-        if ($this->role === User::ROLE_OWNER && !$currentUser->isAdmin()) {
-            session()->flash('error', 'Solo un administrador puede asignar el rol de propietario.');
-            $this->showConfirmModal = false;
-            return;
-        }
+        
         User::create([
             'name' => $this->name,
             'email' => $this->email,
