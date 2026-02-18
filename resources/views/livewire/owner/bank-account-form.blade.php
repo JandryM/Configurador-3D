@@ -5,7 +5,7 @@
                 <div class="bg-white rounded-2xl shadow-2xl w-full">
                     <!-- Header -->
                     <!-- Header -->
-                    <div class="bg-white p-6 rounded-t-2xl border-b border-slate-100">
+                    <div class="bg-custom-blue/95 p-6 rounded-t-2xl border-b border-slate-100">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
@@ -14,11 +14,11 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-bold text-slate-900">Configuración de Cuenta Bancaria</h3>
-                                    <p class="text-sm text-slate-500">Configura los datos de tu cuenta para recibir pagos</p>
+                                    <h3 class="text-lg font-bold text-white">Configuración de Cuenta Bancaria</h3>
+                                    <p class="text-sm text-slate-400">Configura los datos de tu cuenta para recibir pagos</p>
                                 </div>
                             </div>
-                            <button type="button" wire:click="closeModal" class="text-slate-400 hover:text-slate-600 transition-colors">
+                            <button type="button" wire:click="closeModal" class="text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-2 transition-colors cursor-pointer">
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
@@ -95,8 +95,8 @@
                         </div>
                         <!-- Acciones -->
                         <div class="flex gap-3 mt-6">
-                            <button type="button" wire:click="closeModal" class="flex-1 py-3 rounded-xl font-semibold text-base bg-slate-200 text-slate-700 hover:bg-slate-300 transition">Cancelar</button>
-                            <button type="submit" class="flex-1 py-3 rounded-xl font-semibold text-base bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all">Guardar Cuenta</button>
+                            <button type="button" wire:click="closeModal" class="flex-1 py-3 rounded-xl font-semibold text-base bg-slate-200 text-slate-700 hover:bg-slate-300 transition cursor-pointer">Cancelar</button>
+                            <button type="submit" class="flex-1 py-3 rounded-xl font-semibold text-base bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all cursor-pointer">Guardar Cuenta</button>
                         </div>
                     </form>
                 </div>

@@ -100,7 +100,7 @@
             </div>
             
             <!-- Botón Hamburguesa (Siempre visible en desktop) -->
-            <button id="sidebar-toggle" class="sidebar-toggle-btn text-slate-400 hover:text-white transition-colors lg:block hidden flex-shrink-0 ml-2">
+            <button id="sidebar-toggle" class="sidebar-toggle-btn text-slate-400 hover:text-white transition-colors lg:block hidden flex-shrink-0 ml-2 cursor-pointer">
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
                 </svg>

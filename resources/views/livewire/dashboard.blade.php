@@ -3,7 +3,7 @@
 <!-- HEADER - DASHBOARD MEJORADO -->
 <!-- ============================================ -->
 <div class="fade-in mb-6">
-    <div class="!bg-gradient-to-r from-orange-500 via-amber-500 to-teal-500 rounded-2xl shadow-lg p-6">
+    <div class="!bg-custom-blue/95 rounded-2xl shadow-lg p-6">
         <div class="flex items-center justify-between">
             <div class="flex-1">
                 <div class="flex items-center mb-2">
@@ -95,7 +95,7 @@
                          style="display: none;">
                         
                         <!-- Header del dropdown -->
-                        <div class="!bg-gradient-to-r from-orange-500 via-amber-500 to-teal-500 px-4 py-3 !border-b !border-orange-400">
+                        <div class="!bg-custom-blue/95 px-4 py-3 !border-b !border-orange-400">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-white font-bold text-sm">Notificaciones</h3>
                                 @if(count($alertas) > 0)
