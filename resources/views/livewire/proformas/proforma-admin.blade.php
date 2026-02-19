@@ -5,6 +5,31 @@
     $isMultiItem = isset($items) && is_array($items) && count($items) > 0;
     $displayNumber = $number ?? 'PRF-' . str_pad($proforma_id ?? 0, 3, '0', STR_PAD_LEFT);
     $totalQuantity = $isMultiItem ? collect($items)->sum('quantity') : ($quantity ?? 1);
+    $displaySubtotalSinIva = $isMultiItem
+        ? collect($items)->sum(fn($item) => ((float) ($item['price'] ?? 0)) / 1.15)
+        : ((float) ($calculatedPrice ?? $total_price ?? 0)) / 1.15;
+    $displayIva = $displaySubtotalSinIva * 0.15;
+    $displayTotalConIva = $displaySubtotalSinIva + $displayIva;
+    $formatMaterialQuantity = function ($quantity, $unit) {
+        $normalizedUnit = strtolower(trim((string) $unit));
+
+        if (in_array($normalizedUnit, ['unidad', 'unidades'])) {
+            return number_format((float) ($quantity ?? 0), 0, ',', '.');
+        }
+
+        return number_format((float) ($quantity ?? 0), 3, ',', '.');
+    };
+
+    $formatMaterialUnit = function ($unit) {
+        $normalizedUnit = strtolower(trim((string) $unit));
+
+        return match ($normalizedUnit) {
+            'metro_lineal' => 'metros lineales',
+            'metros_cuadrados' => 'metros cuadrados',
+            'unidad' => 'unidades',
+            default => str_replace('_', ' ', $unit ?: '-'),
+        };
+    };
 @endphp
 
 @if($isPdf)
@@ -511,7 +536,7 @@
                     <div class="col-span-2">
                         <p class="text-xs text-slate-600 mb-1">Dimensiones</p>
                         <p class="font-medium text-slate-900">
-                            Ancho: {{ $item['parameters']['width'] }} m | Alto: {{ $item['parameters']['height'] }} m
+                            Ancho: {{ number_format($item['parameters']['width'], 3) }} m | Alto: {{ number_format($item['parameters']['height'], 3) }} m
                         </p>
                     </div>
                     @endif
@@ -520,14 +545,14 @@
                         <p class="font-medium text-slate-900">{{ $item['quantity'] }} {{ $item['quantity'] == 1 ? 'unidad' : 'unidades' }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-600 mb-1">Precio Unitario</p>
-                        <p class="font-medium text-slate-900">${{ number_format($item['price'] / max(1, $item['quantity']), 2) }}</p>
+                        <p class="text-xs text-slate-600 mb-1">Precio Unitario (sin IVA)</p>
+                        <p class="font-medium text-slate-900">${{ number_format((($item['price'] ?? 0) / 1.15) / max(1, $item['quantity']), 2) }}</p>
                     </div>
                 </div>
                 <div class="pt-3 border-t border-slate-200">
                     <div class="flex justify-between items-center bg-slate-50 rounded-lg p-3 border border-slate-200">
-                        <span class="font-semibold text-slate-900">Subtotal Ítem</span>
-                        <span class="text-lg font-bold text-slate-900">${{ number_format($item['price'], 2) }}</span>
+                        <span class="font-semibold text-slate-900">Subtotal del ítem (sin IVA)</span>
+                        <span class="text-lg font-bold text-slate-900">${{ number_format(($item['price'] ?? 0) / 1.15, 2) }}</span>
                     </div>
                 </div>
             </div>
@@ -562,8 +587,8 @@
                         @foreach($item['materialCosts'] as $mat)
                             <tr class="hover:bg-slate-50 transition-colors">
                                 <td class="px-4 py-3 text-sm text-slate-900">{{ $mat['name'] ?? '-' }}</td>
-                                <td class="px-4 py-3 text-sm text-slate-700">{{ number_format($mat['quantity'] ?? 0, 2) }}</td>
-                                <td class="px-4 py-3 text-sm text-slate-700">{{ $mat['unit'] ?? '-' }}</td>
+                                <td class="px-4 py-3 text-sm text-slate-700">{{ $formatMaterialQuantity($mat['quantity'] ?? 0, $mat['unit'] ?? '') }}</td>
+                                <td class="px-4 py-3 text-sm text-slate-700">{{ $formatMaterialUnit($mat['unit'] ?? '-') }}</td>
                                 <td class="px-4 py-3 text-sm font-medium text-slate-900">${{ number_format($mat['unit_price'] ?? 0, 2) }}</td>
                                 <td class="px-4 py-3 text-sm font-medium text-orange-600">${{ number_format($mat['color_increase'] ?? 0, 2) }}</td>
                                 <td class="px-4 py-3 text-sm font-semibold text-slate-900">${{ number_format($mat['total_cost'] ?? 0, 2) }}</td>
@@ -627,7 +652,7 @@
                         <span class="text-sm font-semibold text-green-600">${{ number_format($profitAmount, 2) }}</span>
                     </div>
                     <div class="flex justify-between items-center py-3 bg-slate-100 rounded-lg px-3 mt-2 border border-slate-200">
-                        <span class="text-base font-bold text-slate-900">Subtotal</span>
+                        <span class="text-base font-bold text-slate-900">Subtotal del análisis (sin IVA)</span>
                         <span class="text-lg font-bold text-green-600">${{ number_format($subtotal + $profitAmount, 2) }}</span>
                     </div>
                 </div>
@@ -704,15 +729,15 @@
                         <span style="font-size: 12px; color: #1a202c;">{{ $item['quantity'] }} {{ $item['quantity'] == 1 ? 'unidad' : 'unidades' }}</span>
                     </td>
                     <td style="padding: 5px; width: 50%;">
-                        <strong style="color: #0a4d68; font-size: 10px; text-transform: uppercase;">Precio Unitario</strong><br>
-                        <span style="font-size: 12px; color: #1a202c;">${{ number_format($item['price'] / max(1, $item['quantity']), 2) }}</span>
+                        <strong style="color: #0a4d68; font-size: 10px; text-transform: uppercase;">Precio Unitario (sin IVA)</strong><br>
+                        <span style="font-size: 12px; color: #1a202c;">${{ number_format((($item['price'] ?? 0) / 1.15) / max(1, $item['quantity']), 2) }}</span>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="2" style="padding: 8px; background: #e6f7ff; border-top: 2px solid #0a4d68;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <strong style="color: #0a4d68; font-size: 12px;">Subtotal Ítem</strong>
-                            <strong style="color: #0a4d68; font-size: 15px;">${{ number_format($item['price'], 2) }}</strong>
+                            <strong style="color: #0a4d68; font-size: 12px;">Subtotal del ítem (sin IVA)</strong>
+                            <strong style="color: #0a4d68; font-size: 15px;">${{ number_format(($item['price'] ?? 0) / 1.15, 2) }}</strong>
                         </div>
                     </td>
                 </tr>
@@ -743,8 +768,8 @@
                 @foreach($item['materialCosts'] as $mat)
                     <tr style="background: {{ $loop->iteration % 2 == 0 ? '#f8fafc' : 'white' }};">
                         <td style="padding: 4px 6px; border: 1px solid #e2e8f0;">{{ $mat['name'] ?? '-' }}</td>
-                        <td style="padding: 4px 6px; text-align: center; border: 1px solid #e2e8f0;">{{ number_format($mat['quantity'] ?? 0, 2) }}</td>
-                        <td style="padding: 4px 6px; text-align: center; border: 1px solid #e2e8f0;">{{ $mat['unit'] ?? '-' }}</td>
+                        <td style="padding: 4px 6px; text-align: center; border: 1px solid #e2e8f0;">{{ $formatMaterialQuantity($mat['quantity'] ?? 0, $mat['unit'] ?? '') }}</td>
+                        <td style="padding: 4px 6px; text-align: center; border: 1px solid #e2e8f0;">{{ $formatMaterialUnit($mat['unit'] ?? '-') }}</td>
                         <td style="padding: 4px 6px; text-align: right; border: 1px solid #e2e8f0; font-weight: 600;">${{ number_format($mat['unit_price'] ?? 0, 2) }}</td>
                         <td style="padding: 4px 6px; text-align: right; border: 1px solid #e2e8f0; color: #f59e0b; font-weight: 600;">${{ number_format($mat['color_increase'] ?? 0, 2) }}</td>
                         <td style="padding: 4px 6px; text-align: right; border: 1px solid #e2e8f0; font-weight: bold;">${{ number_format($mat['total_cost'] ?? 0, 2) }}</td>
@@ -826,41 +851,59 @@
     <!-- Total de la Proforma -->
     @if(!$isPdf)
     <!-- Vista pantalla -->
-    <div class="bg-gradient-to-r from-slate-700 to-slate-800 text-white rounded-xl p-6 shadow-lg border border-slate-600">
-        <p class="text-lg font-semibold mb-4 text-slate-300">Total de la Proforma</p>
+    <div class="bg-indigo-50 rounded-xl p-6 shadow-sm border border-indigo-200">
+        <p class="text-lg font-semibold mb-4 text-slate-900">Total de la Proforma</p>
         <div class="space-y-2 text-left max-w-md mx-auto">
-            <div class="flex justify-between text-sm">
-                <span class="text-slate-400">Subtotal (sin IVA):</span>
-                <span class="text-gray-200">${{ number_format(($total_price ?? 0) / 1.15, 2) }}</span>
+            <div class="mb-3 pb-3 border-b border-indigo-200">
+                <p class="text-xs uppercase tracking-wide text-indigo-700/80 mb-2">Suma de ítems (sin IVA)</p>
+                @foreach($items as $index => $item)
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-slate-600">{{ $index + 1 }}. {{ $item['product_name'] ?? 'Ítem' }}</span>
+                        <span class="text-slate-800">${{ number_format((($item['price'] ?? 0) / 1.15), 2) }}</span>
+                    </div>
+                @endforeach
             </div>
             <div class="flex justify-between text-sm">
-                <span class="text-slate-400">IVA (15%):</span>
-                <span class="text-gray-200">${{ number_format(($total_price ?? 0) - (($total_price ?? 0) / 1.15), 2) }}</span>
+                <span class="text-slate-600">Suma de subtotales (sin IVA):</span>
+                <span class="text-slate-800">${{ number_format($displaySubtotalSinIva, 2) }}</span>
             </div>
-            <div class="border-t-2 border-slate-500 pt-2 mt-2">
+            <div class="flex justify-between text-sm">
+                <span class="text-slate-600">IVA (15%):</span>
+                <span class="text-slate-800">${{ number_format($displayIva, 2) }}</span>
+            </div>
+            <div class="border-t-2 border-indigo-300 pt-2 mt-2">
                 <div class="flex justify-between">
-                    <span class="text-xl font-bold text-gray-100">Total:</span>
-                    <span class="text-3xl font-bold text-gray-100">${{ number_format($total_price ?? 0, 2) }}</span>
+                    <span class="text-xl font-bold text-slate-900">Total:</span>
+                    <span class="text-3xl font-bold text-indigo-800">${{ number_format($displayTotalConIva, 2) }}</span>
                 </div>
             </div>
         </div>
-        <p class="text-sm text-slate-400 mt-4 text-center">{{ count($items) }} {{ count($items) == 1 ? 'configuración' : 'configuraciones' }} • {{ $totalQuantity }} {{ $totalQuantity == 1 ? 'producto' : 'productos' }}</p>
+        <p class="text-sm text-slate-600 mt-4 text-center">{{ count($items) }} {{ count($items) == 1 ? 'configuración' : 'configuraciones' }} • {{ $totalQuantity }} {{ $totalQuantity == 1 ? 'producto' : 'productos' }}</p>
     </div>
     @else
     <!-- PDF: Sección de totales -->
     <div class="totals-section">
         <div class="totals-box">
+            <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;">
+                <div style="font-size: 10px; color: #718096; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px;">Suma de ítems (sin IVA)</div>
+                @foreach($items as $index => $item)
+                    <div style="display: flex; justify-content: space-between; padding: 2px 0; font-size: 11px; color: #4a5568;">
+                        <span>{{ $index + 1 }}. {{ $item['product_name'] ?? 'Ítem' }}</span>
+                        <span>${{ number_format((($item['price'] ?? 0) / 1.15), 2) }}</span>
+                    </div>
+                @endforeach
+            </div>
             <div class="total-row subtotal">
-                <span>Subtotal:</span>
-                <span>${{ number_format(($total_price ?? 0) / 1.15, 2) }}</span>
+                <span>Suma de subtotales:</span>
+                <span>${{ number_format($displaySubtotalSinIva, 2) }}</span>
             </div>
             <div class="total-row subtotal">
                 <span>IVA (15%):</span>
-                <span>${{ number_format(($total_price ?? 0) - (($total_price ?? 0) / 1.15), 2) }}</span>
+                <span>${{ number_format($displayIva, 2) }}</span>
             </div>
             <div class="total-row final">
                 <span>Total:</span>
-                <span>${{ number_format($total_price ?? 0, 2) }}</span>
+                <span>${{ number_format($displayTotalConIva, 2) }}</span>
             </div>
         </div>
         <p style="text-align: center; font-size: 12px; color: #718096; margin-top: 15px;">
@@ -907,7 +950,7 @@
             <div class="col-span-2">
                 <p class="text-xs text-slate-400 mb-1">Dimensiones</p>
                 <p class="font-medium text-gray-200">
-                    Ancho: {{ $parameters['width'] ?? '-' }} m | Alto: {{ $parameters['height'] ?? '-' }} m
+                    Ancho: {{ isset($parameters['width']) ? number_format($parameters['width'], 3) : '-' }} m | Alto: {{ isset($parameters['height']) ? number_format($parameters['height'], 3) : '-' }} m
                 </p>
             </div>
             <div>
@@ -994,8 +1037,8 @@
         @forelse($materialCosts as $mat)
             <tr class="hover:bg-slate-700/50 transition-colors">
                 <td class="px-4 py-3 text-sm text-gray-200">{{ $mat['name'] ?? '-' }}</td>
-                <td class="px-4 py-3 text-sm text-gray-300">{{ number_format($mat['quantity'] ?? 0, 2) }}</td>
-                <td class="px-4 py-3 text-sm text-gray-300">{{ $mat['unit'] ?? '-' }}</td>
+                <td class="px-4 py-3 text-sm text-gray-300">{{ $formatMaterialQuantity($mat['quantity'] ?? 0, $mat['unit'] ?? '') }}</td>
+                <td class="px-4 py-3 text-sm text-gray-300">{{ $formatMaterialUnit($mat['unit'] ?? '-') }}</td>
                 <td class="px-4 py-3 text-sm text-gray-200">${{ number_format($mat['unit_price'] ?? 0, 2) }}</td>
                 <td class="px-4 py-3 text-sm text-orange-400">${{ number_format($mat['color_increase'] ?? 0, 2) }}</td>
                 <td class="px-4 py-3 text-sm font-semibold text-gray-100">${{ number_format($mat['total_cost'] ?? 0, 2) }}</td>

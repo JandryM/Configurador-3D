@@ -116,7 +116,6 @@ class ProductConfigurator extends Component
                 $paramsMatch =
                     ($itemParams['width'] ?? null) == ($this->parameters['width'] ?? null) &&
                     ($itemParams['height'] ?? null) == ($this->parameters['height'] ?? null) &&
-                    ($itemParams['depth'] ?? null) == ($this->parameters['depth'] ?? null) &&
                     ($itemParams['color'] ?? null) == ($this->parameters['color'] ?? null);
                 // Solo comparar glassColor si es window o door
                 if (in_array($productType, ['window', 'door'])) {
@@ -674,19 +673,16 @@ class ProductConfigurator extends Component
         'window' => [
             'width' => ['min' => 0.8, 'max' => 2, 'step' => 0.001],  // tres decimales
             'height' => ['min' => 0.8, 'max' => 2, 'step' => 0.001],  // tres decimales
-            'depth' => ['min' => 0.05, 'max' => 0.15, 'step' => 0.001], // tres decimales (mm)
             'frameWidth' => ['min' => 0.02, 'max' => 0.1, 'step' => 0.001] // tres decimales (mm)
         ],
         'door' => [
             'width' => ['min' => 2, 'max' => 3, 'step' => 0.001],  // tres decimales 
             'height' => ['min' => 2, 'max' => 3, 'step' => 0.001],  // tres decimales 
-            'depth' => ['min' => 0.03, 'max' => 0.1, 'step' => 0.001],
             'frameWidth' => ['min' => 0.06, 'max' => 0.15, 'step' => 0.001]
         ],
         'mesh' => [
             'width' => ['min' => 0.8, 'max' => 3, 'step' => 0.001],
-            'height' => ['min' => 0.8, 'max' => 3, 'step' => 0.001],
-            'depth' => ['min' => 0.01, 'max' => 0.05, 'step' => 0.001]
+            'height' => ['min' => 0.8, 'max' => 3, 'step' => 0.001]
         ]
     ];
     // Colores disponibles (se cargan desde la base de datos)
@@ -816,14 +812,11 @@ class ProductConfigurator extends Component
         }
 
         // Si es un parámetro numérico, forzar null si no es numérico
-        if (in_array($parameter, ['width', 'height', 'depth', 'frameWidth'])) {
+        if (in_array($parameter, ['width', 'height', 'frameWidth'])) {
             if (!is_numeric($value) || $value === null) {
                 $this->parameters[$parameter] = null;
                 $this->calculatePrice();
                 $parametersFor3D = $this->parameters;
-                if ($this->getProductType() === 'window') {
-                    $parametersFor3D = array_merge($this->parameters, ['depth' => 1.0]);
-                }
                 $parametersFor3D['texturePath'] = $this->getColorTexturePath($this->parameters['color']);
                 $parametersFor3D['glassTexturePath'] = $this->getGlassTexturePath($this->parameters['glassColor']);
                 $this->dispatch('updateModel3D', parameters: $parametersFor3D);
@@ -842,9 +835,6 @@ class ProductConfigurator extends Component
         $this->calculatePrice();
         // Dispatch evento para actualizar modelo 3D
         $parametersFor3D = $this->parameters;
-        if ($this->getProductType() === 'window') {
-            $parametersFor3D = array_merge($this->parameters, ['depth' => 1.0]);
-        }
         $productType = $this->getProductType();
         $parametersFor3D['texturePath'] = $this->getColorTexturePath($this->parameters['color']);
         if ($productType === 'closet' && (!$parametersFor3D['texturePath'] || str_contains($parametersFor3D['texturePath'], 'aluminum'))) {
@@ -872,9 +862,6 @@ class ProductConfigurator extends Component
         
         // Dispatch evento para actualizar modelo 3D
         $parametersFor3D = $this->parameters;
-        if ($this->getProductType() === 'window') {
-            $parametersFor3D = array_merge($this->parameters, ['depth' => 1.0]);
-        }
         $parametersFor3D['texturePath'] = $this->getColorTexturePath($this->parameters['color']);
         $parametersFor3D['glassTexturePath'] = $this->getGlassTexturePath($this->parameters['glassColor']);
         $this->dispatch('updateModel3D', parameters: $parametersFor3D);
@@ -898,9 +885,6 @@ class ProductConfigurator extends Component
         
         // Dispatch evento para actualizar modelo 3D
         $parametersFor3D = $this->parameters;
-        if ($this->getProductType() === 'window') {
-            $parametersFor3D = array_merge($this->parameters, ['depth' => 1.0]);
-        }
         $parametersFor3D['texturePath'] = $this->getColorTexturePath($this->parameters['color']);
         $parametersFor3D['glassTexturePath'] = $this->getGlassTexturePath($this->parameters['glassColor']);
         $this->dispatch('updateModel3D', parameters: $parametersFor3D);
@@ -938,8 +922,7 @@ class ProductConfigurator extends Component
 
             // Cálculos sin redondeo para mantener precisión
             $area = $width * $height;
-            $depth = $this->getProductType() === 'window' ? 1.0 : ($this->parameters['depth'] ?? 1.0);
-            $volume = $area * $depth;
+            $volume = $area;
 
             foreach ($this->product->materials as $material) {
                 $quantity = $this->calculateMaterialQuantity($material, $area, $volume);
@@ -1042,7 +1025,7 @@ class ProductConfigurator extends Component
         // Extraer parámetros con la precisión original
         $width = $parameters['width'] ?? 0;
         $height = $parameters['height'] ?? 0;
-        $depth = $parameters['depth'] ?? 0;
+        $depth = 1.0;
         $frameWidth = $parameters['frameWidth'] ?? 0.05;
 
         // Variables calculadas sin redondeo para mantener máxima precisión
@@ -1088,6 +1071,7 @@ class ProductConfigurator extends Component
     {
         $parameters = $this->parameters;
         $productType = $this->getProductType();
+        unset($parameters['depth']);
         // Solo incluir glassColor si es ventana o puerta
         if (!in_array($productType, ['window', 'door'])) {
             unset($parameters['glassColor']);
@@ -1202,7 +1186,6 @@ class ProductConfigurator extends Component
             $paramsMatch =
                 ($itemParams['width'] ?? null) == ($this->parameters['width'] ?? null) &&
                 ($itemParams['height'] ?? null) == ($this->parameters['height'] ?? null) &&
-                ($itemParams['depth'] ?? null) == ($this->parameters['depth'] ?? null) &&
                 ($itemParams['color'] ?? null) == ($this->parameters['color'] ?? null);
             // Solo comparar glassColor si es window o door
             if (in_array($productType, ['window', 'door'])) {

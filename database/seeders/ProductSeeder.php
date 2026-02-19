@@ -46,7 +46,6 @@ class ProductSeeder extends Seeder
                 'base_dimensions' => [
                     'width' => 1.2,
                     'height' => 1.5,
-                    'depth' => 0.08,
                     'frameWidth' => 0.05
                 ],
                 'base_cost' => 0.00,
@@ -106,7 +105,6 @@ class ProductSeeder extends Seeder
                 'base_dimensions' => [
                     'width' => 1.0,
                     'height' => 1.2,
-                    'depth' => 0.02,
                     'frameWidth' => 0.02
                 ],
                 'base_cost' => 0.00,
