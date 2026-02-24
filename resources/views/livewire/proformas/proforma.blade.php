@@ -629,7 +629,7 @@
     <!-- Precio Total -->
     <div class="mt-4 p-4 bg-gradient-to-r from-cyan-700/30 to-slate-700/30 border border-cyan-400/40 rounded-xl">
         <p class="text-sm text-white/70 mb-1">
-            <span>Precio Final del Producto:</span>
+            <span>Precio del Producto:</span>
         </p>
         <p class="text-4xl font-bold text-white">
             <span>${{ number_format($calculatedPrice, 2) }}</span>

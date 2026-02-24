@@ -260,7 +260,7 @@ new class extends Component {
     <div class="space-y-2">
         <!-- Botón de Login -->
                     <button type="submit" 
-                    class="group relative w-full flex justify-center py-2 px-4 border border-cyan-600/40 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                    class="group relative w-full flex justify-center py-2 px-4 border border-cyan-600/40 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl cursor-pointer">
                     <span class="absolute left-0 inset-y-0 flex items-center pl-3">
                         <svg class="h-4 w-4 text-slate-300 group-hover:text-slate-200" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 1 1 6 0z" clip-rule="evenodd" />
@@ -284,13 +284,14 @@ new class extends Component {
 <!-- Botón de Google rediseñado -->
 <div class="space-y-4">
                     <button type="button" onclick="window.location='{{ route('auth.google') }}'"
-                    class="group relative w-full flex justify-center py-2 px-4 border border-slate-200 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
+                    class="group relative w-full flex justify-center py-2 px-4 border border-slate-200 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg cursor-pointer">
                     <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <svg class="h-5 w-5 text-slate-600" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="#F2F2F2"/>
+                            <path d="M19.6 12.2c0-.82-.1-1.42-.25-2.05H12v3.72h4.3c-.15.96-.74 2.31-2.04 3.22v2.45h3.16c1.89-1.73 2.98-4.3 2.98-7.34z" fill="#4285F4"/>
+                            <path d="M13.46 15.13c-.83.8-2.18 1.9-4.46 1.9-3.37 0-6.18-2.74-6.18-6.12 0-3.38 2.81-6.12 6.18-6.12 1.88 0 3.14.61 4.33 1.75l2.45-2.41C16.27 2.5 14.21 1.5 12 1.5 6.48 1.5 2 6.01 2 11.5s4.48 10 10 10c2.7 0 4.76-.88 6.3-2.64l-2.13-1.73z" fill="#34A853"/>
+                            <path d="M12 22c2.1 0 3.92-.64 5.23-1.82l-3.16-2.45c-.91.64-2.05 1.08-3.39 1.08-2.27 0-4.26-1.48-4.99-3.64H3.42v2.5C4.74 20.33 8.15 22 12 22z" fill="#EA4335"/>
+                            <path d="M7.07 14.17c-.18-.64-.27-1.31-.27-2s.1-1.36.26-2v-2.5H3.42C2.85 7.87 2.5 9.61 2.5 11.5s.35 3.63.92 5.17l3.16-2.5z" fill="#FBBC04"/>
                         </svg>
                     </span>
                     Continuar con Google

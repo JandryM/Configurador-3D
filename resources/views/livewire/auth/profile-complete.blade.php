@@ -21,7 +21,7 @@
                                 <p class="text-sm text-white/80">Actualice su información personal</p>
                             </div>
                         </div>
-                        <button wire:click="closeModal" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors duration-200">
+                        <button wire:click="closeModal" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors duration-200 cursor-pointer">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                             </svg>
@@ -172,7 +172,7 @@
                                     <input type="tel" 
                                            wire:model="phone" 
                                            id="phone"
-                                           class="w-full pl-10 pr-4 py-2.5 bg-black/30 border border-white/20 rounded-xl text-white placeholder-slate-300 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300"
+                                           class="w-full pl-10 pr-4 py-2.5 bg-black/30 border border-white/20 rounded-xl text-white placeholder-white/30 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300"
                                            placeholder="Ej: 0987654321">
                                 </div>
                                 @error('phone') 
@@ -194,7 +194,7 @@
                                     <input type="text" 
                                            wire:model="address" 
                                            id="address"
-                                           class="w-full pl-10 pr-4 py-2.5 bg-black/30 border border-white/20 rounded-xl text-white placeholder-slate-300 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300"
+                                           class="w-full pl-10 pr-4 py-2.5 bg-black/30 border border-white/20 rounded-xl text-white placeholder-white/30 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300"
                                            placeholder="Ingrese su dirección completa">
                                 </div>
                                 @error('address') 
@@ -266,12 +266,12 @@
                                     wire:click="closeModal"
                                     class="px-4 py-2 text-sm font-medium text-white bg-transparent border border-white/20 rounded-lg
                                         focus:ring-2 focus:ring-cyan-400 focus:border-transparent
-                                        transition-all duration-200 hover:bg-white hover:text-black hover:scale-[1.02] hover:shadow-lg">
+                                        transition-all duration-200 hover:bg-white hover:text-black hover:scale-[1.02] hover:shadow-lg cursor-pointer">
                                 Cancelar
                             </button>
 
                             <button type="submit"
-                                    class="group relative w-full flex justify-center py-2 px-4 border border-cyan-600/40 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                    class="group relative w-full flex justify-center py-2 px-4 border border-cyan-600/40 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl cursor-pointer">
                                 <div wire:loading wire:target="updateProfile" class="inline-flex items-center">
                                     <svg class="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

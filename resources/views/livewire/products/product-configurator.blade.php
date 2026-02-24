@@ -1,5 +1,43 @@
-<div x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" 
-     x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val))"
+<div x-data="{
+    darkMode: localStorage.getItem('darkMode') === 'true',
+    savedConfigs: [],
+    _lsKey: 'prf_cfgs_{{ $product->id }}',
+    initConfigs() {
+        try { this.savedConfigs = JSON.parse(localStorage.getItem(this._lsKey) || '[]'); } catch(e) { this.savedConfigs = []; }
+    },
+    saveConfig(cfg) {
+        const isDuplicate = this.savedConfigs.some(existing =>
+            parseFloat(existing.parameters?.width  ?? 0).toFixed(3) === parseFloat(cfg.parameters?.width  ?? 0).toFixed(3) &&
+            parseFloat(existing.parameters?.height ?? 0).toFixed(3) === parseFloat(cfg.parameters?.height ?? 0).toFixed(3) &&
+            (existing.parameters?.color      ?? '') === (cfg.parameters?.color      ?? '') &&
+            (existing.parameters?.glassColor ?? '') === (cfg.parameters?.glassColor ?? '')
+        );
+        if (isDuplicate) return;
+        this.savedConfigs.push(cfg);
+        localStorage.setItem(this._lsKey, JSON.stringify(this.savedConfigs));
+    },
+    removeConfig(i) {
+        this.savedConfigs.splice(i, 1);
+        localStorage.setItem(this._lsKey, JSON.stringify(this.savedConfigs));
+    },
+    updateConfigQty(i, delta) {
+        const cfg = this.savedConfigs[i];
+        const qty = Math.max(1, parseInt(cfg.quantity || 1));
+        const unitPrice = parseFloat(cfg.calculated_price || 0) / qty;
+        const newQty = Math.max(1, qty + delta);
+        this.savedConfigs[i] = { ...cfg, quantity: newQty, calculated_price: unitPrice * newQty };
+        localStorage.setItem(this._lsKey, JSON.stringify(this.savedConfigs));
+    },
+    clearSaved() {
+        this.savedConfigs = [];
+        localStorage.removeItem(this._lsKey);
+    },
+    get configsTotal() {
+        return this.savedConfigs.reduce((s, c) => s + parseFloat(c.calculated_price || 0), 0);
+    }
+}"
+     x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val)); initConfigs()"
+     @configuraciones-guardadas.window="clearSaved()"
      :class="darkMode ? 'dark' : ''"
      class="w-full h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 dark:from-gray-950 dark:via-slate-950 dark:to-slate-900 px-3 sm:px-4 md:px-5 lg:px-6 py-3 pt-16 sm:pt-20 md:pt-20 lg:pt-20 overflow-hidden transition-colors duration-300">
         
@@ -474,14 +512,18 @@
                                     <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                     </svg>
-                                    <span class="text-xs sm:text-sm">Completa tus datos</span>
+                                    <button type="button"
+                                            onclick="Livewire.dispatch('openProfileModal')"
+                                            class="text-xs sm:text-sm font-bold text-blue-700 underline underline-offset-2 hover:text-blue-900 transition-colors cursor-pointer ml-0.5">
+                                        Completa tus datos
+                                    </button>
                                 </div>
                             @endif
                             <div class="relative group">
                                 <button type="button"
-                                        wire:click="$set('showProformaModal', true)"
-                                        class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-xs sm:text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed border border-blue-500/20 cursor-pointer"
-                                        @if(empty($calculatedPrice) || $calculatedPrice == 0 || (isset($userProfileComplete) && !$userProfileComplete)) disabled aria-disabled="true" @endif>
+                                        @click="savedConfigs.length > 0 && $wire.set('showProformaModal', true)"
+                                        :disabled="savedConfigs.length === 0"
+                                        class="relative w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-xs sm:text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed border border-blue-500/20 cursor-pointer">
                                     <!-- Ícono de documento/lista con efecto brillante -->
                                     <svg class="w-5 h-5 sm:w-6 sm:h-6 inline-block mr-1.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <defs>
@@ -501,11 +543,30 @@
                                         </g>
                                     </svg>
                                     <span>VISUALIZAR PROFORMA</span>
+                                    <!-- Badge con count -->
+                                    <span x-show="savedConfigs.length > 0" x-cloak
+                                          x-text="savedConfigs.length"
+                                          class="absolute -top-2.5 -right-2.5 min-w-[1.5rem] h-6 rounded-full bg-red-400 text-slate-900 text-xs font-black flex items-center justify-center px-1.5 shadow-xl border-2 border-white ring-2 ring-red-300/60">
+                                    </span>
                                 </button>
                                 <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                                     Ver detalles de la proforma
                                 </span>
                             </div>
+                            @if(!(isset($userProfileComplete) && !$userProfileComplete))
+                            <button type="button"
+                                    @click="saveConfig({
+                                        parameters: $wire.parameters,
+                                        quantity: $wire.quantity,
+                                        calculated_price: $wire.calculatedPrice,
+                                        material_costs: $wire.materialCosts,
+                                        savedAt: new Date().toISOString()
+                                    })"
+                                    :disabled="$wire.calculatedPrice == 0 || $wire.calculatedPrice == null"
+                                    class="w-full bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-medium py-1.5 sm:py-2 px-3 rounded-lg transition-all duration-200 text-xs sm:text-sm disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer border border-slate-300/60 dark:border-slate-700/60 hover:border-slate-400 dark:hover:border-slate-500">
+                                Guardar configuración
+                            </button>
+                            @endif
                         @else
                             <div class="w-full bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 text-amber-800 font-semibold py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-center shadow-lg">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1.5" fill="currentColor" viewBox="0 0 20 20">
@@ -526,6 +587,33 @@
                 <div class="w-full max-w-2xl relative overflow-visible">
                     <button @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-white text-3xl font-bold z-10 cursor-pointer">&times;</button>
                     @if(Auth::check())
+                        @if($savedState)
+                        <!-- Panel de éxito post-guardado -->
+                        <div class="bg-black/70 backdrop-blur-md rounded-2xl shadow-2xl w-full p-8 relative text-white flex flex-col items-center gap-5 text-center">
+                            <div class="w-20 h-20 rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center mx-auto mt-2">
+                                <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-emerald-400 text-xs font-bold uppercase tracking-widest mb-1">&iexcl;Guardado exitosamente!</p>
+                                <h3 class="text-3xl font-black text-white">{{ $savedProformaNumber }}</h3>
+                                <p class="text-white/60 text-sm mt-2">Tu configuraci&oacute;n fue guardada en esta proforma</p>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-3 w-full pt-2">
+                                <button type="button"
+                                        @click="show = false; $wire.openUserProformasModal()"
+                                        class="flex-1 px-5 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all hover:scale-[1.02] cursor-pointer">
+                                     Ver mis proformas
+                                </button>
+                                <button type="button"
+                                        @click="show = false"
+                                        class="flex-1 px-5 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-all hover:scale-[1.02] cursor-pointer">
+                                    Configurar otro producto
+                                </button>
+                            </div>
+                        </div>
+                        @else
                         <div class="bg-black/70 backdrop-blur-md rounded-2xl shadow-2xl w-full p-6 md:p-8 relative text-white overflow-hidden">
                             @if (session()->has('message'))
                                 <div x-data="{ show: true }" 
@@ -540,7 +628,7 @@
                                      class="fixed inset-0 z-[100] flex items-center justify-center">
                                     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
                                     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-8 relative mx-4 border-2 border-green-500">
-                                        <button type="button" @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl font-bold">&times;</button>
+                                        <button type="button" @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl font-bold cursor-pointer">&times;</button>
                                         <div class="flex flex-col items-center">
                                             <svg class="w-16 h-16 text-green-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -561,52 +649,9 @@
                                 </div>
                             @endif
                             <div class="overflow-y-auto max-h-[75vh] pr-2" style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.3) rgba(255,255,255,0.1);">
-                                @if($currentProformaStatus === 'saved')
-                                    <div class="mb-4 p-4 bg-green-500/20 border border-green-400/50 rounded-lg">
-                                        <p class="text-green-200 text-sm font-medium mb-2">✓ Esta configuración ya está guardada</p>
-                                        <p class="text-green-100/70 text-xs">Se encuentra en la proforma {{ DB::table('proformas')->where('id', $currentProformaId)->value('number') }}. Puedes actualizar la cantidad.</p>
-                                    </div>
-                                @else
-                                    <div class="mb-4 p-4 bg-blue-500/20 border border-blue-400/50 rounded-lg">
-                                        <p class="text-blue-200 text-sm font-medium mb-2">➕ Nueva configuración</p>
-                                        <p class="text-blue-100/70 text-xs">Elige dónde guardar esta configuración: crea una nueva proforma o agrégala a una existente.</p>
-                                    </div>
-                                @endif
-
-                                <div class="mb-4 p-4 bg-black/30 border border-white/20 rounded-xl">
-                                    <h4 class="text-sm font-semibold text-white mb-3">🔢 Ajustar Cantidad</h4>
-                                    <div class="flex items-center gap-3">
-                                        <button type="button" 
-                                                wire:click="$set('quantity', {{ max(1, $quantity - 1) }})"
-                                                class="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-bold transition-all duration-200 hover:scale-105 shadow-md cursor-pointer">
-                                            -
-                                        </button>
-                                        
-                                        <input type="number" 
-                                               wire:model.live="quantity"
-                                               min="1" 
-                                               step="1"
-                                               class="flex-1 px-4 py-2 text-center text-lg font-bold border-2 border-white/20 bg-black/30 text-white rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200/50 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all duration-200">
-                                        
-                                        <button type="button" 
-                                                wire:click="$set('quantity', {{ $quantity + 1 }})"
-                                                class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-bold transition-all duration-200 hover:scale-105 shadow-md cursor-pointer">
-                                            +
-                                        </button>
-                                    </div>
-                                    <div class="mt-2 text-sm text-white/70 text-center">
-                                        <span class="font-medium">Precio unitario:</span> ${{ number_format($calculatedPrice / max(1, $quantity), 2) }}
-                                    </div>
-
-                                    <!-- Botón colapsable para notas -->
-                                    <div class="mt-2 flex justify-end">
-                                        <button type="button" onclick="document.getElementById('notes-section').classList.toggle('hidden'); this.classList.toggle('opacity-70')" class="text-xs text-cyan-200 hover:text-cyan-100 px-2 py-1 rounded transition-opacity opacity-50 focus:outline-none cursor-pointer">
-                                            📝 Añadir notas opcionales
-                                        </button>
-                                    </div>
-                                    <div id="notes-section" class="hidden mt-2">
-                                        <textarea wire:model.defer="parameters.notes" rows="2" maxlength="250" placeholder="Notas para esta configuración (opcional)" class="w-full px-3 py-2 rounded-lg border border-white/20 bg-black/30 text-white text-xs focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200/50 resize-none"></textarea>
-                                    </div>
+                                <div class="mb-4 p-4 bg-blue-500/20 border border-blue-400/50 rounded-lg">
+                                    <p class="text-blue-200 text-sm font-medium mb-1">Configuraciones guardadas</p>
+                                    <p class="text-blue-100/70 text-xs">Elige dónde guardar tus configuraciones: crea una nueva proforma o agrégalas a una existente.</p>
                                 </div>
 
                                 @include('livewire.proformas.proforma', [
@@ -621,102 +666,95 @@
                                     'wastePercentage' => $wastePercentage ?? null
                                 ])
 
-                                @if($currentProformaId && $proformaItems && $proformaItems->count() > 0)
-                                <div class="mt-6 pt-6 border-t border-white/20">
-                                    <h4 class="text-lg font-bold text-white mb-4">📦 Ítems en esta Proforma ({{ $proformaItems->count() }} {{ $proformaItems->count() == 1 ? 'ítem' : 'ítems' }})</h4>
+                                <!-- Configuraciones guardadas en localStorage -->
+                                <div x-show="savedConfigs.length > 0" x-cloak class="mt-6 pt-6 border-t border-white/20">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h4 class="text-lg font-bold text-white">Mis configuraciones (<span x-text="savedConfigs.length"></span>)</h4>
+                                        <button type="button" @click="clearSaved()"
+                                                class="text-xs text-white/50 hover:text-red-400 transition-colors cursor-pointer px-2 py-1 rounded">
+                                            Limpiar todo
+                                        </button>
+                                    </div>
                                     <div class="space-y-3 max-h-64 overflow-y-auto">
-                                        @foreach($proformaItems as $item)
-                                        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 hover:bg-white/15 transition-all">
-                                            <div class="flex items-start gap-3">
+                                        <template x-for="(cfg, i) in savedConfigs" :key="i">
+                                            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 hover:bg-white/15 transition-all flex items-start gap-3">
                                                 <div class="flex-1">
-                                                    <h5 class="font-semibold text-white mb-1">{{ $item->product_name }}</h5>
+                                                    <p class="font-semibold text-white text-sm mb-1">{{ $product->name }}</p>
                                                     <div class="text-xs text-white/70 space-y-1">
-                                                        @if(isset($item->parsed_config['parameters']))
-                                                        <div class="flex gap-4">
-                                                            @if(isset($item->parsed_config['parameters']['width']))
-                                                            <span>📏 {{ number_format($item->parsed_config['parameters']['width'], 2) }}m × {{ number_format($item->parsed_config['parameters']['height'], 2) }}m</span>
-                                                            @endif
-                                                            @if(isset($item->parsed_config['parameters']['color']))
-                                                            <span>🎨 {{ $item->parsed_config['parameters']['color'] }}</span>
-                                                            @endif
+                                                        <div class="flex gap-3 flex-wrap">
+                                                            <span x-text="(cfg.parameters?.width ?? 0).toFixed(2) + 'm × ' + (cfg.parameters?.height ?? 0).toFixed(2) + 'm'"></span>
+                                                            <span x-text="cfg.parameters?.color ?? ''"></span>
                                                         </div>
-                                                        @endif
-                                                        <div class="flex gap-4 mt-2">
-                                                            <span class="font-medium">Cantidad: {{ $item->quantity }}</span>
-                                                            <span class="font-bold text-cyan-300">${{ number_format($item->price, 2) }}</span>
+                                                        <div class="flex items-center gap-2 mt-2">
+                                                            <button type="button" @click="updateConfigQty(i, -1)"
+                                                                    class="w-7 h-7 flex items-center justify-center bg-white/10 hover:bg-red-500/70 text-white rounded-md font-bold transition-all duration-150 hover:scale-110 cursor-pointer text-base leading-none">
+                                                                &minus;
+                                                            </button>
+                                                            <span class="min-w-[2rem] text-center font-bold text-white text-sm" x-text="cfg.quantity ?? 1"></span>
+                                                            <button type="button" @click="updateConfigQty(i, 1)"
+                                                                    class="w-7 h-7 flex items-center justify-center bg-white/10 hover:bg-green-500/70 text-white rounded-md font-bold transition-all duration-150 hover:scale-110 cursor-pointer text-base leading-none">
+                                                                &plus;
+                                                            </button>
+                                                            <span class="text-cyan-300 font-bold text-sm ml-1" x-text="'$' + parseFloat(cfg.calculated_price || 0).toFixed(2)"></span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($item->product_id == $product->id && isset($item->parsed_config['parameters']) && 
-                                                    $item->parsed_config['parameters']['width'] == $parameters['width'] &&
-                                                    $item->parsed_config['parameters']['height'] == $parameters['height'] &&
-                                                    ($item->parsed_config['parameters']['color'] ?? null) == ($parameters['color'] ?? null))
-                                                <span class="text-green-400 text-xs font-bold">✓ Actual</span>
-                                                @endif
+                                                <button type="button" @click="removeConfig(i)"
+                                                        class="text-white/40 hover:text-red-400 text-xl font-bold leading-none transition-colors cursor-pointer flex-shrink-0">
+                                                    &times;
+                                                </button>
                                             </div>
-                                        </div>
-                                        @endforeach
+                                        </template>
                                     </div>
-                                    <div class="mt-4 p-4 bg-gradient-to-r from-blue-600/30 to-cyan-600/30 rounded-lg border border-blue-400/30">
+                                    <div class="mt-4 p-4 bg-gradient-to-r from-violet-600/30 to-purple-600/30 rounded-lg border border-violet-400/30">
                                         <div class="flex justify-between items-center">
-                                            <span class="text-white font-semibold">Total de la Proforma:</span>
-                                            <span class="text-2xl font-bold text-white">${{ number_format($proformaTotalPrice, 2) }}</span>
+                                            <span class="text-white font-semibold">Total:</span>
+                                            <span class="text-2xl font-bold text-white" x-text="'$' + configsTotal.toFixed(2)"></span>
                                         </div>
                                     </div>
                                 </div>
-                                @endif
                             </div>
                             <div class="mt-6 pt-6 border-t border-white/20">
-                                @if($currentProformaStatus === 'saved')
-                                    <!-- Configuración ya guardada - Solo actualizar -->
-                                    <div class="flex flex-col sm:flex-row justify-end gap-3">
-                                        <button type="button" 
-                                                wire:click="guardarProforma" 
-                                                class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl cursor-pointer">
-                                            🔄 Actualizar Cantidad
-                                        </button>
-                                        
-                                        @if($currentProformaId)
-                                            <button type="button" 
-                                                    @click="$wire.set('showOrderConfirmModal', true)" 
-                                                    class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl cursor-pointer">
-                                                🚀 Ordenar Proforma
-                                            </button>
-                                            
-                                            <button type="button" 
-                                                    wire:click="downloadProformaPdf({{ $currentProformaId }})" 
-                                                    class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl cursor-pointer">
-                                                📄 Descargar PDF
-                                            </button>
-                                        @endif
+                                <!-- Notas de la proforma -->
+                                <div class="mb-4" x-data="{ showNotes: false }">
+                                    <button type="button"
+                                            @click="showNotes = !showNotes"
+                                            class="text-xs text-white/50 hover:text-cyan-300 transition-colors cursor-pointer focus:outline-none">
+                                        <span x-text="showNotes ? '▲ Ocultar notas' : '▼ Añadir notas opcionales'"></span>
+                                    </button>
+                                    <div x-show="showNotes" x-transition class="mt-2">
+                                        <textarea wire:model.defer="parameters.notes"
+                                                  rows="2" maxlength="250"
+                                                  placeholder="Notas para esta proforma (opcional)"
+                                                  class="w-full px-3 py-2 rounded-lg border border-white/20 bg-black/30 text-white text-xs placeholder-white/40 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200/30 resize-none outline-none"></textarea>
                                     </div>
-                                @else
-                                    <!-- Botones principales para nueva configuración -->
-                                    <div class="flex flex-col sm:flex-row justify-end gap-3">
-                                        @if(isset($userProfileComplete) && !$userProfileComplete)
-                                            <div class="w-full bg-gradient-to-r from-yellow-100 to-amber-100 border border-yellow-300/50 text-yellow-800 font-semibold py-2 px-4 rounded-xl text-center shadow-md mb-2">
-                                                ⚠️ Debes completar tus datos personales para guardar una proforma.
-                                            </div>
-                                        @endif
-                                        <button type="button" 
-                                                @click="$wire.set('showCreateConfirmModal', true)" 
-                                                class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                                                @if(empty($calculatedPrice) || $calculatedPrice == 0 || (isset($userProfileComplete) && !$userProfileComplete)) disabled aria-disabled="true" @endif>
-                                            ➕ Crear Nueva Proforma
-                                        </button>
-                                        
-                                        @if(count($availableProformas) > 0)
-                                        <button type="button" 
-                                                wire:click="openProformaSelectorModal" 
-                                                class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                                                @if(isset($userProfileComplete) && !$userProfileComplete) disabled aria-disabled="true" @endif>
-                                            📋 Agregar a Proforma Existente
-                                        </button>
-                                        @endif
+                                </div>
+                                <!-- Botones principales -->
+                                <div class="flex flex-col sm:flex-row justify-end gap-3">
+                                    @if(isset($userProfileComplete) && !$userProfileComplete)
+                                    <div class="w-full bg-gradient-to-r from-yellow-100 to-amber-100 border border-yellow-300/50 text-yellow-800 font-semibold py-2 px-4 rounded-xl text-center shadow-md mb-2">
+                                        Debes completar tus datos personales para guardar una proforma.
                                     </div>
-                                @endif
+                                    @endif
+                                    <button type="button"
+                                            @click="$wire.guardarConfiguracionesGuardadas(savedConfigs, null)"
+                                            :disabled="savedConfigs.length === 0 || !@json($userProfileComplete ?? true)"
+                                            class="px-4 py-2 text-sm font-medium border border-cyan-600/40 rounded-lg text-white bg-gradient-to-r from-cyan-700 to-slate-700 hover:from-cyan-800 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                                        <span x-show="savedConfigs.length > 1" x-cloak x-text="`Crear Proforma (${savedConfigs.length} configs)`"></span>
+                                        <span x-show="savedConfigs.length <= 1">Crear Nueva Proforma</span>
+                                    </button>
+                                    @if(count($availableProformas) > 0)
+                                    <button type="button"
+                                            wire:click="openProformaSelectorModal"
+                                            :disabled="savedConfigs.length === 0 || !@json($userProfileComplete ?? true)"
+                                            class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                                        Agregar a Proforma Existente
+                                    </button>
+                                    @endif
+                                </div>
                             </div>
                         </div>
+                        @endif
                     @else
                         <div class="bg-black/70 backdrop-blur-md rounded-2xl shadow-xl w-full p-8 relative flex flex-col items-center">
                             <svg class="w-16 h-16 text-yellow-400 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -727,7 +765,7 @@
                 </div>
             </div>
         </div>
-            <!-- Modal Selector de Proformas (Separado) -->
+        <!-- Modal Selector de Proformas (Separado) -->
     <div x-data="{ show: @entangle('showProformaSelectorModal') }" x-show="show" x-transition x-cloak class="fixed inset-0 z-[60]">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
         <div class="flex items-center justify-center min-h-screen px-4 py-6">
@@ -736,7 +774,7 @@
                     <button @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-white text-3xl font-bold z-10">&times;</button>
                     
                     <div class="mb-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">📋 Selecciona una Proforma</h3>
+                        <h3 class="text-2xl font-bold text-white mb-2">Selecciona una Proforma</h3>
                         <p class="text-white/70 text-sm">Elige a qué proforma deseas agregar esta configuración</p>
                     </div>
 
@@ -776,14 +814,15 @@
                     <div class="flex gap-3">
                         <button type="button" 
                                 wire:click="closeProformaSelectorModal"
-                                class="flex-1 px-5 py-3 text-sm font-medium bg-gray-600 hover:bg-gray-700 text-white rounded-xl transition-all hover:scale-[1.02]">
+                                class="flex-1 px-5 py-3 text-sm font-medium bg-gray-600 hover:bg-gray-700 text-white rounded-xl transition-all hover:scale-[1.02] cursor-pointer">
                             Cancelar
                         </button>
                         <button type="button" 
-                                wire:click="guardarEnProformaSeleccionada"
-                                class="flex-1 px-5 py-3 text-sm font-medium bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-xl transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                                @if(!$selectedProformaToAdd) disabled @endif>
-                            ✓ Agregar a Proforma
+                                @click="$wire.guardarConfiguracionesGuardadas(savedConfigs, $wire.selectedProformaToAdd)"
+                                :disabled="!$wire.selectedProformaToAdd || savedConfigs.length === 0"
+                                class="flex-1 px-5 py-3 text-sm font-medium bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-xl transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer">
+                            <span x-show="savedConfigs.length > 1" x-cloak x-text="`Agregar ${savedConfigs.length} configs`"></span>
+                            <span x-show="savedConfigs.length <= 1">Agregar a Proforma</span>
                         </button>
                     </div>
                 </div>
@@ -825,7 +864,7 @@
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
         <div class="flex items-center justify-center min-h-screen px-4">
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
-                <button type="button" @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl font-bold">&times;</button>
+                <button type="button" @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl font-bold cursor-pointer">&times;</button>
                 <div class="flex flex-col items-center">
                     <svg class="w-16 h-16 text-cyan-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -834,8 +873,8 @@
                     <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2 text-center">¿Crear nueva proforma?</h3>
                     <p class="text-gray-600 dark:text-gray-300 text-center mb-6">Se creará una nueva proforma con la configuración actual. ¿Deseas continuar?</p>
                     <div class="flex gap-4 w-full">
-                        <button type="button" @click="show = false" class="flex-1 px-5 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 text-gray-800 dark:text-white rounded-lg font-semibold transition-all">Cancelar</button>
-                        <button type="button" wire:click="crearNuevaProforma" @click="show = false" class="flex-1 px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-lg font-semibold shadow-lg transition-all">Confirmar</button>
+                        <button type="button" @click="show = false" class="flex-1 px-5 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 text-gray-800 dark:text-white rounded-lg font-semibold transition-all cursor-pointer">Cancelar</button>
+                        <button type="button" wire:click="crearNuevaProforma" @click="show = false" class="flex-1 px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-lg font-semibold shadow-lg transition-all cursor-pointer">Confirmar</button>
                     </div>
                 </div>
             </div>
@@ -938,6 +977,10 @@
             loader.style.display = 'none';
         }
     }
+
+    Livewire.on('configuraciones-guardadas', () => {
+        window.dispatchEvent(new CustomEvent('configuraciones-guardadas'));
+    });
 
     Livewire.on('updateModel3D', (data) => {
         

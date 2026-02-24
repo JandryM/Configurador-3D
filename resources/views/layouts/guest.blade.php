@@ -56,6 +56,23 @@
                 50% { background-position: 100% 50%; }
                 100% { background-position: 0% 50%; }
             }
+
+            /* Wiggle animation para botón usuario (solo si hay proformas) */
+            @keyframes wiggle {
+                0%   { transform: rotate(0deg); }
+                5%   { transform: rotate(-6deg); }
+                11%  { transform: rotate(6deg); }
+                16%  { transform: rotate(-4deg); }
+                19%  { transform: rotate(0deg); }
+                100% { transform: rotate(0deg); }
+            }
+            .animate-wiggle {
+                animation: wiggle 2.5s ease-in-out infinite;
+                transform-origin: center;
+            }
+            .animate-wiggle:hover {
+                animation: none;
+            }
         </style>
         @livewireStyles
     </head>
@@ -125,13 +142,14 @@
                         @auth
                             <!-- Usuario logueado -->
                             <div class="flex items-center space-x-1.5 md:space-x-2 xl:space-x-4">
+                                @php $hasProformas = \App\Models\Proforma::where('user_id', auth()->id())->exists(); @endphp
                                 @if(auth()->user()->role !== 'client')
                                     <a href="{{ route('admin.dashboard') }}" class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-2 py-1.5 md:px-3 md:py-2 xl:px-6 xl:py-3 rounded-lg xl:rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg text-xs md:text-sm xl:text-base">
                                         Dashboard
                                     </a>
                                 @endif
                                 <div class="relative group">
-                                    <button class="flex items-center space-x-0.5 md:space-x-1 xl:space-x-2 text-white/90 hover:text-white transition-colors duration-300">
+                                    <button class="{{ $hasProformas && request()->routeIs('configurador') ? 'animate-wiggle' : '' }} flex items-center space-x-0.5 md:space-x-1 xl:space-x-2 text-white/90 hover:text-white transition-colors duration-300">
                                         <div class="w-6 h-6 md:w-7 md:h-7 xl:w-8 xl:h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center relative">
                                             <span class="text-xs font-semibold">{{ substr(auth()->user()->name, 0, 1) }}</span>
                                         </div>
@@ -156,6 +174,12 @@
                                                     <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
                                                 </svg>
                                                 <span>Mis Proformas</span>
+                                                @if($hasProformas)
+                                                <span class="relative flex h-2 w-2 ml-auto">
+                                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                                                </span>
+                                                @endif
                                             </a>
                                             @auth
                                                 @if(empty(auth()->user()->oauth_provider))
@@ -241,8 +265,14 @@
                                 <a href="javascript:void(0)" id="openProfileModalMobile" class="block text-white/90 hover:text-white transition-colors duration-300 font-medium py-1.5 sm:py-2 text-sm sm:text-base">
                                     Mi Perfil
                                 </a>
-                                <a href="javascript:void(0)" id="openProformasModalMobile" class="block text-white/90 hover:text-white transition-colors duration-300 font-medium py-1.5 sm:py-2 text-sm sm:text-base">
+                                <a href="javascript:void(0)" id="openProformasModalMobile" class="flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-300 font-medium py-1.5 sm:py-2 text-sm sm:text-base">
                                     Mis Proformas
+                                    @if($hasProformas)
+                                    <span class="relative flex h-2 w-2 ml-1">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                                    </span>
+                                    @endif
                                 </a>
                                 @auth
                                     @if(empty(auth()->user()->oauth_provider))
@@ -378,7 +408,11 @@
                 <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
                 <div class="flex items-center justify-center min-h-screen">
                     <div class="w-full max-w-md relative overflow-visible">
-                        <button @click="$store.loginModal.open = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-3xl font-bold z-10">&times;</button>
+                        <button @click="$store.loginModal.open = false" class="absolute top-3 right-3 z-10 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors duration-200 cursor-pointer">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
                         <livewire:auth.login />
                     </div>
                 </div>
@@ -389,7 +423,11 @@
                 <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
                 <div class="flex items-center justify-center min-h-screen">
                     <div class="w-full max-w-2xl relative overflow-visible">
-                        <button @click="$store.registerModal.open = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-3xl font-bold z-10">&times;</button>
+                        <button @click="$store.registerModal.open = false" class="absolute top-3 right-3 z-10 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors duration-200 cursor-pointer">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
                         <livewire:auth.register />
                     </div>
                 </div>
@@ -400,7 +438,7 @@
                 <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] transition-opacity"></div>
                 <div class="flex items-center justify-center min-h-screen">
                     <div class="w-full max-w-md relative overflow-visible">
-                        <button @click="$store.forgotPasswordModal.open = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-3xl font-bold z-10">&times;</button>
+                        <button @click="$store.forgotPasswordModal.open = false" class="absolute top-3 right-3 text-gray-400 hover:text-white text-3xl font-bold z-10 cursor-pointer">&times;</button>
                         <livewire:forgot-password-modal />
                     </div>
                 </div>

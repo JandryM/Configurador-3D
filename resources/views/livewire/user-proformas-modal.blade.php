@@ -202,27 +202,27 @@
                                                 @else
                                                     @if($item['status'] === 'pending')
                                                         <span class="px-2 py-1 bg-yellow-500/20 backdrop-blur-sm border border-yellow-500/30 text-yellow-300 rounded-full text-xs font-semibold">
-                                                            ⏳ En Aprobación
+                                                            En Aprobación
                                                         </span>
                                                     @elseif($item['status'] === 'approved')
                                                         <span class="px-2 py-1 bg-blue-500/20 backdrop-blur-sm border border-blue-500/30 text-blue-300 rounded-full text-xs font-semibold">
-                                                            💳 Pendiente Pago
+                                                            Pendiente Pago
                                                         </span>
                                                     @elseif($item['status'] === 'paid')
                                                         <span class="px-2 py-1 bg-emerald-500/20 backdrop-blur-sm border border-emerald-500/30 text-emerald-300 rounded-full text-xs font-semibold">
-                                                            💰 Pagada
+                                                            Pagada
                                                         </span>
                                                     @elseif($item['status'] === 'in_production')
                                                         <span class="px-2 py-1 bg-purple-500/20 backdrop-blur-sm border border-purple-500/30 text-purple-300 rounded-full text-xs font-semibold">
-                                                            🔨 En Producción
+                                                            En Producción
                                                         </span>
                                                     @elseif($item['status'] === 'completed')
                                                         <span class="px-2 py-1 bg-green-500/20 backdrop-blur-sm border border-green-500/30 text-green-300 rounded-full text-xs font-semibold">
-                                                            ✅ Completada
+                                                            Completada
                                                         </span>
                                                     @elseif($item['status'] === 'cancelled')
                                                         <span class="px-2 py-1 bg-red-500/20 backdrop-blur-sm border border-red-500/30 text-red-300 rounded-full text-xs font-semibold">
-                                                            ❌ Rechazada
+                                                            Rechazada
                                                         </span>
                                                     @endif
                                                 @endif
@@ -509,46 +509,108 @@
                     
                     <div class="space-y-4">
                         @foreach($selectedProforma['items'] as $item)
-                        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                            <div class="flex justify-between items-start mb-2">
-                                <h5 class="font-bold text-lg">{{ $item['product_name'] }}</h5>
-                                <span class="text-cyan-300 font-bold text-lg">${{ number_format($item['price'], 2) }}</span>
+                        @php
+                            $colorTranslations = [
+                                'Natural'                    => 'Natural',
+                                'White'                      => 'Blanco',
+                                'Black Anodized'             => 'Negro Anodizado',
+                                'Woody'                      => 'Madera',
+                                'Bronze'                     => 'Bronze',
+                                'Silver'                     => 'Plateado',
+                                'Gold'                       => 'Dorado',
+                                'Transparent Glass'          => 'Vidrio Transparente',
+                                'Tinted Glass'               => 'Vidrio Tintado',
+                                'Frosted Glass'              => 'Vidrio Esmerilado',
+                                'Reflective Blue Sky Glass'  => 'Azul Cielo Reflectivo',
+                                'Reflective Gray Dark Glass' => 'Gris Oscuro Reflectivo',
+                            ];
+                            $params   = $item['parameters'] ?? [];
+                            $width    = isset($params['width'])  ? (float)$params['width']  : null;
+                            $height   = isset($params['height']) ? (float)$params['height'] : null;
+                            $area     = ($width && $height)      ? $width * $height          : null;
+                            $colorRaw = $params['color']      ?? null;
+                            $glassRaw = $params['glassColor'] ?? null;
+                            $colorLabel = $colorRaw ? ($colorTranslations[$colorRaw] ?? $colorRaw) : null;
+                            $glassLabel = $glassRaw ? ($colorTranslations[$glassRaw] ?? $glassRaw) : null;
+                            $notes    = $item['notes'] ?? ($params['notes'] ?? null);
+                            $unitPrice = $item['quantity'] > 0 ? $item['price'] / $item['quantity'] : $item['price'];
+                        @endphp
+                        <div class="bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 overflow-hidden">
+                            <!-- Header de item -->
+                            <div class="flex justify-between items-center px-4 py-3 bg-white/5 border-b border-white/10">
+                                <h5 class="font-bold text-base text-white">{{ $item['product_name'] }}</h5>
+                                <div class="text-right">
+                                    <p class="text-cyan-300 font-black text-lg leading-tight">${{ number_format($item['price'], 2) }}</p>
+                                    <p class="text-white/50 text-xs">${{ number_format($unitPrice, 2) }} c/u</p>
+                                </div>
                             </div>
-                            @if(!empty($item['parameters']))
-                            <div class="grid grid-cols-2 gap-3 text-sm text-white/80 mt-3">
-                                @if(isset($item['parameters']['width']))
-                                <div>
-                                    <span class="text-white/60">Dimensiones:</span>
-                                    <p>{{ number_format($item['parameters']['width'], 2) }}m × {{ number_format($item['parameters']['height'], 2) }}m</p>
+
+                            <div class="p-4">
+                                <!-- Cantiad destacada -->
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="px-2.5 py-1 bg-blue-500/20 border border-blue-400/30 rounded-full text-xs font-semibold text-blue-300">
+                                        {{ $item['quantity'] }} {{ $item['quantity'] == 1 ? 'unidad' : 'unidades' }}
+                                    </span>
+                                    @if($area)
+                                    @php [$ai, $ad] = explode('.', number_format($area, 3, '.', '')); $ad = rtrim($ad, '0'); @endphp
+                                    <span class="px-2.5 py-1 bg-slate-500/20 border border-slate-400/20 rounded-full text-xs text-slate-300">
+                                        <span class="font-black">{{ $ai }}</span>@if($ad)<span class="text-white/60">,{{ $ad }}</span>@endif<span> m²</span>
+                                    </span>
+                                    @endif
+                                </div>
+
+                                <!-- Grid de especificaciones -->
+                                <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                                    @if($width && $height)
+                                    <div class="flex flex-col">
+                                        <span class="text-white/50 text-xs uppercase tracking-wide mb-0.5">Dimensiones</span>
+                                        <span class="text-white font-semibold">
+                                            @php
+                                                [$wi, $wd] = explode('.', number_format($width,  3, '.', ''));
+                                                [$hi, $hd] = explode('.', number_format($height, 3, '.', ''));
+                                                $wd = rtrim($wd, '0');
+                                                $hd = rtrim($hd, '0');
+                                            @endphp
+                                            <span class="text-base font-black">{{ $wi }}</span>@if($wd)<span class="text-xs text-white/60">,{{ $wd }}</span>@endif<span class="text-xs">m</span>
+                                            <span class="text-white/50 mx-0.5">&times;</span>
+                                            <span class="text-base font-black">{{ $hi }}</span>@if($hd)<span class="text-xs text-white/60">,{{ $hd }}</span>@endif<span class="text-xs">m</span>
+                                        </span>
+                                    </div>
+                                    @endif
+
+                                    @if($colorLabel)
+                                    <div class="flex flex-col">
+                                        <span class="text-white/50 text-xs uppercase tracking-wide mb-0.5">Color Aluminio</span>
+                                        <span class="text-white font-semibold">{{ $colorLabel }}</span>
+                                    </div>
+                                    @endif
+
+                                    @if($glassLabel)
+                                    <div class="flex flex-col">
+                                        <span class="text-white/50 text-xs uppercase tracking-wide mb-0.5">Color Vidrio</span>
+                                        <span class="text-cyan-200 font-semibold">{{ $glassLabel }}</span>
+                                    </div>
+                                    @endif
+                                </div>
+
+                                @if($notes)
+                                <div class="mt-3 pt-3 border-t border-white/10">
+                                    <span class="text-white/50 text-xs uppercase tracking-wide">Notas</span>
+                                    <p class="mt-0.5 text-xs text-white/70 italic leading-snug">{{ $notes }}</p>
                                 </div>
                                 @endif
-                                @if(isset($item['parameters']['color']))
-                                <div>
-                                    <span class="text-white/60">Color:</span>
-                                    <p>{{ $item['parameters']['color'] }}</p>
-                                </div>
-                                @endif
-                                <div>
-                                    <span class="text-white/60">Cantidad:</span>
-                                    <p class="font-semibold">{{ $item['quantity'] }} {{ $item['quantity'] == 1 ? 'unidad' : 'unidades' }}</p>
-                                </div>
-                                <div>
-                                    <span class="text-white/60">Precio unitario:</span>
-                                    <p class="font-semibold">${{ number_format($item['price'] / $item['quantity'], 2) }}</p>
-                                </div>
                             </div>
-                            @endif
+
                             @if(!$selectedProforma['is_expired'] && !$selectedProforma['is_ordered'])
-                            <div class="mt-3 flex justify-end">
-                                <div class= "relative group">
-                                <button wire:click="deleteProformaItem({{ $item['id'] }})"
-                                        class="px-3 py-1.5 text-xs font-medium border border-red-600/40 rounded-lg text-white bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl"
-                                        >
-                                    🗑 Eliminar configuración
-                                </button>
-                                <span class="absolute bottom-full left-1/1 -translate-x-1/1 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-                                    Eliminar esta configuración de la proforma
-                                </span>
+                            <div class="px-4 pb-3 flex justify-end">
+                                <div class="relative group">
+                                    <button wire:click="deleteProformaItem({{ $item['id'] }})"
+                                            class="px-3 py-1.5 text-xs font-medium border border-red-600/40 rounded-lg text-white bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl cursor-pointer">
+                                        Eliminar configuración
+                                    </button>
+                                    <span class="absolute bottom-full right-0 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                                        Eliminar esta configuración de la proforma
+                                    </span>
                                 </div>
                             </div>
                             @endif
@@ -643,17 +705,17 @@
                         <div class="flex items-center gap-2">
                             <span class="text-white/60">Estado:</span>
                             @if($selectedOrder['status'] === 'pending')
-                                <span class="px-2 py-1 bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 rounded-full text-xs font-semibold">⏳ En Aprobación</span>
+                                <span class="px-2 py-1 bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 rounded-full text-xs font-semibold">En Aprobación</span>
                             @elseif($selectedOrder['status'] === 'approved')
-                                <span class="px-2 py-1 bg-blue-500/20 border border-blue-500/30 text-blue-300 rounded-full text-xs font-semibold">💳 Pendiente Pago</span>
+                                <span class="px-2 py-1 bg-blue-500/20 border border-blue-500/30 text-blue-300 rounded-full text-xs font-semibold">Pendiente Pago</span>
                             @elseif($selectedOrder['status'] === 'paid')
-                                <span class="px-2 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded-full text-xs font-semibold">💰 Pagada</span>
+                                <span class="px-2 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded-full text-xs font-semibold">Pagada</span>
                             @elseif($selectedOrder['status'] === 'in_production')
-                                <span class="px-2 py-1 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-full text-xs font-semibold">🔨 En Producción</span>
+                                <span class="px-2 py-1 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-full text-xs font-semibold">En Producción</span>
                             @elseif($selectedOrder['status'] === 'completed')
-                                <span class="px-2 py-1 bg-green-500/20 border border-green-500/30 text-green-300 rounded-full text-xs font-semibold">✅ Completada</span>
+                                <span class="px-2 py-1 bg-green-500/20 border border-green-500/30 text-green-300 rounded-full text-xs font-semibold">Completada</span>
                             @elseif($selectedOrder['status'] === 'cancelled')
-                                <span class="px-2 py-1 bg-red-500/20 border border-red-500/30 text-red-300 rounded-full text-xs font-semibold">❌ Rechazada</span>
+                                <span class="px-2 py-1 bg-red-500/20 border border-red-500/30 text-red-300 rounded-full text-xs font-semibold">Rechazada</span>
                             @endif
                         </div>
                     </div>
@@ -671,7 +733,7 @@
 
                     <!-- Productos/Ítems -->
                     <div class="mb-6">
-                        <h4 class="text-lg font-bold text-white mb-4">📦 Productos Incluidos ({{ count($selectedOrder['items']) }} {{ count($selectedOrder['items']) == 1 ? 'ítem' : 'ítems' }})</h4>
+                        <h4 class="text-lg font-bold text-white mb-4">Productos Incluidos ({{ count($selectedOrder['items']) }} {{ count($selectedOrder['items']) == 1 ? 'ítem' : 'ítems' }})</h4>
                         <div class="space-y-3">
                             @foreach($selectedOrder['items'] as $item)
                             <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-colors">
@@ -697,24 +759,66 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Dimensiones -->
+                                <!-- Dimensiones y colores -->
                                 @if(isset($item['parameters']) && !empty($item['parameters']))
+                                @php
+                                    $orderColorTranslations = [
+                                        'Natural'                    => 'Natural',
+                                        'White'                      => 'Blanco',
+                                        'Black Anodized'             => 'Negro Anodizado',
+                                        'Woody'                      => 'Madera',
+                                        'Bronze'                     => 'Bronze',
+                                        'Silver'                     => 'Plateado',
+                                        'Gold'                       => 'Dorado',
+                                        'Transparent Glass'          => 'Vidrio Transparente',
+                                        'Tinted Glass'               => 'Vidrio Tintado',
+                                        'Frosted Glass'              => 'Vidrio Esmerilado',
+                                        'Reflective Blue Sky Glass'  => 'Azul Cielo Reflectivo',
+                                        'Reflective Gray Dark Glass' => 'Gris Oscuro Reflectivo',
+                                    ];
+                                    $oColorRaw  = $item['parameters']['color']      ?? null;
+                                    $oGlassRaw  = $item['parameters']['glassColor'] ?? null;
+                                    $oColorLabel = $oColorRaw ? ($orderColorTranslations[$oColorRaw] ?? $oColorRaw) : null;
+                                    $oGlassLabel = $oGlassRaw ? ($orderColorTranslations[$oGlassRaw] ?? $oGlassRaw) : null;
+                                @endphp
                                 <div class="mt-3 pt-3 border-t border-white/10">
                                     <p class="text-xs font-semibold text-white/80 mb-2">Especificaciones:</p>
                                     <div class="grid grid-cols-2 gap-2 text-xs">
                                         @if(isset($item['parameters']['height']))
-                                        <div class="flex justify-between">
+                                        <div class="flex justify-between items-baseline">
                                             <span class="text-white/60">Alto:</span>
-                                            <span class="text-white font-medium">{{ number_format($item['parameters']['height'], 3) }}m</span>
+                                            @php [$oi, $od] = explode('.', number_format($item['parameters']['height'], 3, '.', '')); $od = rtrim($od, '0'); @endphp
+                                            <span class="text-white font-medium">
+                                                <span class="text-sm font-black">{{ $oi }}</span>@if($od)<span class="text-[10px] text-white/60">,{{ $od }}</span>@endif<span class="text-[10px]">m</span>
+                                            </span>
                                         </div>
                                         @endif
                                         @if(isset($item['parameters']['width']))
-                                        <div class="flex justify-between">
+                                        <div class="flex justify-between items-baseline">
                                             <span class="text-white/60">Ancho:</span>
-                                            <span class="text-white font-medium">{{ number_format($item['parameters']['width'], 3) }}m</span>
+                                            @php [$oi, $od] = explode('.', number_format($item['parameters']['width'], 3, '.', '')); $od = rtrim($od, '0'); @endphp
+                                            <span class="text-white font-medium">
+                                                <span class="text-sm font-black">{{ $oi }}</span>@if($od)<span class="text-[10px] text-white/60">,{{ $od }}</span>@endif<span class="text-[10px]">m</span>
+                                            </span>
                                         </div>
                                         @endif
                                     </div>
+                                    @if($oColorLabel || $oGlassLabel)
+                                    <div class="flex gap-4 mt-2">
+                                        @if($oColorLabel)
+                                        <div class="flex flex-col">
+                                            <span class="text-white/50 text-[10px] uppercase tracking-wide">Color Aluminio</span>
+                                            <span class="text-white font-semibold text-xs">{{ $oColorLabel }}</span>
+                                        </div>
+                                        @endif
+                                        @if($oGlassLabel)
+                                        <div class="flex flex-col">
+                                            <span class="text-white/50 text-[10px] uppercase tracking-wide">Color Vidrio</span>
+                                            <span class="text-cyan-200 font-semibold text-xs">{{ $oGlassLabel }}</span>
+                                        </div>
+                                        @endif
+                                    </div>
+                                    @endif
                                 </div>
                                 @endif
                                 
@@ -732,7 +836,7 @@
 
                     <!-- Información adicional -->
                     <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4">
-                        <h4 class="text-sm font-bold text-white mb-3">📋 Información Adicional</h4>
+                        <h4 class="text-sm font-bold text-white mb-3">Información Adicional</h4>
                         <div class="space-y-2 text-xs">
                             <div class="flex justify-between">
                                 <span class="text-white/60">Fecha de creación:</span>
@@ -757,7 +861,7 @@
                 <!-- Sección de pago (solo si está en estado Pendiente Pago) -->
                 @if($selectedOrder['status'] === 'approved')
                 <div class="mt-6 pt-4 border-t border-white/20">
-                    <h4 class="text-lg font-bold text-white mb-4">💳 Comprobante de Pago</h4>
+                    <h4 class="text-lg font-bold text-white mb-4">Comprobante de Pago</h4>
                     
                     @if($selectedOrder['payment_proof'] && !$showUploadForm)
                         <!-- Mostrar comprobante existente -->

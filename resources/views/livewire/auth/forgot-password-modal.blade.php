@@ -27,7 +27,7 @@
                                 @endif
                             </div>
                         </div>
-                        <button wire:click="closeModal" @click="$store.forgotPasswordModal.open = false" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors duration-200">
+                        <button wire:click="closeModal" @click="$store.forgotPasswordModal.open = false" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors duration-200 cursor-pointer">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                             </svg>
@@ -58,13 +58,12 @@
                             <div class="space-y-4">
                                 <div>
                                     <label for="forgot_email" class="block text-sm font-medium text-white mb-2">Correo electrónico</label>
-                                    <input type="email" wire:model="email" id="forgot_email" class="w-full pl-4 pr-4 py-2.5 bg-black/30 border border-white/20 rounded-xl text-white placeholder-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 focus:outline-none transition-all duration-300" placeholder="tu@email.com">
+                                    <input type="email" wire:model="email" id="forgot_email" class="w-full pl-4 pr-4 py-2.5 bg-black/30 border border-white/20 rounded-xl text-white placeholder-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 focus:outline-none transition-all duration-300" placeholder="tu@email.com" required>
                                     @error('email') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                             </div>
                             <div class="flex items-center justify-end space-x-3 mt-8 pt-6 border-t border-slate-200">
-                                <button type="button" wire:click="closeModal" class="px-4 py-2 text-sm font-medium text-white bg-transparent border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 hover:bg-white hover:text-black hover:scale-[1.02] hover:shadow-lg">Cancelar</button>
-                                <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-blue-600/40 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-blue-600/40 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl cursor-pointer">
                                     <span>Enviar código</span>
                                 </button>
                             </div>
@@ -79,8 +78,8 @@
                                 </div>
                             </div>
                             <div class="flex items-center justify-end space-x-3 mt-8 pt-6 border-t border-slate-200">
-                                <button type="button" wire:click="closeModal" class="px-4 py-2 text-sm font-medium text-white bg-transparent border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 hover:bg-white hover:text-black hover:scale-[1.02] hover:shadow-lg">Cancelar</button>
-                                <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-blue-600/40 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
+                                <button type="button" wire:click="closeModal" class="px-4 py-2 text-sm font-medium text-white bg-transparent border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 hover:bg-white hover:text-black hover:scale-[1.02] hover:shadow-lg cursor-pointer">Cancelar</button>
+                                <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-blue-600/40 text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:scale-[1.02] hover:shadow-xl cursor-pointer">
                                     <span>Verificar código</span>
                                 </button>
                             </div>
