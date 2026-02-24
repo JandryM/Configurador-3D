@@ -1,12 +1,13 @@
 <div x-data="{
     darkMode: localStorage.getItem('darkMode') === 'true',
     savedConfigs: [],
-    _lsKey: 'prf_cfgs_{{ $product->id }}',
+    _lsKey: 'prf_cfgs_global_{{ Auth::id() ?? 0 }}',
     initConfigs() {
         try { this.savedConfigs = JSON.parse(localStorage.getItem(this._lsKey) || '[]'); } catch(e) { this.savedConfigs = []; }
     },
     saveConfig(cfg) {
         const isDuplicate = this.savedConfigs.some(existing =>
+            (existing.product_id ?? null) === (cfg.product_id ?? null) &&
             parseFloat(existing.parameters?.width  ?? 0).toFixed(3) === parseFloat(cfg.parameters?.width  ?? 0).toFixed(3) &&
             parseFloat(existing.parameters?.height ?? 0).toFixed(3) === parseFloat(cfg.parameters?.height ?? 0).toFixed(3) &&
             (existing.parameters?.color      ?? '') === (cfg.parameters?.color      ?? '') &&
@@ -556,6 +557,8 @@
                             @if(!(isset($userProfileComplete) && !$userProfileComplete))
                             <button type="button"
                                     @click="saveConfig({
+                                        product_id: {{ $product->id }},
+                                        product_name: '{{ addslashes($product->name) }}',
                                         parameters: $wire.parameters,
                                         quantity: $wire.quantity,
                                         calculated_price: $wire.calculatedPrice,
@@ -679,7 +682,7 @@
                                         <template x-for="(cfg, i) in savedConfigs" :key="i">
                                             <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 hover:bg-white/15 transition-all flex items-start gap-3">
                                                 <div class="flex-1">
-                                                    <p class="font-semibold text-white text-sm mb-1">{{ $product->name }}</p>
+                                                    <p class="font-semibold text-white text-sm mb-1" x-text="cfg.product_name ?? '{{ $product->name }}'"></p>
                                                     <div class="text-xs text-white/70 space-y-1">
                                                         <div class="flex gap-3 flex-wrap">
                                                             <span x-text="(cfg.parameters?.width ?? 0).toFixed(2) + 'm × ' + (cfg.parameters?.height ?? 0).toFixed(2) + 'm'"></span>

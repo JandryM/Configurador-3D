@@ -159,8 +159,10 @@ class ProductConfigurator extends Component
                 $storedPrice = (float) ($rawConfig['calculated_price'] ?? 0);
                 $materialCosts = $rawConfig['material_costs'] ?? [];
 
+                $configProductId = isset($rawConfig['product_id']) ? (int)$rawConfig['product_id'] : $this->product->id;
+
                 $configuration = [
-                    'product_id' => $this->product->id,
+                    'product_id' => $configProductId,
                     'parameters' => $params,
                     'quantity' => $qty,
                     'calculated_price' => $storedPrice,
@@ -175,7 +177,7 @@ class ProductConfigurator extends Component
 
                 DB::table('proforma_items')->insert([
                     'proforma_id' => $proforma->id,
-                    'product_id' => $this->product->id,
+                    'product_id' => $configProductId,
                     'configuration' => json_encode($configuration),
                     'quantity' => $qty,
                     'price' => $storedPrice,
