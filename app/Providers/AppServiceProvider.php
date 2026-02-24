@@ -6,6 +6,7 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
 use App\Models\Product;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        // Forzar HTTPS en producción
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
+        
         // Registrar middleware para admin y owner
         $router = app('router');
         $router->aliasMiddleware('admin.seller', function ($request, $next) {
