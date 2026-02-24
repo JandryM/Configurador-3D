@@ -248,7 +248,7 @@ class OrdersTable extends Component
                         if ($client) {
                             $client->notify(new \App\Notifications\SendBankAccountDataToClient($orderNumber, $orderAmount));
                         }
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         \Log::error('No se pudo enviar la notificación de datos bancarios al cliente: ' . $e->getMessage());
                     }
                 })->afterResponse();
@@ -304,8 +304,18 @@ class OrdersTable extends Component
                             'number' => $order->number,
                             'amount' => $amount,
                         ];
-                        
-                        $user->notify(new \App\Notifications\PaymentVerified($orderData));
+
+                        $userId = $user->id;
+                        dispatch(function () use ($userId, $orderData) {
+                            try {
+                                $notifyUser = User::find($userId);
+                                if ($notifyUser) {
+                                    $notifyUser->notify(new \App\Notifications\PaymentVerified($orderData));
+                                }
+                            } catch (\Throwable $e) {
+                                \Log::error('No se pudo enviar notificación de pago verificado: ' . $e->getMessage());
+                            }
+                        })->afterResponse();
                     }
                 }
             }
@@ -379,8 +389,18 @@ class OrdersTable extends Component
                     'amount' => $amount,
                     'proforma_id' => $order->proforma_id,
                 ];
-                
-                $user->notify(new \App\Notifications\PaymentProofRejected($orderData));
+
+                $userId = $user->id;
+                dispatch(function () use ($userId, $orderData) {
+                    try {
+                        $notifyUser = User::find($userId);
+                        if ($notifyUser) {
+                            $notifyUser->notify(new \App\Notifications\PaymentProofRejected($orderData));
+                        }
+                    } catch (\Throwable $e) {
+                        \Log::error('No se pudo enviar notificación de comprobante rechazado: ' . $e->getMessage());
+                    }
+                })->afterResponse();
             }
         }
 
@@ -505,8 +525,18 @@ class OrdersTable extends Component
                         'amount' => $amount,
                         'estimated_finish_at' => $estimatedFinishDate,
                     ];
-                    
-                    $user->notify(new \App\Notifications\OrderInProduction($orderData));
+
+                    $userId = $user->id;
+                    dispatch(function () use ($userId, $orderData) {
+                        try {
+                            $notifyUser = User::find($userId);
+                            if ($notifyUser) {
+                                $notifyUser->notify(new \App\Notifications\OrderInProduction($orderData));
+                            }
+                        } catch (\Throwable $e) {
+                            \Log::error('No se pudo enviar notificación de orden en producción: ' . $e->getMessage());
+                        }
+                    })->afterResponse();
                 }
             }
         }
@@ -567,8 +597,18 @@ class OrdersTable extends Component
                             'number' => $order->number,
                             'amount' => $amount,
                         ];
-                        
-                        $user->notify(new \App\Notifications\OrderCompleted($orderData));
+
+                        $userId = $user->id;
+                        dispatch(function () use ($userId, $orderData) {
+                            try {
+                                $notifyUser = User::find($userId);
+                                if ($notifyUser) {
+                                    $notifyUser->notify(new \App\Notifications\OrderCompleted($orderData));
+                                }
+                            } catch (\Throwable $e) {
+                                \Log::error('No se pudo enviar notificación de orden completada: ' . $e->getMessage());
+                            }
+                        })->afterResponse();
                     }
                 }
             }
@@ -644,8 +684,18 @@ class OrdersTable extends Component
                             'number' => $order->number,
                             'amount' => $amount,
                         ];
-                        
-                        $user->notify(new \App\Notifications\OrderCancelled($orderData));
+
+                        $userId = $user->id;
+                        dispatch(function () use ($userId, $orderData) {
+                            try {
+                                $notifyUser = User::find($userId);
+                                if ($notifyUser) {
+                                    $notifyUser->notify(new \App\Notifications\OrderCancelled($orderData));
+                                }
+                            } catch (\Throwable $e) {
+                                \Log::error('No se pudo enviar notificación de orden cancelada: ' . $e->getMessage());
+                            }
+                        })->afterResponse();
                     }
                 }
             }
