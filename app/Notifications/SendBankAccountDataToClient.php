@@ -13,17 +13,13 @@ class SendBankAccountDataToClient extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $order;
-    protected $client;
-    protected $owner;
-    protected $bankAccount;
+    protected string $orderNumber;
+    protected float $orderAmount;
 
-    public function __construct($order, User $client)
+    public function __construct(string $orderNumber, float $orderAmount)
     {
-        $this->order = $order;
-        $this->client = $client;
-        $this->owner = User::where('role', 'owner')->first();
-        $this->bankAccount = BankAccount::where('user_id', $this->owner->id)->first();
+        $this->orderNumber = $orderNumber;
+        $this->orderAmount = $orderAmount;
     }
 
     public function via($notifiable)
@@ -33,23 +29,23 @@ class SendBankAccountDataToClient extends Notification implements ShouldQueue
 
     public function toMail($notifiable)
     {
-        $orderNumber = is_array($this->order) ? $this->order['number'] : $this->order->number;
-        $orderAmount = is_array($this->order) ? $this->order['amount'] : $this->order->amount;
+        $owner = User::where('role', 'owner')->first();
+        $bankAccount = $owner ? BankAccount::where('user_id', $owner->id)->first() : null;
         
         return (new MailMessage)
-            ->subject('¡Tu Orden #' . $orderNumber . ' ha sido Aprobada! - Quality Services')
-            ->greeting('¡Hola ' . $this->client->name . '!')
-            ->line('Nos complace informarte que tu orden **#' . $orderNumber . '** ha sido aprobada y está lista para procesar.')
-            ->line('**Monto total a pagar:** $' . number_format($orderAmount, 2))
+            ->subject('¡Tu Orden #' . $this->orderNumber . ' ha sido Aprobada! - Quality Services')
+            ->greeting('¡Hola ' . $notifiable->name . '!')
+            ->line('Nos complace informarte que tu orden **#' . $this->orderNumber . '** ha sido aprobada y está lista para procesar.')
+            ->line('**Monto total a pagar:** $' . number_format($this->orderAmount, 2))
             ->line('---')
             ->line('### 📋 Instrucciones de Pago')
             ->line('Por favor, realiza la transferencia o depósito bancario utilizando los siguientes datos:')
             ->line('')
-            ->line('**🏦 Banco:** ' . ($this->bankAccount->bank_name ?? 'No configurado'))
-            ->line('**💳 Tipo de cuenta:** ' . ucfirst($this->bankAccount->account_type ?? 'No configurado'))
-            ->line('**🔢 Número de cuenta:** ' . ($this->bankAccount->account_number ?? 'No configurado'))
-            ->line('**👤 Titular:** ' . ($this->bankAccount->holder_name ?? 'No configurado'))
-            ->line('**📇 Cédula/RUC:** ' . ($this->bankAccount->identification ?? 'No configurado'))
+            ->line('**🏦 Banco:** ' . ($bankAccount->bank_name ?? 'No configurado'))
+            ->line('**💳 Tipo de cuenta:** ' . ucfirst($bankAccount->account_type ?? 'No configurado'))
+            ->line('**🔢 Número de cuenta:** ' . ($bankAccount->account_number ?? 'No configurado'))
+            ->line('**👤 Titular:** ' . ($bankAccount->holder_name ?? 'No configurado'))
+            ->line('**📇 Cédula/RUC:** ' . ($bankAccount->identification ?? 'No configurado'))
             ->line('')
             ->line('---')
             ->line('### 📸 Pasos a seguir:')
@@ -62,7 +58,7 @@ class SendBankAccountDataToClient extends Notification implements ShouldQueue
             ->line('')
             ->line('💬 **¿Necesitas ayuda?**')
             ->line('Si tienes alguna duda o consulta, puedes:')
-            ->line('• Contactarnos al: ' . ($this->bankAccount->phone ?? $this->owner->phone ?? 'No disponible'))
+            ->line('• Contactarnos al: ' . ($bankAccount->phone ?? $owner->phone ?? 'No disponible'))
             ->line('• Visitar nuestra plataforma para ver el estado de tu orden')
             ->line('')
             ->salutation('Saludos cordiales,  

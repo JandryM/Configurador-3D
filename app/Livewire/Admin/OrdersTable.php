@@ -238,13 +238,20 @@ class OrdersTable extends Component
             // Buscar la orden recién aprobada
             $order = $this->allOrders->firstWhere('id', $this->pendingActionOrderId);
             if ($order && $order['user']) {
-                // Enviar notificación al cliente con los datos bancarios
-                $client = $order['user'];
-                try {
-                    $client->notify(new \App\Notifications\SendBankAccountDataToClient($order, $client));
-                } catch (\Exception $e) {
-                    \Log::error('No se pudo enviar la notificación de datos bancarios al cliente: ' . $e->getMessage());
-                }
+                $clientId = $order['user']->id;
+                $orderNumber = (string) $order['number'];
+                $orderAmount = (float) $order['amount'];
+
+                dispatch(function () use ($clientId, $orderNumber, $orderAmount) {
+                    try {
+                        $client = User::find($clientId);
+                        if ($client) {
+                            $client->notify(new \App\Notifications\SendBankAccountDataToClient($orderNumber, $orderAmount));
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error('No se pudo enviar la notificación de datos bancarios al cliente: ' . $e->getMessage());
+                    }
+                })->afterResponse();
             }
 
             session()->flash('message', 'Orden aprobada exitosamente. Notificación enviada al cliente.');
