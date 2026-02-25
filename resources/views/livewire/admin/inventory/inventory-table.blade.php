@@ -309,6 +309,18 @@
                                 </svg>
                             </x-action-button>
                             
+                            @if($material->supports_colors)
+                            <x-action-button
+                                color="amber"
+                                tooltip="Incrementos por color"
+                                wire:click="openColorIncrementModal({{ $material->id }})"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                                </svg>
+                            </x-action-button>
+                            @endif
+
                             <x-action-button 
                                 color="blue"
                                 tooltip="Agregar stock"
@@ -671,6 +683,130 @@
                     >
                         Cerrar
                     </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Modal: Incrementos por Color -->
+    @if($showColorIncrementModal && $colorIncrementsSelectedMaterial)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" wire:click="closeColorIncrementModal"></div>
+            <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-auto overflow-hidden relative z-[60] transform transition-all scale-100">
+                <!-- Header -->
+                <div class="bg-custom-blue px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-amber-50 text-amber-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Incrementos por Color</h3>
+                            <p class="text-sm text-teal-200 font-medium">{{ $colorIncrementsSelectedMaterial->name }}</p>
+                        </div>
+                    </div>
+                    <button wire:click="closeColorIncrementModal"
+                            class="text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg p-2 transition-colors cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="p-6">
+                    <div class="flex items-center gap-2 mb-4">
+                        <p class="text-sm text-slate-500">
+                            Define el incremento de precio que se suma al costo base según el color aplicado.
+                        </p>
+                        <div class="relative flex-shrink-0" x-data="{ open: false }">
+                            <button type="button"
+                                    @mouseenter="open = true"
+                                    @mouseleave="open = false"
+                                    @click="open = !open"
+                                    @click.outside="open = false"
+                                    class="w-5 h-5 rounded-full bg-slate-200 hover:bg-amber-100 border border-slate-300 hover:border-amber-400 text-slate-500 hover:text-amber-600 text-xs font-bold flex items-center justify-center transition-all cursor-pointer focus:outline-none">
+                                ?
+                            </button>
+                            <div x-show="open"
+                                 x-transition:enter="transition ease-out duration-150"
+                                 x-transition:enter-start="opacity-0 scale-95"
+                                 x-transition:enter-end="opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-100"
+                                 x-transition:leave-start="opacity-100 scale-100"
+                                 x-transition:leave-end="opacity-0 scale-95"
+                                 @mouseenter="open = true"
+                                 @mouseleave="open = false"
+                                 class="absolute right-0 top-7 z-50 w-72 bg-white border border-slate-200 rounded-xl shadow-xl p-4 text-left"
+                                 style="display:none;">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span class="text-sm font-semibold text-slate-800">¿Cómo funciona el incremento?</span>
+                                </div>
+                                <div class="space-y-2 text-xs text-slate-600">
+                                    <p>Cada color puede tener un <span class="font-semibold text-slate-800">costo adicional</span> sobre el precio base del material. Este incremento se suma automáticamente al calcular el precio de una configuración.</p>
+                                    <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+                                        <p class="font-semibold text-slate-700 mb-1">Ejemplo (material por metro):</p>
+                                        <div class="space-y-0.5">
+                                            <div class="flex justify-between"><span>Precio base:</span><span class="font-medium">$12.00/m</span></div>
+                                            <div class="flex justify-between text-amber-600"><span>Incremento "Negro Anodizado":</span><span class="font-medium">+$4.00/m</span></div>
+                                            <div class="flex justify-between font-semibold border-t border-slate-200 pt-0.5 mt-0.5"><span>Precio final:</span><span>$16.00/m</span></div>
+                                        </div>
+                                    </div>
+                                    <p>Si el incremento es <span class="font-semibold text-slate-800">$0</span>, el color no añade costo adicional (ej. color Natural).</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if(count($colorIncrements) === 0)
+                        <div class="text-center py-8 text-slate-400">
+                            <svg class="w-10 h-10 mx-auto mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343"/>
+                            </svg>
+                            <p class="text-sm">Este material no tiene colores asignados.</p>
+                        </div>
+                    @else
+                        <div class="space-y-3">
+                            @foreach($colorIncrements as $i => $row)
+                                <div class="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3">
+                                    <span class="flex-1 text-sm font-medium text-slate-700">{{ $row['color_name'] }}</span>
+                                    <div class="flex items-center gap-1.5 w-36">
+                                        <span class="text-slate-400 text-sm font-medium">+$</span>
+                                        <input
+                                            type="number"
+                                            wire:model.live="colorIncrements.{{ $i }}.increase_value"
+                                            min="0"
+                                            step="0.01"
+                                            class="w-full px-2.5 py-1.5 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 text-slate-900 transition-all @error('colorIncrements.'.$i.'.increase_value') border-red-400 @enderror"
+                                            placeholder="0.00"
+                                        >
+                                    </div>
+                                </div>
+                                @error('colorIncrements.'.$i.'.increase_value')
+                                    <p class="text-red-500 text-xs -mt-2 ml-1">{{ $message }}</p>
+                                @enderror
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex gap-3 justify-end">
+                    <button wire:click="closeColorIncrementModal"
+                            class="px-4 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 font-medium text-sm transition-colors shadow-sm cursor-pointer">
+                        Cancelar
+                    </button>
+                    @if(count($colorIncrements) > 0)
+                    <button wire:click="saveColorIncrements"
+                            class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium text-sm transition-all shadow-sm hover:shadow-md flex items-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Guardar cambios
+                    </button>
+                    @endif
                 </div>
             </div>
         </div>

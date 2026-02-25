@@ -17,8 +17,11 @@ class InventoryTable extends Component
     public $showAddStockModal = false;
     public $showRemainderModal = false;
     public $showEditModal = false;
+    public $showColorIncrementModal = false;
     public $selectedMaterial = null;
     public $editingMaterial = null;
+    public $colorIncrementsSelectedMaterial = null;
+    public $colorIncrements = []; // [['id', 'color_name', 'increase_value']]
     public $quantity = 0;
 
     // Filtros y búsqueda
@@ -240,6 +243,59 @@ class InventoryTable extends Component
      * Obtiene la genealogía de movimientos agrupados por retazo
      * Muestra el historial de cada retazo desde su creación hasta su uso completo
      */
+    public function openColorIncrementModal(int $materialId): void
+    {
+        $this->colorIncrementsSelectedMaterial = Material::find($materialId);
+
+        $rows = \Illuminate\Support\Facades\DB::table('material_color')
+            ->join('colors', 'material_color.color_id', '=', 'colors.id')
+            ->where('material_color.material_id', $materialId)
+            ->select('material_color.id', 'colors.color_name', 'material_color.increase_value')
+            ->orderBy('colors.sort_order')
+            ->orderBy('colors.color_name')
+            ->get();
+
+        $this->colorIncrements = $rows->map(fn($r) => [
+            'id'             => $r->id,
+            'color_name'     => $r->color_name,
+            'increase_value' => $r->increase_value,
+        ])->toArray();
+
+        $this->showColorIncrementModal = true;
+    }
+
+    public function closeColorIncrementModal(): void
+    {
+        $this->showColorIncrementModal = false;
+        $this->colorIncrementsSelectedMaterial = null;
+        $this->colorIncrements = [];
+        $this->resetValidation();
+    }
+
+    public function saveColorIncrements(): void
+    {
+        $this->validate(
+            ['colorIncrements.*.increase_value' => 'required|numeric|min:0'],
+            [
+                'colorIncrements.*.increase_value.required' => 'El incremento es obligatorio.',
+                'colorIncrements.*.increase_value.numeric'  => 'Debe ser un número.',
+                'colorIncrements.*.increase_value.min'      => 'No puede ser negativo.',
+            ]
+        );
+
+        foreach ($this->colorIncrements as $row) {
+            \Illuminate\Support\Facades\DB::table('material_color')
+                ->where('id', $row['id'])
+                ->update([
+                    'increase_value' => $row['increase_value'],
+                    'updated_at'     => now(),
+                ]);
+        }
+
+        session()->flash('success', 'Incrementos de color de "' . $this->colorIncrementsSelectedMaterial->name . '" actualizados.');
+        $this->closeColorIncrementModal();
+    }
+
     public function getMaterialTrace(int $materialId)
     {
         $material = Material::find($materialId);
