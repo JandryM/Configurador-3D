@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Railway / reverse proxy: necesario para que Laravel detecte correctamente
+        // scheme/host y valide URLs firmadas (Livewire upload-file)
+        $middleware->trustProxies(at: '*');
+
         // Reemplazar el middleware de autenticación por defecto
         $middleware->replace(\Illuminate\Auth\Middleware\Authenticate::class, \App\Http\Middleware\Authenticate::class);
         
