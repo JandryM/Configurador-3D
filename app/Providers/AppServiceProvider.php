@@ -75,32 +75,6 @@ class AppServiceProvider extends ServiceProvider
         $router = $this->app['router'];
         $router->aliasMiddleware('admin.owner', \App\Http\Middleware\EnsureUserIsAdminOrOwner::class);
 
-        // Registrar transporte SendGrid API (evita SMTP bloqueado en Railway)
-        app()->make(MailManager::class)->extend('sendgrid', function () {
-            return new \Symfony\Component\Mailer\Transport\AbstractTransport(function ($message) {
-
-                $email = new SendGridMail();
-
-                $email->setFrom(
-                    config('mail.from.address'),
-                    config('mail.from.name')
-                );
-
-                $email->setSubject($message->getSubject());
-
-                foreach ($message->getTo() as $to) {
-                    $email->addTo($to->getAddress());
-                }
-
-                $email->addContent(
-                    "text/html",
-                    $message->getHtmlBody() ?? $message->getBody()
-                );
-
-                $sendgrid = new SendGrid(env('SENDGRID_API_KEY'));
-                $sendgrid->send($email);
-            });
-        });
     }
 
     /**
