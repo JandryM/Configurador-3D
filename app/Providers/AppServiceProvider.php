@@ -8,6 +8,9 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\URL;
 use App\Models\Product;
+use Illuminate\Mail\MailManager;
+use SendGrid\Mail\Mail as SendGridMail;
+use SendGrid;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
         if (app()->environment('production')) {
             URL::forceScheme('https');
         }
-        
+    
         // Registrar middleware para admin y owner
         $router = app('router');
         $router->aliasMiddleware('admin.seller', function ($request, $next) {
@@ -71,6 +74,33 @@ class AppServiceProvider extends ServiceProvider
         // Registrar middleware EnsureUserIsAdminOrOwner como alias 'admin.owner'
         $router = $this->app['router'];
         $router->aliasMiddleware('admin.owner', \App\Http\Middleware\EnsureUserIsAdminOrOwner::class);
+
+        // Registrar transporte SendGrid API (evita SMTP bloqueado en Railway)
+        app()->make(MailManager::class)->extend('sendgrid', function () {
+            return new \Symfony\Component\Mailer\Transport\AbstractTransport(function ($message) {
+
+                $email = new SendGridMail();
+
+                $email->setFrom(
+                    config('mail.from.address'),
+                    config('mail.from.name')
+                );
+
+                $email->setSubject($message->getSubject());
+
+                foreach ($message->getTo() as $to) {
+                    $email->addTo($to->getAddress());
+                }
+
+                $email->addContent(
+                    "text/html",
+                    $message->getHtmlBody() ?? $message->getBody()
+                );
+
+                $sendgrid = new SendGrid(env('SENDGRID_API_KEY'));
+                $sendgrid->send($email);
+            });
+        });
     }
 
     /**
@@ -131,4 +161,5 @@ class AppServiceProvider extends ServiceProvider
             \Log::error('Failed to create emergency admin: '.$e->getMessage());
         }
     }
+
 }
