@@ -686,7 +686,10 @@
                                                     <div class="text-xs text-white/70 space-y-1">
                                                         <div class="flex gap-3 flex-wrap">
                                                             <span x-text="(cfg.parameters?.width ?? 0).toFixed(2) + 'm × ' + (cfg.parameters?.height ?? 0).toFixed(2) + 'm'"></span>
-                                                            <span x-text="cfg.parameters?.color ?? ''"></span>
+                                                            <span x-text="'Aluminio ' + (({'Natural':'Natural','White':'Blanco','Black Anodized':'Negro Anodizado','Woody':'Madera','Bronze':'Bronze','Silver':'Plateado','Gold':'Dorado'})[cfg.parameters?.color] ?? cfg.parameters?.color ?? '')"></span>
+                                                            <template x-if="cfg.parameters?.glassColor">
+                                                                <span x-text="'· ' + ({'Transparent Glass':'Vidrio Transparente','Reflective Blue Sky Glass':'Azul Cielo Reflectivo','Reflective Gray Dark Glass':'Gris Oscuro Reflectivo'})[cfg.parameters?.glassColor] ?? cfg.parameters?.glassColor"></span>
+                                                            </template>
                                                         </div>
                                                         <div class="flex items-center gap-2 mt-2">
                                                             <button type="button" @click="updateConfigQty(i, -1)"
