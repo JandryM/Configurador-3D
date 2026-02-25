@@ -13,6 +13,7 @@ class ProductConfigurator extends Component
     public $proformaIdPendingCostUpdate = null;
     public $pendingConfiguration = null;
     public $pendingItemId = null; // ID del ítem existente que se va a actualizar
+    public $pendingRawConfigs = []; // Configuraciones desde localStorage pendientes de guardar
     public $showProformaModal = false;
     public $showProformaSelectorModal = false; // Modal separado para selector
     public $availableProformas = []; // Lista de proformas disponibles
@@ -125,6 +126,14 @@ class ProductConfigurator extends Component
             return;
         }
 
+        // Si es una proforma existente, verificar si los costos están desactualizados
+        if ($proformaId !== null && $this->proformaNeedsCostUpdate($proformaId)) {
+            $this->pendingRawConfigs = $rawConfigs;
+            $this->proformaIdPendingCostUpdate = $proformaId;
+            $this->showCostUpdateWarning = true;
+            return;
+        }
+
         try {
             if ($proformaId === null) {
                 // Crear nueva proforma
@@ -153,46 +162,30 @@ class ProductConfigurator extends Component
                 }
             }
 
-            foreach ($rawConfigs as $rawConfig) {
-                $params = $rawConfig['parameters'] ?? [];
-                $qty = max(1, (int) ($rawConfig['quantity'] ?? 1));
-                $storedPrice = (float) ($rawConfig['calculated_price'] ?? 0);
-                $materialCosts = $rawConfig['material_costs'] ?? [];
+            $currentIndirect = $this->getIndirectCostPercentage();
 
-                $configProductId = isset($rawConfig['product_id']) ? (int)$rawConfig['product_id'] : $this->product->id;
+            foreach ($rawConfigs as $rawConfig) {
+                $params          = $rawConfig['parameters'] ?? [];
+                $qty             = max(1, (int) ($rawConfig['quantity'] ?? 1));
+                $configProductId = isset($rawConfig['product_id']) ? (int) $rawConfig['product_id'] : $this->product->id;
+
+                // Recalcular completamente desde la DB (materiales + costos vigentes)
+                $result = $this->calcularPrecioCompleto($configProductId, $params, $qty);
 
                 $configuration = [
-                    'product_id' => $configProductId,
-                    'parameters' => $params,
-                    'quantity' => $qty,
-                    'calculated_price' => $storedPrice,
-                    'material_costs' => $materialCosts,
-                    'directCost' => $this->getDirectCostPercentage(),
-                    'indirectCost' => $this->getIndirectCostPercentage(),
-                    'wastePercentage' => $this->getWastePercentage(),
-                    'profitMargin' => $this->getProfitMarginPercentage(),
+                    'product_id'       => $configProductId,
+                    'parameters'       => $params,
+                    'quantity'         => $qty,
+                    'material_costs'   => $result['material_costs'],
+                    'directCost'       => $result['directCost'],
+                    'indirectCost'     => $result['indirectCost'],
+                    'wastePercentage'  => $result['wastePercentage'],
+                    'profitMargin'     => $result['profitMargin'],
+                    'calculated_price' => $result['price'],
                 ];
 
                 $costSnapshot = $this->recalcularCostSnapshot($configuration, $qty);
-
-                DB::table('proforma_items')->insert([
-                    'proforma_id' => $proforma->id,
-                    'product_id' => $configProductId,
-                    'configuration' => json_encode($configuration),
-                    'quantity' => $qty,
-                    'price' => $storedPrice,
-                    'notes' => $params['notes'] ?? null,
-                    'is_active' => true,
-                    'material_cost' => $costSnapshot['material_cost'],
-                    'direct_cost' => $costSnapshot['direct_cost'],
-                    'indirect_cost' => $costSnapshot['indirect_cost'],
-                    'waste_cost' => $costSnapshot['waste_cost'],
-                    'profit_amount' => $costSnapshot['profit_amount'],
-                    'total_cost' => $costSnapshot['total_cost'],
-                    'profit_margin_percentage' => $costSnapshot['profit_margin_percentage'],
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
+                $this->insertOrUpdateItem($proforma->id, $configProductId, $params, $configuration, $qty, $result['price'], $costSnapshot);
             }
 
             $this->updateProformaTotalPrice($proforma->id);
@@ -205,6 +198,39 @@ class ProductConfigurator extends Component
         } catch (\Exception $e) {
             session()->flash('error', 'Error al guardar: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Recalcular los precios de las configuraciones guardadas en localStorage
+     * con los costos actuales y devolvérselos a Alpine para actualizar la vista.
+     */
+    public function recalcularPreciosConfiguraciones(array $rawConfigs): void
+    {
+        if (!auth()->check() || empty($rawConfigs)) {
+            return;
+        }
+
+        $updated = [];
+
+        foreach ($rawConfigs as $rawConfig) {
+            $configProductId = isset($rawConfig['product_id']) ? (int) $rawConfig['product_id'] : $this->product->id;
+            $qty             = max(1, (int) ($rawConfig['quantity'] ?? 1));
+            $params          = $rawConfig['parameters'] ?? [];
+
+            // Recalcular completamente desde la DB
+            $result = $this->calcularPrecioCompleto($configProductId, $params, $qty);
+
+            $updated[] = array_merge($rawConfig, [
+                'calculated_price' => $result['price'],
+                'material_costs'   => $result['material_costs'],
+                'directCost'       => $result['directCost'],
+                'indirectCost'     => $result['indirectCost'],
+                'wastePercentage'  => $result['wastePercentage'],
+                'profitMargin'     => $result['profitMargin'],
+            ]);
+        }
+
+        $this->dispatch('precios-actualizados', configs: $updated);
     }
 
     /**
@@ -338,22 +364,26 @@ class ProductConfigurator extends Component
     }
 
     /**
-     * Detectar si los costos actuales difieren de los almacenados en los ítems de la proforma
+     * Detectar si los costos actuales difieren de los almacenados en los ítems de la proforma.
+     * Compara por producto: directCost/waste/profit son por producto, indirectCost es global.
      */
-    private function proformaNeedsCostUpdate($proformaId)
+    private function proformaNeedsCostUpdate($proformaId): bool
     {
-        $items = DB::table('proforma_items')->where('proforma_id', $proformaId)->get();
-        $currentDirect = $this->getDirectCostPercentage();
+        $items = DB::table('proforma_items')
+            ->where('proforma_id', $proformaId)
+            ->where('is_active', true)
+            ->get();
         $currentIndirect = $this->getIndirectCostPercentage();
-        $currentWaste = $this->getWastePercentage();
-        $currentProfit = $this->getProfitMarginPercentage();
+
         foreach ($items as $item) {
             $config = json_decode($item->configuration, true);
+            $productId = (int) $item->product_id;
+
             if (
-                ($config['directCost'] ?? null) != $currentDirect ||
-                ($config['indirectCost'] ?? null) != $currentIndirect ||
-                ($config['wastePercentage'] ?? null) != $currentWaste ||
-                ($config['profitMargin'] ?? null) != $currentProfit
+                ($config['directCost']     ?? null) != $this->getDirectCostForProduct($productId) ||
+                ($config['indirectCost']   ?? null) != $currentIndirect ||
+                ($config['wastePercentage']?? null) != $this->getWasteForProduct($productId) ||
+                ($config['profitMargin']   ?? null) != $this->getProfitMarginForProduct($productId)
             ) {
                 return true;
             }
@@ -364,24 +394,21 @@ class ProductConfigurator extends Component
     /**
      * Verificar si un ítem específico necesita actualización de costos
      */
-    private function itemNeedsCostUpdate($item)
+    private function itemNeedsCostUpdate($item): bool
     {
-        $config = json_decode($item->configuration, true);
-        $currentDirect = $this->getDirectCostPercentage();
-        $currentIndirect = $this->getIndirectCostPercentage();
-        $currentWaste = $this->getWastePercentage();
-        $currentProfit = $this->getProfitMarginPercentage();
-        
+        $config    = json_decode($item->configuration, true);
+        $productId = (int) $item->product_id;
+
         return (
-            ($config['directCost'] ?? null) != $currentDirect ||
-            ($config['indirectCost'] ?? null) != $currentIndirect ||
-            ($config['wastePercentage'] ?? null) != $currentWaste ||
-            ($config['profitMargin'] ?? null) != $currentProfit
+            ($config['directCost']     ?? null) != $this->getDirectCostForProduct($productId) ||
+            ($config['indirectCost']   ?? null) != $this->getIndirectCostPercentage() ||
+            ($config['wastePercentage']?? null) != $this->getWasteForProduct($productId) ||
+            ($config['profitMargin']   ?? null) != $this->getProfitMarginForProduct($productId)
         );
     }
 
     /**
-     * Confirmar actualización de costos y agregar el producto
+     * Confirmar actualización de costos y agregar el producto (actualiza la proforma en su lugar)
      */
     public function confirmarActualizarCostosYAgregar()
     {
@@ -389,77 +416,60 @@ class ProductConfigurator extends Component
             $this->showCostUpdateWarning = false;
             return;
         }
-        
-        // Obtener la proforma antigua
-        $oldProforma = DB::table('proformas')->where('id', $this->proformaIdPendingCostUpdate)->first();
-        
-        // Desactivar la proforma antigua
-        DB::table('proformas')->where('id', $this->proformaIdPendingCostUpdate)->update([
-            'is_active' => false,
-            'updated_at' => now()
-        ]);
-        
-        // Crear nueva proforma con número actualizado
-        $nextNumber = $this->generateNextProformaNumber();
-        $newProformaId = DB::table('proformas')->insertGetId([
-            'number' => $nextNumber,
-            'user_id' => auth()->id(),
-            'total_price' => 0,
-            'expiration_date' => now()->addDays(30),
-            'is_expired' => false,
-            'is_ordered' => false,
-            'is_active' => true,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-        
-        // Copiar todos los ítems existentes con los nuevos costos actualizados
+
+        $proformaId      = $this->proformaIdPendingCostUpdate;
+        $currentIndirect = $this->getIndirectCostPercentage();
+
+        // Actualizar cada ítem existente con los costos y precios de materiales vigentes
         $items = DB::table('proforma_items')
-            ->where('proforma_id', $this->proformaIdPendingCostUpdate)
+            ->where('proforma_id', $proformaId)
             ->where('is_active', true)
             ->get();
-            
+
         foreach ($items as $item) {
-            $config = json_decode($item->configuration, true);
-            $config['directCost'] = $this->getDirectCostPercentage();
-            $config['indirectCost'] = $this->getIndirectCostPercentage();
-            $config['wastePercentage'] = $this->getWastePercentage();
-            $config['profitMargin'] = $this->getProfitMarginPercentage();
-            
-            // Recalcular precio y snapshot de costos
-            $newPrice = $this->recalcularPrecioItem($item->product_id, $config, $item->quantity);
+            $config     = json_decode($item->configuration, true);
+            $productId  = (int) $item->product_id;
+            $existingParams = $config['parameters'] ?? [];
+
+            $result = $this->calcularPrecioCompleto($productId, $existingParams, (int) $item->quantity);
+            $config['directCost']       = $result['directCost'];
+            $config['indirectCost']     = $result['indirectCost'];
+            $config['wastePercentage']  = $result['wastePercentage'];
+            $config['profitMargin']     = $result['profitMargin'];
+            $config['material_costs']   = $result['material_costs'];
+            $config['calculated_price'] = $result['price'];
+
             $costSnapshot = $this->recalcularCostSnapshot($config, $item->quantity);
-            
-            // Insertar ítem en la nueva proforma
-            DB::table('proforma_items')->insert([
-                'proforma_id' => $newProformaId,
-                'product_id' => $item->product_id,
-                'configuration' => json_encode($config),
-                'quantity' => $item->quantity,
-                'price' => $newPrice,
-                'notes' => $item->notes,
-                'is_active' => true,
-                'material_cost' => $costSnapshot['material_cost'],
-                'direct_cost' => $costSnapshot['direct_cost'],
-                'indirect_cost' => $costSnapshot['indirect_cost'],
-                'waste_cost' => $costSnapshot['waste_cost'],
-                'profit_amount' => $costSnapshot['profit_amount'],
-                'total_cost' => $costSnapshot['total_cost'],
+
+            DB::table('proforma_items')->where('id', $item->id)->update([
+                'configuration'          => json_encode($config),
+                'price'                  => $result['price'],
+                'material_cost'          => $costSnapshot['material_cost'],
+                'direct_cost'            => $costSnapshot['direct_cost'],
+                'indirect_cost'          => $costSnapshot['indirect_cost'],
+                'waste_cost'             => $costSnapshot['waste_cost'],
+                'profit_amount'          => $costSnapshot['profit_amount'],
+                'total_cost'             => $costSnapshot['total_cost'],
                 'profit_margin_percentage' => $costSnapshot['profit_margin_percentage'],
-                'created_at' => now(),
-                'updated_at' => now()
+                'updated_at'             => now()
             ]);
         }
-        
-        // Agregar el nuevo producto/configuración a la nueva proforma
-        $this->createProformaItem($newProformaId, $this->pendingConfiguration, $this->modalQuantity);
-        $this->updateProformaTotalPrice($newProformaId);
-        
-        $newProforma = DB::table('proformas')->where('id', $newProformaId)->first();
-        session()->flash('message', '¡Nueva proforma ' . $newProforma->number . ' creada con costos actualizados!');
-        $this->savedProformaNumber = $newProforma->number;
+
+        // Agregar o actualizar el nuevo producto/configuración (sin duplicar)
+        $pendingParams = $this->pendingConfiguration['parameters'] ?? [];
+        $pendingProductId = (int) ($this->pendingConfiguration['product_id'] ?? $this->product->id);
+        $pendingQty = $this->modalQuantity;
+        $pendingPrice = $this->calculatedPrice;
+        $pendingSnapshot = $this->calculateCostSnapshot($pendingQty);
+        $this->insertOrUpdateItem($proformaId, $pendingProductId, $pendingParams, $this->pendingConfiguration, $pendingQty, $pendingPrice, $pendingSnapshot);
+
+        $this->updateProformaTotalPrice($proformaId);
+
+        $proforma = DB::table('proformas')->where('id', $proformaId)->first();
+        session()->flash('message', '¡Proforma ' . $proforma->number . ' actualizada con los costos vigentes!');
+        $this->savedProformaNumber = $proforma->number;
         $this->savedState = true;
-        
+
         $this->showCostUpdateWarning = false;
         $this->proformaIdPendingCostUpdate = null;
         $this->pendingConfiguration = null;
@@ -477,10 +487,99 @@ class ProductConfigurator extends Component
         $this->proformaIdPendingCostUpdate = null;
         $this->pendingConfiguration = null;
         $this->pendingItemId = null;
+        $this->pendingRawConfigs = [];
     }
 
     /**
-     * Confirmar actualización de ítem existente con nuevos costos
+     * Confirmar actualización de costos y guardar las configuraciones de localStorage (actualiza en su lugar)
+     */
+    public function confirmarActualizarCostosYAgregarConfiguraciones()
+    {
+        if (!$this->proformaIdPendingCostUpdate || empty($this->pendingRawConfigs)) {
+            $this->showCostUpdateWarning = false;
+            return;
+        }
+
+        $proformaId      = $this->proformaIdPendingCostUpdate;
+        $currentIndirect = $this->getIndirectCostPercentage();
+
+        // Actualizar cada ítem existente con los costos actuales de su propio producto
+        $items = DB::table('proforma_items')
+            ->where('proforma_id', $proformaId)
+            ->where('is_active', true)
+            ->get();
+
+        foreach ($items as $item) {
+            $config    = json_decode($item->configuration, true);
+            $productId = (int) $item->product_id;
+            $existingParams = $config['parameters'] ?? [];
+
+            // Recalcular completamente con precios vigentes de materiales en DB
+            $result = $this->calcularPrecioCompleto($productId, $existingParams, (int) $item->quantity);
+            $config['directCost']      = $result['directCost'];
+            $config['indirectCost']    = $result['indirectCost'];
+            $config['wastePercentage'] = $result['wastePercentage'];
+            $config['profitMargin']    = $result['profitMargin'];
+            $config['material_costs']  = $result['material_costs'];
+            $config['calculated_price']= $result['price'];
+
+            $costSnapshot = $this->recalcularCostSnapshot($config, $item->quantity);
+
+            DB::table('proforma_items')->where('id', $item->id)->update([
+                'configuration'            => json_encode($config),
+                'price'                    => $result['price'],
+                'material_cost'            => $costSnapshot['material_cost'],
+                'direct_cost'              => $costSnapshot['direct_cost'],
+                'indirect_cost'            => $costSnapshot['indirect_cost'],
+                'waste_cost'               => $costSnapshot['waste_cost'],
+                'profit_amount'            => $costSnapshot['profit_amount'],
+                'total_cost'               => $costSnapshot['total_cost'],
+                'profit_margin_percentage' => $costSnapshot['profit_margin_percentage'],
+                'updated_at'               => now()
+            ]);
+        }
+
+        // Insertar o actualizar las configuraciones desde localStorage (sin duplicar)
+        foreach ($this->pendingRawConfigs as $rawConfig) {
+            $params          = $rawConfig['parameters'] ?? [];
+            $qty             = max(1, (int) ($rawConfig['quantity'] ?? 1));
+            $configProductId = isset($rawConfig['product_id']) ? (int) $rawConfig['product_id'] : $this->product->id;
+
+            // Recalcular completamente desde la DB
+            $result = $this->calcularPrecioCompleto($configProductId, $params, $qty);
+
+            $configuration = [
+                'product_id'       => $configProductId,
+                'parameters'       => $params,
+                'quantity'         => $qty,
+                'calculated_price' => $result['price'],
+                'material_costs'   => $result['material_costs'],
+                'directCost'       => $result['directCost'],
+                'indirectCost'     => $result['indirectCost'],
+                'wastePercentage'  => $result['wastePercentage'],
+                'profitMargin'     => $result['profitMargin'],
+            ];
+
+            $costSnapshot = $this->recalcularCostSnapshot($configuration, $qty);
+            $this->insertOrUpdateItem($proformaId, $configProductId, $params, $configuration, $qty, $result['price'], $costSnapshot);
+        }
+
+        $this->updateProformaTotalPrice($proformaId);
+
+        $proforma = DB::table('proformas')->where('id', $proformaId)->first();
+        $this->savedProformaNumber = $proforma->number;
+        $this->savedState = true;
+
+        $this->showCostUpdateWarning = false;
+        $this->proformaIdPendingCostUpdate = null;
+        $this->pendingRawConfigs = [];
+        $this->showProformaSelectorModal = false;
+        $this->loadAvailableProformas();
+        $this->dispatch('configuraciones-guardadas');
+    }
+
+    /**
+     * Confirmar actualización de ítem existente con nuevos costos (actualiza la proforma en su lugar)
      */
     public function confirmarActualizarItemConNuevosCostos()
     {
@@ -488,86 +587,167 @@ class ProductConfigurator extends Component
             $this->showCostUpdateWarning = false;
             return;
         }
-        
-        // Obtener la proforma antigua
-        $oldProforma = DB::table('proformas')->where('id', $this->proformaIdPendingCostUpdate)->first();
-        
-        // Desactivar la proforma antigua
-        DB::table('proformas')->where('id', $this->proformaIdPendingCostUpdate)->update([
-            'is_active' => false,
-            'updated_at' => now()
-        ]);
-        
-        // Crear nueva proforma con número actualizado
-        $nextNumber = $this->generateNextProformaNumber();
-        $newProformaId = DB::table('proformas')->insertGetId([
-            'number' => $nextNumber,
-            'user_id' => auth()->id(),
-            'total_price' => 0,
-            'expiration_date' => now()->addDays(30),
-            'is_expired' => false,
-            'is_ordered' => false,
-            'is_active' => true,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-        
-        // Copiar todos los ítems existentes con los nuevos costos actualizados
+
+        $proformaId = $this->proformaIdPendingCostUpdate;
+
         $items = DB::table('proforma_items')
-            ->where('proforma_id', $this->proformaIdPendingCostUpdate)
+            ->where('proforma_id', $proformaId)
             ->where('is_active', true)
             ->get();
-            
+
         foreach ($items as $item) {
-            $config = json_decode($item->configuration, true);
-            $config['directCost'] = $this->getDirectCostPercentage();
-            $config['indirectCost'] = $this->getIndirectCostPercentage();
-            $config['wastePercentage'] = $this->getWastePercentage();
-            $config['profitMargin'] = $this->getProfitMarginPercentage();
-            
-            // Si es el ítem que se está actualizando, usar la nueva configuración (cantidad actualizada)
+            $productId = (int) $item->product_id;
+
             if ($item->id == $this->pendingItemId) {
-                $config = $this->pendingConfiguration;
+                // Usar los parámetros de la nueva configuración para el ítem que se está editando
+                $params   = $this->pendingConfiguration['parameters'] ?? [];
                 $quantity = $this->modalQuantity;
             } else {
+                $existingConfig = json_decode($item->configuration, true);
+                $params   = $existingConfig['parameters'] ?? [];
                 $quantity = $item->quantity;
             }
-            
-            // Recalcular precio y snapshot de costos
-            $newPrice = $this->recalcularPrecioItem($item->product_id, $config, $quantity);
+
+            // Recalcular completamente desde la DB (materiales + costos vigentes)
+            $result = $this->calcularPrecioCompleto($productId, $params, (int) $quantity);
+
+            $config = [
+                'product_id'       => $productId,
+                'parameters'       => $params,
+                'quantity'         => $quantity,
+                'calculated_price' => $result['price'],
+                'material_costs'   => $result['material_costs'],
+                'directCost'       => $result['directCost'],
+                'indirectCost'     => $result['indirectCost'],
+                'wastePercentage'  => $result['wastePercentage'],
+                'profitMargin'     => $result['profitMargin'],
+            ];
+
             $costSnapshot = $this->recalcularCostSnapshot($config, $quantity);
-            
-            // Insertar ítem en la nueva proforma
-            DB::table('proforma_items')->insert([
-                'proforma_id' => $newProformaId,
-                'product_id' => $item->product_id,
-                'configuration' => json_encode($config),
-                'quantity' => $quantity,
-                'price' => $newPrice,
-                'notes' => $item->notes,
-                'is_active' => true,
-                'material_cost' => $costSnapshot['material_cost'],
-                'direct_cost' => $costSnapshot['direct_cost'],
-                'indirect_cost' => $costSnapshot['indirect_cost'],
-                'waste_cost' => $costSnapshot['waste_cost'],
-                'profit_amount' => $costSnapshot['profit_amount'],
-                'total_cost' => $costSnapshot['total_cost'],
+
+            DB::table('proforma_items')->where('id', $item->id)->update([
+                'configuration'            => json_encode($config),
+                'quantity'                 => $quantity,
+                'price'                    => $result['price'],
+                'material_cost'            => $costSnapshot['material_cost'],
+                'direct_cost'              => $costSnapshot['direct_cost'],
+                'indirect_cost'            => $costSnapshot['indirect_cost'],
+                'waste_cost'               => $costSnapshot['waste_cost'],
+                'profit_amount'            => $costSnapshot['profit_amount'],
+                'total_cost'               => $costSnapshot['total_cost'],
                 'profit_margin_percentage' => $costSnapshot['profit_margin_percentage'],
-                'created_at' => now(),
-                'updated_at' => now()
+                'updated_at'               => now()
             ]);
         }
-        
-        $this->updateProformaTotalPrice($newProformaId);
-        
-        $newProforma = DB::table('proformas')->where('id', $newProformaId)->first();
-        session()->flash('message', '¡Nueva proforma ' . $newProforma->number . ' creada con costos actualizados!');
-        
+
+        $this->updateProformaTotalPrice($proformaId);
+
+        $proforma = DB::table('proformas')->where('id', $proformaId)->first();
+        session()->flash('message', '¡Proforma ' . $proforma->number . ' actualizada con los costos vigentes!');
+
         $this->showCostUpdateWarning = false;
         $this->proformaIdPendingCostUpdate = null;
         $this->pendingConfiguration = null;
         $this->pendingItemId = null;
         $this->loadAvailableProformas();
+    }
+
+    /**
+     * Recalcular precio y costos completamente desde la DB para un producto/parámetros dados.
+     * Usa los precios actuales de materiales, NO los guardados en localStorage.
+     * Retorna: ['price', 'material_costs', 'directCost', 'indirectCost', 'wastePercentage', 'profitMargin']
+     */
+    private function calcularPrecioCompleto(int $productId, array $params, int $qty): array
+    {
+        $product = Product::with('materials')->find($productId);
+        if (!$product) {
+            return ['price' => 0, 'material_costs' => [], 'directCost' => 0, 'indirectCost' => 0, 'wastePercentage' => 0, 'profitMargin' => 0];
+        }
+
+        $width      = (float) ($params['width']      ?? 0);
+        $height     = (float) ($params['height']     ?? 0);
+        $color      = $params['color']      ?? 'Natural';
+        $glassColor = $params['glassColor'] ?? 'Transparent Glass';
+
+        if ($width <= 0 || $height <= 0) {
+            return ['price' => 0, 'material_costs' => [], 'directCost' => 0, 'indirectCost' => 0, 'wastePercentage' => 0, 'profitMargin' => 0];
+        }
+
+        $area   = $width * $height;
+        $volume = $area;
+        $materialCosts = [];
+        $totalCost     = 0;
+
+        foreach ($product->materials as $material) {
+            $matQty = $this->evaluateFormulaSafely($material->pivot->calculation_formula ?? '', $params);
+            if ($matQty == 0) {
+                $matQty = $material->has_dimensions ? $area : $volume;
+            }
+
+            $cost     = 0;
+            $increase = 0;
+
+            if (str_contains(strtolower($material->name), 'vidrio')) {
+                // Costo de vidrio: precio pivote con aumento por color
+                $colorId = Color::where('color_name', $glassColor)->value('id');
+                $pivot = DB::table('material_color')
+                    ->where('material_id', $material->id)
+                    ->where('color_id', $colorId)
+                    ->where('category_id', $material->category_id)
+                    ->first();
+                $increase        = $pivot->increase_value ?? 0;
+                $pieceSize       = $material->piece_size;
+                $precioFinal     = $material->piece_price + $increase;
+                $cost            = $pieceSize > 0 ? $precioFinal * ($matQty / $pieceSize) : $precioFinal * $matQty;
+            } elseif ($material->supports_colors) {
+                // Costo de aluminio: precio unitario + aumento por color
+                $colorId = Color::where('color_name', $color)->value('id');
+                $pivot = DB::table('material_color')
+                    ->where('material_id', $material->id)
+                    ->where('color_id', $colorId)
+                    ->where('category_id', $material->category_id)
+                    ->first();
+                $pieceSize = $material->piece_size;
+                $increase  = ($pivot && $pivot->increase_value > 0 && $pieceSize > 0)
+                    ? $pivot->increase_value * ($matQty / $pieceSize)
+                    : 0;
+                $cost = $material->unit_price * $matQty + $increase;
+            } else {
+                $cost = $material->unit_price * $matQty;
+            }
+
+            $materialCosts[] = [
+                'name'          => $material->name,
+                'quantity'      => $matQty,
+                'unit'          => $material->unit_measure,
+                'unit_price'    => $material->unit_price,
+                'total_cost'    => $cost,
+                'color_increase'=> $increase,
+            ];
+            $totalCost += $cost;
+        }
+
+        $directCost      = $this->getDirectCostForProduct($productId);
+        $indirectCost    = $this->getIndirectCostPercentage();
+        $wastePct        = $this->getWasteForProduct($productId);
+        $profitMargin    = $this->getProfitMarginForProduct($productId);
+
+        $directAmount    = $totalCost * ($directCost   / 100);
+        $indirectAmount  = $totalCost * ($indirectCost / 100);
+        $wasteAmount     = $totalCost * ($wastePct     / 100);
+        $totalProduction = $totalCost + $directAmount + $indirectAmount + $wasteAmount;
+        $profitAmount    = $totalProduction * ($profitMargin / 100);
+        $precisePrice    = $totalProduction + $profitAmount;
+        $price           = round(($precisePrice * $qty) * 1.15, 2);
+
+        return [
+            'price'          => $price,
+            'material_costs' => $materialCosts,
+            'directCost'     => $directCost,
+            'indirectCost'   => $indirectCost,
+            'wastePercentage'=> $wastePct,
+            'profitMargin'   => $profitMargin,
+        ];
     }
 
     /**
@@ -1054,6 +1234,105 @@ class ProductConfigurator extends Component
             ->where('is_active', true)
             ->value('profit_margin_percentage');
         return $profitMargin !== null ? $profitMargin : 0;
+    }
+
+    // Helpers por producto específico (para verificar/actualizar costos de ítems en proformas)
+    private function getDirectCostForProduct(int $productId): float
+    {
+        $val = DB::table('product_cost_settings')
+            ->where('product_id', $productId)
+            ->where('is_active', true)
+            ->value('direct_cost_percentage');
+        return $val !== null ? (float) $val : 0;
+    }
+
+    private function getWasteForProduct(int $productId): float
+    {
+        $val = DB::table('product_cost_settings')
+            ->where('product_id', $productId)
+            ->where('is_active', true)
+            ->value('waste_percentage');
+        return $val !== null ? (float) $val : 0;
+    }
+
+    private function getProfitMarginForProduct(int $productId): float
+    {
+        $val = DB::table('product_cost_settings')
+            ->where('product_id', $productId)
+            ->where('is_active', true)
+            ->value('profit_margin_percentage');
+        return $val !== null ? (float) $val : 0;
+    }
+
+    /**
+     * Buscar un ítem con la misma configuración clave en una proforma (evitar duplicados).
+     * Compara: product_id, width, height, color y glassColor.
+     */
+    private function findMatchingItem(int $proformaId, int $productId, array $params): ?object
+    {
+        $items = DB::table('proforma_items')
+            ->where('proforma_id', $proformaId)
+            ->where('product_id', $productId)
+            ->where('is_active', true)
+            ->get();
+
+        foreach ($items as $item) {
+            $existingParams = json_decode($item->configuration, true)['parameters'] ?? [];
+
+            $widthMatch  = abs((float)($existingParams['width']     ?? 0) - (float)($params['width']     ?? 0)) < 0.001;
+            $heightMatch = abs((float)($existingParams['height']    ?? 0) - (float)($params['height']    ?? 0)) < 0.001;
+            $colorMatch  = ($existingParams['color']      ?? '') === ($params['color']      ?? '');
+            $glassMatch  = ($existingParams['glassColor'] ?? '') === ($params['glassColor'] ?? '');
+
+            if ($widthMatch && $heightMatch && $colorMatch && $glassMatch) {
+                return $item;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Insertar o actualizar un ítem en la proforma según si ya existe una configuración igual.
+     */
+    private function insertOrUpdateItem(int $proformaId, int $productId, array $params, array $configuration, int $qty, float $price, array $costSnapshot): void
+    {
+        $existing = $this->findMatchingItem($proformaId, $productId, $params);
+
+        if ($existing) {
+            DB::table('proforma_items')->where('id', $existing->id)->update([
+                'configuration'            => json_encode($configuration),
+                'quantity'                 => $qty,
+                'price'                    => $price,
+                'material_cost'            => $costSnapshot['material_cost'],
+                'direct_cost'              => $costSnapshot['direct_cost'],
+                'indirect_cost'            => $costSnapshot['indirect_cost'],
+                'waste_cost'               => $costSnapshot['waste_cost'],
+                'profit_amount'            => $costSnapshot['profit_amount'],
+                'total_cost'               => $costSnapshot['total_cost'],
+                'profit_margin_percentage' => $costSnapshot['profit_margin_percentage'],
+                'updated_at'               => now(),
+            ]);
+        } else {
+            DB::table('proforma_items')->insert([
+                'proforma_id'              => $proformaId,
+                'product_id'               => $productId,
+                'configuration'            => json_encode($configuration),
+                'quantity'                 => $qty,
+                'price'                    => $price,
+                'notes'                    => $params['notes'] ?? null,
+                'is_active'                => true,
+                'material_cost'            => $costSnapshot['material_cost'],
+                'direct_cost'              => $costSnapshot['direct_cost'],
+                'indirect_cost'            => $costSnapshot['indirect_cost'],
+                'waste_cost'               => $costSnapshot['waste_cost'],
+                'profit_amount'            => $costSnapshot['profit_amount'],
+                'total_cost'               => $costSnapshot['total_cost'],
+                'profit_margin_percentage' => $costSnapshot['profit_margin_percentage'],
+                'created_at'               => now(),
+                'updated_at'               => now(),
+            ]);
+        }
     }
 
     private function calculateMaterialQuantity($material, $area, $volume)

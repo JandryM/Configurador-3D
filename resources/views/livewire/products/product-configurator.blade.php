@@ -2,8 +2,14 @@
     darkMode: localStorage.getItem('darkMode') === 'true',
     savedConfigs: [],
     _lsKey: 'prf_cfgs_global_{{ Auth::id() ?? 0 }}',
+    _meshIds: @json(\App\Models\Product::whereHas('category', fn($q) => $q->where('name', 'Mesh'))->pluck('id')->toArray()),
     initConfigs() {
         try { this.savedConfigs = JSON.parse(localStorage.getItem(this._lsKey) || '[]'); } catch(e) { this.savedConfigs = []; }
+    },
+    hasGlass(cfg) {
+        return cfg.parameters?.glassColor &&
+               cfg.product_type !== 'mesh' &&
+               !this._meshIds.includes(cfg.product_id ?? null);
     },
     saveConfig(cfg) {
         const isDuplicate = this.savedConfigs.some(existing =>
@@ -39,6 +45,7 @@
 }"
      x-init="$watch('darkMode', val => localStorage.setItem('darkMode', val)); initConfigs()"
      @configuraciones-guardadas.window="clearSaved()"
+     @precios-actualizados.window="savedConfigs = $event.detail.configs; localStorage.setItem(_lsKey, JSON.stringify(savedConfigs))"
      :class="darkMode ? 'dark' : ''"
      class="w-full h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 dark:from-gray-950 dark:via-slate-950 dark:to-slate-900 px-3 sm:px-4 md:px-5 lg:px-6 py-3 pt-16 sm:pt-20 md:pt-20 lg:pt-20 overflow-hidden transition-colors duration-300">
         
@@ -559,7 +566,8 @@
                                     @click="saveConfig({
                                         product_id: {{ $product->id }},
                                         product_name: '{{ addslashes($product->name) }}',
-                                        parameters: $wire.parameters,
+                                        product_type: '{{ $productType }}',
+                                        parameters: (() => { let p = {...$wire.parameters}; @if($productType === 'mesh') delete p.glassColor; @endif return p; })(),
                                         quantity: $wire.quantity,
                                         calculated_price: $wire.calculatedPrice,
                                         material_costs: $wire.materialCosts,
@@ -673,10 +681,20 @@
                                 <div x-show="savedConfigs.length > 0" x-cloak class="mt-6 pt-6 border-t border-white/20">
                                     <div class="flex items-center justify-between mb-4">
                                         <h4 class="text-lg font-bold text-white">Mis configuraciones (<span x-text="savedConfigs.length"></span>)</h4>
-                                        <button type="button" @click="clearSaved()"
-                                                class="text-xs text-white/50 hover:text-red-400 transition-colors cursor-pointer px-2 py-1 rounded">
-                                            Limpiar todo
-                                        </button>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button"
+                                                    @click="$wire.recalcularPreciosConfiguraciones(savedConfigs)"
+                                                    :disabled="savedConfigs.length === 0"
+                                                    title="Recalcular precios con los costos vigentes"
+                                                    class="text-xs text-cyan-300/70 hover:text-cyan-300 transition-colors cursor-pointer px-2 py-1 rounded disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                                Actualizar precios
+                                            </button>
+                                            <button type="button" @click="clearSaved()"
+                                                    class="text-xs text-white/50 hover:text-red-400 transition-colors cursor-pointer px-2 py-1 rounded">
+                                                Limpiar todo
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="space-y-3 max-h-64 overflow-y-auto">
                                         <template x-for="(cfg, i) in savedConfigs" :key="i">
@@ -687,7 +705,7 @@
                                                         <div class="flex gap-3 flex-wrap">
                                                             <span x-text="(cfg.parameters?.width ?? 0).toFixed(2) + 'm × ' + (cfg.parameters?.height ?? 0).toFixed(2) + 'm'"></span>
                                                             <span x-text="'Aluminio ' + (({'Natural':'Natural','White':'Blanco','Black Anodized':'Negro Anodizado','Woody':'Madera','Bronze':'Bronze','Silver':'Plateado','Gold':'Dorado'})[cfg.parameters?.color] ?? cfg.parameters?.color ?? '')"></span>
-                                                            <template x-if="cfg.parameters?.glassColor">
+                                                            <template x-if="hasGlass(cfg)">
                                                                 <span x-text="'· ' + ({'Transparent Glass':'Vidrio Transparente','Reflective Blue Sky Glass':'Azul Cielo Reflectivo','Reflective Gray Dark Glass':'Gris Oscuro Reflectivo'})[cfg.parameters?.glassColor] ?? cfg.parameters?.glassColor"></span>
                                                             </template>
                                                         </div>
@@ -847,17 +865,21 @@
                     <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <h3 class="text-xl font-bold text-amber-700 mb-2 text-center">¡Atención! Costos desactualizados</h3>
-                @if($pendingItemId)
+                @if(!empty($pendingRawConfigs))
+                <p class="text-gray-700 text-center mb-4">La proforma seleccionada tiene costos desactualizados. Para agregar tus {{ count($pendingRawConfigs) }} configuración(es), <span class="font-semibold text-amber-700">se creará una nueva proforma con los precios actualizados</span> de todos los productos existentes más los nuevos.<br>¿Deseas continuar?</p>
+                @elseif($pendingItemId)
                 <p class="text-gray-700 text-center mb-4">Los costos de producción han cambiado. Para actualizar esta configuración, <span class="font-semibold text-amber-700">se creará una nueva proforma con los precios actualizados</span> de todos los productos.<br>¿Deseas continuar?</p>
                 @else
                 <p class="text-gray-700 text-center mb-4">Si agregas este producto a la proforma seleccionada, <span class="font-semibold text-amber-700">se creará una nueva proforma con los precios actualizados</span> de todos los productos.<br>¿Deseas continuar?</p>
                 @endif
                 <div class="flex gap-4 mt-4">
                     <button type="button" wire:click="cancelarActualizarCostosYAgregar" class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-semibold">Cancelar</button>
-                    @if($pendingItemId)
-                    <button type="button" wire:click="confirmarActualizarItemConNuevosCostos" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg font-semibold shadow-lg">Crear Nueva Proforma</button>
+                    @if(!empty($pendingRawConfigs))
+                    <button type="button" wire:click="confirmarActualizarCostosYAgregarConfiguraciones" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg font-semibold shadow-lg">Actualizar y continuar</button>
+                    @elseif($pendingItemId)
+                    <button type="button" wire:click="confirmarActualizarItemConNuevosCostos" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg font-semibold shadow-lg">Actualizar y continuar</button>
                     @else
-                    <button type="button" wire:click="confirmarActualizarCostosYAgregar" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg font-semibold shadow-lg">Crear Nueva Proforma</button>
+                    <button type="button" wire:click="confirmarActualizarCostosYAgregar" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg font-semibold shadow-lg">Actualizar y continuar</button>
                     @endif
                 </div>
             </div>
