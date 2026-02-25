@@ -290,8 +290,8 @@
         @endif
     </div>
 
-    <!-- Fórmulas de cálculo por producto (solo para materiales existentes) -->
-    @if($materialId)
+    {{-- Fórmulas de cálculo por producto (solo para materiales existentes) --}}
+    {{-- @if($materialId)
         @php
             $productFormulas = DB::table('product_material')
                 ->join('products', 'product_material.product_id', '=', 'products.id')
@@ -322,6 +322,7 @@
                                 height: 2, 
                                 frameWidth: 0.05,
                                 result: null,
+                                pricePerUnit: {{ $this->pricePerUnit ?? 0 }},
                                 calculate() {
                                     const formula = '{{ addslashes($formula->calculation_formula) }}';
                                     try {
@@ -421,6 +422,11 @@
                                                 <span class="text-lg font-bold text-emerald-600 ml-1" x-text="result !== null ? parseFloat(result).toFixed(3) : '---'"></span>
                                                 <span class="text-teal-600 ml-1">{{ $unit_measure == 'metros_cuadrados' ? 'm²' : ($unit_measure == 'unidad' ? 'unidades' : 'm') }}</span>
                                             </div>
+                                            <div class="text-xs mt-1 pt-1 border-t border-slate-100">
+                                                <span class="text-teal-700 font-medium">Costo estimado:</span>
+                                                <span class="text-lg font-bold text-amber-600 ml-1" x-text="result !== null && pricePerUnit > 0 ? '$' + (parseFloat(result) * pricePerUnit).toFixed(4) : '---'"></span>
+                                                <span class="text-slate-400 text-xs ml-1" x-text="pricePerUnit > 0 ? '($' + pricePerUnit.toFixed(4) + ' × ' + (result !== null ? parseFloat(result).toFixed(3) : '0') + ')' : ''"></span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -430,7 +436,7 @@
                 </div>
             </div>
         @endif
-    @endif
+    @endif --}}
 
     <!-- Botones -->
     <div class="flex justify-end pt-4 border-t border-slate-100">
