@@ -145,7 +145,19 @@
                     {{-- Costos Directos --}}
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">
-                            Mano de Obra Directa (%) *
+                            <span class="flex items-center gap-1.5">
+                                Mano de Obra Directa (%) *
+                                <span class="relative group cursor-pointer" x-data="{ show: false }" @mouseenter="show = true" @mouseleave="show = false">
+                                    <span class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-slate-400 hover:bg-slate-600 rounded-full transition-colors">?</span>
+                                    <div x-show="show" x-cloak class="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-slate-900 text-white text-xs rounded-lg p-3 shadow-xl pointer-events-none">
+                                        <p class="font-semibold text-slate-200 mb-1">¿Cómo se aplica en la proforma?</p>
+                                        <p class="text-slate-300">Se calcula sobre el <span class="text-white font-medium">costo total de materiales</span> y se suma al subtotal.</p>
+                                        <p class="mt-2 font-mono bg-slate-800 rounded px-2 py-1 text-slate-200">+ Materiales × MOD%</p>
+                                        <p class="mt-1.5 text-slate-400">Ej: Materiales = $100 · MOD = 25% → +$25</p>
+                                        <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                                    </div>
+                                </span>
+                            </span>
                         </label>
                         <div class="relative">
                             <input 
@@ -169,7 +181,19 @@
                     {{-- Desperdicio --}}
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">
-                            Factor de Merma (%) *
+                            <span class="flex items-center gap-1.5">
+                                Factor de Merma (%) *
+                                <span class="relative group cursor-pointer" x-data="{ show: false }" @mouseenter="show = true" @mouseleave="show = false">
+                                    <span class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-slate-400 hover:bg-slate-600 rounded-full transition-colors">?</span>
+                                    <div x-show="show" x-cloak class="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-slate-900 text-white text-xs rounded-lg p-3 shadow-xl pointer-events-none">
+                                        <p class="font-semibold text-slate-200 mb-1">¿Cómo se aplica en la proforma?</p>
+                                        <p class="text-slate-300">Se calcula sobre el <span class="text-white font-medium">costo total de materiales</span> para cubrir pérdidas y retazos.</p>
+                                        <p class="mt-2 font-mono bg-slate-800 rounded px-2 py-1 text-slate-200">+ Materiales × Merma%</p>
+                                        <p class="mt-1.5 text-slate-400">Ej: Materiales = $100 · Merma = 5% → +$5</p>
+                                        <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                                    </div>
+                                </span>
+                            </span>
                         </label>
                         <div class="relative">
                             <input 
@@ -193,7 +217,19 @@
                     {{-- Margen de Ganancia --}}
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">
-                            Margen de Utilidad (%) *
+                            <span class="flex items-center gap-1.5">
+                                Margen de Utilidad (%) *
+                                <span class="relative group cursor-pointer" x-data="{ show: false }" @mouseenter="show = true" @mouseleave="show = false">
+                                    <span class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-slate-400 hover:bg-slate-600 rounded-full transition-colors">?</span>
+                                    <div x-show="show" x-cloak class="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-slate-900 text-white text-xs rounded-lg p-3 shadow-xl pointer-events-none">
+                                        <p class="font-semibold text-slate-200 mb-1">¿Cómo se aplica en la proforma?</p>
+                                        <p class="text-slate-300">Se calcula sobre el <span class="text-white font-medium">costo total de producción</span> (materiales + MOD + costos indirectos + merma).</p>
+                                        <p class="mt-2 font-mono bg-slate-800 rounded px-2 py-1 text-slate-200">+ Costo producción × Utilidad%</p>
+                                        <p class="mt-1.5 text-slate-400">Ej: Producción = $130 · Utilidad = 30% → +$39</p>
+                                        <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                                    </div>
+                                </span>
+                            </span>
                         </label>
                         <div class="relative">
                             <input 

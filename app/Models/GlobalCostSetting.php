@@ -99,8 +99,7 @@ class GlobalCostSetting extends Model
             return false;
         }
 
-        // CAMBIAR AQUÍ: ->addMinute() a ->addHour() para producción
-        $editWindowEnd = $this->created_at->copy()->addMinute(); // TEMPORAL: Cambiar a ->addHour() en producción
+        $editWindowEnd = $this->created_at->copy()->addHours(24);
         $now = now();
         
         // Si pasó el tiempo límite desde la creación, ya NO se puede editar
@@ -130,8 +129,7 @@ class GlobalCostSetting extends Model
             return null;
         }
 
-        // CAMBIAR AQUÍ: ->addMinute() a ->addHour() para producción
-        $editWindowEnd = $this->created_at->copy()->addMinute(); // TEMPORAL: Cambiar a ->addHour() en producción
+        $editWindowEnd = $this->created_at->copy()->addHours(24);
         $now = now();
 
         if ($now->greaterThanOrEqualTo($editWindowEnd)) {

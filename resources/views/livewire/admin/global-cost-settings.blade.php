@@ -53,7 +53,7 @@
                             <button 
                                 wire:click="enableEditMode"
                                 class="inline-flex items-center px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium rounded-lg transition shadow-sm cursor-pointer"
-                                title="Editar configuración (máx 2 veces en 1 minuto)"
+                                title="Editar configuración (máx 2 veces en 24 horas)"
                             >
                                 <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -197,7 +197,19 @@
                     {{-- Porcentaje --}}
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-slate-700 mb-2">
-                            Porcentaje de Costos Indirectos *
+                            <span class="flex items-center gap-1.5">
+                                Porcentaje de Costos Indirectos *
+                                <span class="relative cursor-pointer" x-data="{ show: false }" @mouseenter="show = true" @mouseleave="show = false">
+                                    <span class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-slate-400 hover:bg-slate-600 rounded-full transition-colors">?</span>
+                                    <div x-show="show" x-cloak class="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-slate-900 text-white text-xs rounded-lg p-3 shadow-xl pointer-events-none">
+                                        <p class="font-semibold text-slate-200 mb-1">¿Cómo se aplica en la proforma?</p>
+                                        <p class="text-slate-300">Se calcula sobre el <span class="text-white font-medium">costo total de materiales</span> y cubre gastos como arriendo, electricidad y administración.</p>
+                                        <p class="mt-2 font-mono bg-slate-800 rounded px-2 py-1 text-slate-200">+ Materiales × Indirectos%</p>
+                                        <p class="mt-1.5 text-slate-400">Ej: Materiales = $100 · Indirectos = 15% → +$15</p>
+                                        <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                                    </div>
+                                </span>
+                            </span>
                         </label>
                         <div class="relative">
                             <input 
@@ -368,7 +380,19 @@
                 {{-- Porcentaje --}}
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-slate-700 mb-2">
-                        Porcentaje de Costos Indirectos *
+                        <span class="flex items-center gap-1.5">
+                            Porcentaje de Costos Indirectos *
+                            <span class="relative cursor-pointer" x-data="{ show: false }" @mouseenter="show = true" @mouseleave="show = false">
+                                <span class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-slate-400 hover:bg-slate-600 rounded-full transition-colors">?</span>
+                                <div x-show="show" x-cloak class="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-slate-900 text-white text-xs rounded-lg p-3 shadow-xl pointer-events-none">
+                                    <p class="font-semibold text-slate-200 mb-1">¿Cómo se aplica en la proforma?</p>
+                                    <p class="text-slate-300">Se calcula sobre el <span class="text-white font-medium">costo total de materiales</span> y cubre gastos como arriendo, electricidad y administración.</p>
+                                    <p class="mt-2 font-mono bg-slate-800 rounded px-2 py-1 text-slate-200">+ Materiales × Indirectos%</p>
+                                    <p class="mt-1.5 text-slate-400">Ej: Materiales = $100 · Indirectos = 15% → +$15</p>
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                                </div>
+                            </span>
+                        </span>
                     </label>
                     <div class="relative">
                         <input 
