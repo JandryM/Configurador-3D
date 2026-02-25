@@ -21,6 +21,10 @@ Route::get('/proforma', function () {
     return view('proforma');
 })->name('proforma');
 
+// Preflight para endpoints internos de Livewire (subidas/updates)
+Route::options('/livewire/update', fn () => response()->noContent());
+Route::options('/livewire/upload-file', fn () => response()->noContent());
+
 // -------------------
 // Rutas autenticadas y verificadas
 // -------------------
