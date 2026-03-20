@@ -17,4 +17,4 @@ Este sistema centraliza el control de insumos y costos para optimizar el proceso
 ![Dashboard](docs/images/dashboard.png)
 
 ### Configurador
-![Configurador](docs/images/configurator.png)
+![Configurador](docs/images/configurador.png)
